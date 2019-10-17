@@ -9,6 +9,7 @@ namespace StackoverflowChatbot
 	public class Worker: BackgroundService
 	{
 		private readonly ILogger<Worker> logger;
+		private readonly IChatService chatService;
 
 		public Worker(ILogger<Worker> logger) => this.logger = logger;
 
@@ -20,5 +21,14 @@ namespace StackoverflowChatbot
 				await Task.Delay(1000, stoppingToken);
 			}
 		}
+
+		public override Task StartAsync(CancellationToken cancellationToken)
+		{
+			Login();
+			JoinRoom(1);
+			return base.StartAsync(cancellationToken);
+		}
+
+		public override void Dispose() => base.Dispose();
 	}
 }
