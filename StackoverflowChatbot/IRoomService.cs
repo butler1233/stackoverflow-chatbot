@@ -1,6 +1,6 @@
 namespace StackoverflowChatbot
 {
-	internal interface IChatService
+	public interface IRoomService
 	{
 		void Login();
 		void JoinRoom(int roomNumber);

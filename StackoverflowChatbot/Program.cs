@@ -7,8 +7,15 @@ namespace StackoverflowChatbot
 	{
 		public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
 
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
-			Host.CreateDefaultBuilder(args)
-				.ConfigureServices((hostContext, services) => services.AddHostedService<Worker>());
+		public static IHostBuilder CreateHostBuilder(string[] args)
+		{
+			System.Console.WriteLine("Args[0]: " + args[0]);
+			return Host.CreateDefaultBuilder(args)
+			.ConfigureServices(
+				(hostContext, services) =>
+				_ = services.AddHostedService<Worker>()
+				.AddSingleton<IRoomService>(new RoomService(args[0], args[1]))
+			);
+		}
 	}
 }

@@ -9,9 +9,13 @@ namespace StackoverflowChatbot
 	public class Worker: BackgroundService
 	{
 		private readonly ILogger<Worker> logger;
-		private readonly IChatService chatService;
+		private readonly IRoomService chatService;
 
-		public Worker(ILogger<Worker> logger) => this.logger = logger;
+		public Worker(ILogger<Worker> logger, IRoomService chatService)
+		{
+			this.logger = logger;
+			this.chatService = chatService;
+		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
@@ -24,11 +28,13 @@ namespace StackoverflowChatbot
 
 		public override Task StartAsync(CancellationToken cancellationToken)
 		{
-			Login();
-			JoinRoom(1);
+			this.Login();
+			this.JoinRoom(1);
 			return base.StartAsync(cancellationToken);
 		}
 
+		private void JoinRoom(int roomNumber) => this.chatService.JoinRoom(roomNumber);
+		private void Login() => this.chatService.Login();
 		public override void Dispose() => base.Dispose();
 	}
 }
