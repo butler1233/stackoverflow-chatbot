@@ -28,7 +28,7 @@ namespace StackoverflowChatbot
 
 		public override Task StartAsync(CancellationToken cancellationToken)
 		{
-			this.Login();
+			//this.Login();
 			this.JoinRoom(1);
 			return base.StartAsync(cancellationToken);
 		}

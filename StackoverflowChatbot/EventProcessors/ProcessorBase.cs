@@ -4,18 +4,16 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
 
-namespace StackoverflowChatbot
+namespace StackoverflowChatbot.EventProcessors
 {
-	internal class ChatEventHandler: ChatEventDataProcessor
+	internal abstract class ProcessorBase: ChatEventDataProcessor, IChatEventHandler<EventData>
 	{
-		public override EventType Event { get; } = EventType.MessagePosted | EventType.MessageEdited;
+		public event Action<EventData> OnEvent;
 
 		public override void ProcessEventData(JToken data)
 		{
 			if (!IsValid(data)) return;
-
-			var eventData = EventData.FromJson(data);
-			// Send to command processor. / Maybe some preliminary master-processor first?
+			this.OnEvent?.Invoke(EventData.FromJson(data));
 		}
 
 		private static bool IsValid(JToken data)
@@ -29,7 +27,5 @@ namespace StackoverflowChatbot
 				|| data.Value<string>("content").StartsWith("@S, ")
 				);
 		}
-
-		public override string ToString() => base.ToString();
 	}
 }

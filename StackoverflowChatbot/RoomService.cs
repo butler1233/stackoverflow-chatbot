@@ -4,11 +4,13 @@ using System.Text;
 using SharpExchange.Auth;
 using SharpExchange.Chat.Events;
 using SharpExchange.Net.WebSockets;
+using StackoverflowChatbot.EventProcessors;
 
 namespace StackoverflowChatbot
 {
 	internal class RoomService: IRoomService
 	{
+		private const string Host = "chat.stackoverflow.com";
 		private const string StandardRoom = "https://chat.stackoverflow.com/rooms/1/sandbox";
 		private readonly EmailAuthenticationProvider auth;
 		private readonly Dictionary<int, RoomWatcher<DefaultWebSocket>> activeRooms;
@@ -17,18 +19,39 @@ namespace StackoverflowChatbot
 			this.auth = new EmailAuthenticationProvider(username, password);
 			this.activeRooms = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		}
+
 		public void Login()
 		{
-			// auth.Login("stackoverflow.com");
+			// auth.Login(Host);
+			using var _ = new RoomWatcher<DefaultWebSocket>(this.auth, StandardRoom);
 		}
 
-		public void JoinRoom(int roomNumber)
+		public bool JoinRoom(int roomNumber)
 		{
-			if (!this.activeRooms.ContainsKey(roomNumber))
+			if (this.activeRooms.ContainsKey(roomNumber))
 			{
-				var newRoomWatcher = new RoomWatcher<DefaultWebSocket>(this.auth, $"https://chat.stackoverflow.com/rooms/{roomNumber}");
-				newRoomWatcher.EventRouter.AddProcessor(new ChatEventHandler());
-				this.activeRooms.Add(roomNumber, newRoomWatcher);
+				return false;
+			}
+
+			var newRoomWatcher = new RoomWatcher<DefaultWebSocket>(this.auth, $"https://chat.stackoverflow.com/rooms/{roomNumber}");
+			var newMessageHandler = new MessagePosted();
+			var editedMessageHandler = new MessageEdited();
+			var router = new CommandRouter(this, roomNumber, new SharpExchange.Chat.Actions.ActionScheduler(this.auth, Host, roomNumber));
+			newMessageHandler.OnEvent += router.RouteCommand;
+			editedMessageHandler.OnEvent += router.RouteCommand;
+			newRoomWatcher.EventRouter.AddProcessor(newMessageHandler);
+			newRoomWatcher.EventRouter.AddProcessor(editedMessageHandler);
+			this.activeRooms.Add(roomNumber, newRoomWatcher);
+			return true;
+		}
+
+		public void LeaveRoom(int roomNumber)
+		{
+			if (this.activeRooms.ContainsKey(roomNumber))
+			{
+				var watcher = this.activeRooms[roomNumber];
+				_ = this.activeRooms.Remove(roomNumber);
+				watcher.Dispose();
 			}
 		}
 	}
