@@ -52,6 +52,10 @@ namespace StackoverflowChatbot
 				var watcher = this.activeRooms[roomNumber];
 				_ = this.activeRooms.Remove(roomNumber);
 				watcher.Dispose();
+				if(this.activeRooms.Count == 0)
+				{
+					System.Diagnostics.Process.GetCurrentProcess().Kill();
+				}
 			}
 		}
 	}
