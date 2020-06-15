@@ -16,7 +16,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private readonly IRoomService roomService;
 		private readonly int roomId;
-		private static readonly Dictionary<int, HashSet<int>> peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
+		private static readonly Dictionary<int, HashSet<int>> PeopleWhoSummoned = new Dictionary<int, HashSet<int>>();
 
 		public PriorityProcessor(IRoomService roomService, int roomId)
 		{
@@ -25,7 +25,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		}
 
 		/// <summary>
-		/// Process the event if a suitbale command is found.
+		/// Process the event if a suitable command is found.
 		/// </summary>
 		/// <returns>Whether or not the event was processed.</returns>
 		internal bool ProcessCommand(EventData data, out SendMessage action)
@@ -74,16 +74,22 @@ namespace StackoverflowChatbot.CommandProcessors
 				return NewMessageAction($"Couldn't find a valid room number.");
 			}
 
-			//if (!peopleWhoSummoned.ContainsKey(room))
-			//{
-			//	peopleWhoSummoned.Add(room, new HashSet<int>());
-			//}
+			if (!PeopleWhoSummoned.ContainsKey(room))
+			{
+				PeopleWhoSummoned.Add(room, new HashSet<int>());
+			}
 
-			//if(peopleWhoSummoned[room].Count < NumberOfRequiredSummons)
-			//{
-			//	_ = peopleWhoSummoned[room].Add(data.UserId);
-			//	return NewMessageAction($"{NumberOfRequiredSummons - peopleWhoSummoned[room].Count} more and I'll join room {room}");
-			//}
+			if(data.UserId == Worker.AdminId)
+			{
+				var joinedByAdmin = this.roomService.JoinRoom(room);
+				return NewMessageAction(joinedByAdmin ? $"I joined room {room}, Boss." : $"Couldn't join room {room}, guess I'm already there!");
+			}
+
+			if (PeopleWhoSummoned[room].Count < NumberOfRequiredSummons)
+			{
+				_ = PeopleWhoSummoned[room].Add(data.UserId);
+				return NewMessageAction($"{NumberOfRequiredSummons - PeopleWhoSummoned[room].Count} more and I'll join room {room}");
+			}
 
 			var joined = this.roomService.JoinRoom(room);
 			return NewMessageAction(joined ? $"I joined room {room}." : $"Couldn't join room {room}, guess I'm already there!");

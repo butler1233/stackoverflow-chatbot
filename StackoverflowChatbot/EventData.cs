@@ -20,14 +20,23 @@ namespace StackoverflowChatbot
 		/// </summary>
 		internal string Command => RemoveTriggerFrom(this.Content);
 
+		[JsonProperty("event_type")]
 		public readonly EventType Type;
+		[JsonProperty("time_stamp")]
 		public readonly long TimeStamp;
+		[JsonProperty("content")]
 		public readonly string Content;
+		[JsonProperty("id")]
 		public readonly int Id;
+		[JsonProperty("user_id")]
 		public readonly int UserId;
+		[JsonProperty("user_name")]
 		public readonly string Username;
+		[JsonProperty("room_id")]
 		public readonly int RoomId;
+		[JsonProperty("room_name")]
 		public readonly string RoomName;
+		[JsonProperty("message_id")]
 		public readonly int MessageId;
 
 		[JsonConstructor]
