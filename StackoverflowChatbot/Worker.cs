@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -10,11 +11,15 @@ namespace StackoverflowChatbot
 	{
 		private readonly ILogger<Worker> logger;
 		private readonly IRoomService chatService;
+		internal readonly IConfiguration Configuration;
+		internal static readonly int AdminId = (int)AppDomain.CurrentDomain.GetData("AdminId");
 
-		public Worker(ILogger<Worker> logger, IRoomService chatService)
+		public Worker(ILogger<Worker> logger, IRoomService chatService, IConfiguration config)
 		{
 			this.logger = logger;
 			this.chatService = chatService;
+			this.Configuration = config;
+			AppDomain.CurrentDomain.SetData("AdminId", this.Configuration.GetValue<int>("AdminId"));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)

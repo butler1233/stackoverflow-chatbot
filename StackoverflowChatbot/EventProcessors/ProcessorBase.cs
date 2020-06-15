@@ -19,9 +19,9 @@ namespace StackoverflowChatbot.EventProcessors
 		private static bool IsValid(JToken data)
 		{
 			return data.Value<string>("content") != null &&
+				data.Value<int>("user_id").Equals(Worker.AdminId) &&
 				(
-				data.Value<int>("user_id").Equals(4364057)
-				|| data.Value<string>("content").StartsWith("Sandy, ")
+				data.Value<string>("content").StartsWith("Sandy, ")
 				|| data.Value<string>("content").StartsWith("@Sandy, ")
 				|| data.Value<string>("content").StartsWith("S, ")
 				|| data.Value<string>("content").StartsWith("@S, ")
