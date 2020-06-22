@@ -1,8 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.CommandProcessors
@@ -10,13 +6,15 @@ namespace StackoverflowChatbot.CommandProcessors
 	/// <summary>
 	/// Processes commands that trigger basic functionality that always happens before any other processors.
 	/// </summary>
-	internal class PriorityProcessor
+	internal class PriorityProcessor: ICommandProcessor
 	{
 		private const int NumberOfRequiredSummons = 3;
 
 		private readonly IRoomService roomService;
 		private readonly int roomId;
-		private static readonly Dictionary<int, HashSet<int>> PeopleWhoSummoned = new Dictionary<int, HashSet<int>>();
+
+		// Key: Room; Value: Set of users who summoned to this room;
+		private static readonly Dictionary<int, HashSet<int>> peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
 
 		public PriorityProcessor(IRoomService roomService, int roomId)
 		{
@@ -28,7 +26,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		/// Process the event if a suitable command is found.
 		/// </summary>
 		/// <returns>Whether or not the event was processed.</returns>
-		internal bool ProcessCommand(EventData data, out SendMessage action)
+		public bool ProcessCommand(EventData data, out IAction action)
 		{
 			var command = data.Command;
 
@@ -40,9 +38,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			if (command.StartsWith("leave"))
 			{
-				// Can be told to leave other rooms.
-				this.roomService.LeaveRoom(IsSingleNumber(command.Replace("leave", "").Trim(), out var room) ? room : this.roomId);
-				action = NewMessageAction(room > 0 ? $"Leaving room {room}!" : "Bye!");
+				action = this.LeaveRoomCommand(command);
 				return true;
 			}
 
@@ -52,19 +48,31 @@ namespace StackoverflowChatbot.CommandProcessors
 				return true;
 			}
 
-			if(command == "shutdown")
+			if (command == "shutdown")
 			{
-				_ = System.Threading.Tasks.Task.Run(async () =>
-				  {
-					  await System.Threading.Tasks.Task.Delay(1000);
-					  System.Diagnostics.Process.GetCurrentProcess().Kill();
-				  });
-				action = NewMessageAction("Bye");
+				action = ShutdownCommand();
 				return true;
 			}
 
 			action = null;
 			return false;
+		}
+
+		private IAction LeaveRoomCommand(string command)
+		{
+			// Can be told to leave other rooms.
+			this.roomService.LeaveRoom(IsSingleNumber(command.Replace("leave", "").Trim(), out var room) ? room : this.roomId);
+			return NewMessageAction(room > 0 ? $"Leaving room {room}!" : "Bye!");
+		}
+
+		private static IAction ShutdownCommand()
+		{
+			_ = System.Threading.Tasks.Task.Run(async () =>
+			{
+				await System.Threading.Tasks.Task.Delay(1000);
+				System.Diagnostics.Process.GetCurrentProcess().Kill();
+			});
+			return NewMessageAction("Bye");
 		}
 
 		private SendMessage JoinRoomCommand(EventData data)
@@ -74,21 +82,21 @@ namespace StackoverflowChatbot.CommandProcessors
 				return NewMessageAction($"Couldn't find a valid room number.");
 			}
 
-			if (!PeopleWhoSummoned.ContainsKey(room))
+			if (!peopleWhoSummoned.ContainsKey(room))
 			{
-				PeopleWhoSummoned.Add(room, new HashSet<int>());
+				peopleWhoSummoned.Add(room, new HashSet<int>());
 			}
 
-			if(data.UserId == Worker.AdminId)
+			if (data.UserId == Worker.AdminId)
 			{
 				var joinedByAdmin = this.roomService.JoinRoom(room);
 				return NewMessageAction(joinedByAdmin ? $"I joined room {room}, Boss." : $"Couldn't join room {room}, guess I'm already there!");
 			}
 
-			if (PeopleWhoSummoned[room].Count < NumberOfRequiredSummons)
+			if (peopleWhoSummoned[room].Count < NumberOfRequiredSummons)
 			{
-				_ = PeopleWhoSummoned[room].Add(data.UserId);
-				return NewMessageAction($"{NumberOfRequiredSummons - PeopleWhoSummoned[room].Count} more and I'll join room {room}");
+				_ = peopleWhoSummoned[room].Add(data.UserId);
+				return NewMessageAction($"{NumberOfRequiredSummons - peopleWhoSummoned[room].Count} more and I'll join room {room}");
 			}
 
 			var joined = this.roomService.JoinRoom(room);
@@ -99,7 +107,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private static bool IsSingleNumber(string v, out int room)
 		{
-			if(int.TryParse(v, out var number))
+			if (int.TryParse(v, out var number))
 			{
 				room = number;
 				return true;

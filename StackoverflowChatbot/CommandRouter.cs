@@ -1,30 +1,31 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using SharpExchange.Chat.Actions;
+using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
 
 namespace StackoverflowChatbot
 {
 	internal class CommandRouter
 	{
-		private readonly PriorityProcessor priorityProcessor;
-		private readonly IRoomService roomService;
+		private readonly ICommandProcessor priorityProcessor;
 		private readonly ActionScheduler actionScheduler;
-		private readonly int roomId;
-		private readonly IReadOnlyCollection<CommandProcessor> processors;
+		private readonly IReadOnlyCollection<ICommandProcessor> processors;
 		public CommandRouter(IRoomService roomService, int roomId, ActionScheduler actionScheduler)
 		{
-			this.roomService = roomService;
-			this.priorityProcessor = new PriorityProcessor(this.roomService, roomId);
-			this.roomId = roomId;
+			this.priorityProcessor = new PriorityProcessor(roomService, roomId);
 			this.actionScheduler = actionScheduler;
 		}
 		internal async void RouteCommand(EventData message)
 		{
-			if (this.priorityProcessor.ProcessCommand(message, out var action))
+			if (this.priorityProcessor.ProcessCommand(message, out var action) ||
+				this.processors.Any(p => p.ProcessCommand(message, out action)))
 			{
-				_ = await this.actionScheduler.CreateMessageAsync(action.Message);
+				await action.Execute(this.actionScheduler);
+			}
+			else
+			{
+				await IAction.ExecuteDefaultAction(message, this.actionScheduler);
 			}
 		}
 	}
