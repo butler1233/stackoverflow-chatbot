@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.CommandProcessors
@@ -30,19 +31,19 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			var command = data.Command;
 
-			if (command.StartsWith("say"))
+			if (IsCommand(command, "say", out var commandParameter))
 			{
-				action = NewMessageAction(command.Replace("say ", ""));
+				action = NewMessageAction(commandParameter);
 				return true;
 			}
 
-			if (command.StartsWith("leave"))
+			if (IsCommand(command, "leave", out commandParameter))
 			{
-				action = this.LeaveRoomCommand(command);
+				action = this.LeaveRoomCommand(commandParameter);
 				return true;
 			}
 
-			if (command.StartsWith("join"))
+			if (IsCommand(command, "join", out _))
 			{
 				action = this.JoinRoomCommand(data);
 				return true;
@@ -58,10 +59,24 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		private IAction LeaveRoomCommand(string command)
+		private static bool IsCommand(string commandMessage, string commandKeyword, out string commandParameter)
+		{
+			var match = Regex.Match(commandMessage, $"^{commandKeyword} (.+)");
+
+			if (match.Success)
+			{
+				commandParameter = match.Groups[1].Value;
+				return true;
+			}
+
+			commandParameter = string.Empty;
+			return false;
+		}
+
+		private IAction LeaveRoomCommand(string commandParameter)
 		{
 			// Can be told to leave other rooms.
-			this.roomService.LeaveRoom(IsSingleNumber(command.Replace("leave", "").Trim(), out var room) ? room : this.roomId);
+			this.roomService.LeaveRoom(IsSingleNumber(commandParameter.Trim(), out var room) ? room : this.roomId);
 			return NewMessageAction(room > 0 ? $"Leaving room {room}!" : "Bye!");
 		}
 
