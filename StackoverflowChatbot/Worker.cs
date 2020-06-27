@@ -26,20 +26,22 @@ namespace StackoverflowChatbot
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				this.logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+				//this.logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				await Task.Delay(1000, stoppingToken);
 			}
 		}
 
 		public override Task StartAsync(CancellationToken cancellationToken)
 		{
-			//this.Login();
-			this.JoinRoom(1);
+			var loggedIn = this.Login();
+			this.logger.LogInformation($"Logged in: {loggedIn}");
+			var joinedSandbox = this.JoinRoom(1);
+			this.logger.LogInformation($"Joined Sandbox: {joinedSandbox}");
 			return base.StartAsync(cancellationToken);
 		}
 
-		private void JoinRoom(int roomNumber) => this.chatService.JoinRoom(roomNumber);
-		private void Login() => this.chatService.Login();
+		private bool JoinRoom(int roomNumber) => this.chatService.JoinRoom(roomNumber);
+		private bool Login() => this.chatService.Login();
 		public override void Dispose() => base.Dispose();
 	}
 }

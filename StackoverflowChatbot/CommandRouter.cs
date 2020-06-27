@@ -15,6 +15,7 @@ namespace StackoverflowChatbot
 		{
 			this.priorityProcessor = new PriorityProcessor(roomService, roomId);
 			this.actionScheduler = actionScheduler;
+			this.processors = new ICommandProcessor[0];
 		}
 		internal async void RouteCommand(EventData message)
 		{
