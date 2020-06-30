@@ -11,5 +11,6 @@ namespace StackoverflowChatbot.CommandProcessors
 		internal bool KnowsCommand(string trigger) => trigger.ToLower().Equals(this.Trigger);
 
 		internal abstract string ProcessCommand(string command);
+
 	}
 }

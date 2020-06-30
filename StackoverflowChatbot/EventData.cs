@@ -8,7 +8,7 @@ using SharpExchange.Chat.Events;
 
 namespace StackoverflowChatbot
 {
-	internal class EventData
+	public class EventData
 	{
 		internal static EventData FromJson(JToken json) => json.ToObject<EventData>();
 
