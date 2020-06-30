@@ -102,7 +102,7 @@ namespace StackoverflowChatbot.CommandProcessors
 				peopleWhoSummoned.Add(room, new HashSet<int>());
 			}
 
-			if (data.UserId == Worker.AdminId)
+			if (data.SentByController())
 			{
 				var joinedByAdmin = this.roomService.JoinRoom(room);
 				return NewMessageAction(joinedByAdmin ? $"I joined room {room}, Boss." : $"Couldn't join room {room}, guess I'm already there!");

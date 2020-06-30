@@ -44,9 +44,7 @@ namespace StackoverflowChatbot
 					Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().Assembly.FullName}.{command.GetType().Name}: {response}");
 				}
 			}else {
-
-				message
-
+				
 				if (this.priorityProcessor.ProcessCommand(message, out var action) ||
 				          this.processors.Any(p => p.ProcessCommand(message, out action)))
 				{

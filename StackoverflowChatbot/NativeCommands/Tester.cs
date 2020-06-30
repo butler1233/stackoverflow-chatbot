@@ -4,7 +4,7 @@ using System.Text;
 
 namespace StackoverflowChatbot.NativeCommands
 {
-	class Tester : ICommand	
+	internal class Tester : ICommand	
 	{
 		public string? ProcessMessage(EventData eventContext, string[] parameters) => "Testes. Heh.";
 

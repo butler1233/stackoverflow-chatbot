@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
+using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot
 {
@@ -12,8 +14,17 @@ namespace StackoverflowChatbot
 	{
 		internal static EventData FromJson(JToken json) => json.ToObject<EventData>();
 
-		internal static readonly Regex TriggerRegex = new Regex(@"@?S(andy)?, ");
-		private static string RemoveTriggerFrom(string content) => TriggerRegex.Replace(content, "").Replace("please ", "");
+		private static string RemoveTriggerFrom(string content)
+		{
+			var keyword = Manager.Config().Triggers
+				.First(s => content.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) == 0);
+			return content.Substring(keyword.Length).Trim();
+		}
+
+		internal bool SentByController()
+		{
+			return Manager.Config().Controllers.Contains(this.UserId);
+		}
 
 		/// <summary>
 		/// The command without the trigger in the beginning.

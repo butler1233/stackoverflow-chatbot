@@ -12,7 +12,6 @@ namespace StackoverflowChatbot
 		private readonly ILogger<Worker> logger;
 		private readonly IRoomService chatService;
 		internal readonly IConfiguration Configuration;
-		internal static readonly int AdminId = (int)AppDomain.CurrentDomain.GetData("AdminId");
 
 		public Worker(ILogger<Worker> logger, IRoomService chatService, IConfiguration config)
 		{
