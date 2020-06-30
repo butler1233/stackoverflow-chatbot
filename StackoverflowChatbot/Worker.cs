@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StackoverflowChatbot.Settings;
 
 namespace StackoverflowChatbot
 {
@@ -19,6 +20,8 @@ namespace StackoverflowChatbot
 			this.logger = logger;
 			this.chatService = chatService;
 			this.Configuration = config;
+            Program.Settings = new SettingBase();
+            config.Bind("Settings", Program.Settings);
 			AppDomain.CurrentDomain.SetData("AdminId", this.Configuration.GetValue<int>("AdminId"));
 		}
 
@@ -26,7 +29,7 @@ namespace StackoverflowChatbot
 		{
 			while (!stoppingToken.IsCancellationRequested)
 			{
-				this.logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+				//this.logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				await Task.Delay(1000, stoppingToken);
 			}
 		}

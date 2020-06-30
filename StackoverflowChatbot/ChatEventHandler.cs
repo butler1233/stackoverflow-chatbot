@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
@@ -21,13 +22,7 @@ namespace StackoverflowChatbot
 		private static bool IsValid(JToken data)
 		{
 			return data.Value<string>("content") != null &&
-				(
-				data.Value<int>("user_id").Equals(4364057)
-				|| data.Value<string>("content").StartsWith("Sandy, ")
-				|| data.Value<string>("content").StartsWith("@Sandy, ")
-				|| data.Value<string>("content").StartsWith("S, ")
-				|| data.Value<string>("content").StartsWith("@S, ")
-				);
+				(Program.Settings.Triggers.Any(x => data.Value<string>("content").StartsWith(x)));
 		}
 
 		public override string ToString() => base.ToString();
