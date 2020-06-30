@@ -1,17 +1,17 @@
-using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using SharpExchange.Chat.Actions;
+using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
 
 namespace StackoverflowChatbot
 {
 	internal class CommandRouter
 	{
-		private readonly PriorityProcessor priorityProcessor;
-		private readonly IRoomService roomService;
+		private readonly ICommandProcessor priorityProcessor;
 		private readonly ActionScheduler actionScheduler;
 		private readonly int roomId;
 		private readonly IReadOnlyCollection<CommandProcessor> processors;
@@ -19,9 +19,7 @@ namespace StackoverflowChatbot
 
 		public CommandRouter(IRoomService roomService, int roomId, ActionScheduler actionScheduler)
 		{
-			this.roomService = roomService;
-			this.priorityProcessor = new PriorityProcessor(this.roomService, roomId);
-			this.roomId = roomId;
+			this.priorityProcessor = new PriorityProcessor(roomService, roomId);
 			this.actionScheduler = actionScheduler;
 
 			

@@ -5,7 +5,7 @@ namespace StackoverflowChatbot
 		/// <summary>
 		/// Logs in to Stackoverflow.
 		/// </summary>
-		void Login();
+		bool Login();
 
 		/// <summary>
 		/// Joins the given room.
