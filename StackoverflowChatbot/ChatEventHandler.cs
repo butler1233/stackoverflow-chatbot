@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
 
@@ -8,14 +6,15 @@ namespace StackoverflowChatbot
 {
 	internal class ChatEventHandler: ChatEventDataProcessor
 	{
-		public override EventType Event { get; } = EventType.MessagePosted | EventType.MessageEdited;
+		public event Action<EventData> OnEvent;
 
-		public override void ProcessEventData(JToken data)
+		public override EventType[] Events { get; } = { EventType.MessagePosted, EventType.MessageEdited };
+
+		public override void ProcessEventData(EventType eventType, JToken data)
 		{
 			if (!IsValid(data)) return;
 
-			var eventData = EventData.FromJson(data);
-			// Send to command processor. / Maybe some preliminary master-processor first?
+			this.OnEvent?.Invoke(EventData.FromJson(data));
 		}
 
 		private static bool IsValid(JToken data)
