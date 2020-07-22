@@ -29,33 +29,45 @@ namespace StackoverflowChatbot
 
 		internal async void RouteCommand(EventData message)
 		{
-			var commandParts = message.Content.Split(" "); //We need to split this properly to account for "strings in quotes" being treated proeprly. Soon tho.
-			var commandText = commandParts[1].ToLower(); //Part 0 will be the trigger word.
-			var parameters = commandParts.Skip(2).ToArray();
-			if (this.nativeCommands.ContainsKey(commandText)) //ToLower is bad I know.
+			try
 			{
-				//Instance the command, and let it execute.
-				var command = (ICommand) Activator.CreateInstance(this.nativeCommands[commandText]);
-				var response = command.ProcessMessage(message, parameters);
-				if (response != null)
+				var commandParts = message.Content.Split(" "); //We need to split this properly to account for "strings in quotes" being treated proeprly. Soon tho.
+				var commandText = commandParts[1].ToLower(); //Part 0 will be the trigger word.
+				var parameters = commandParts.Skip(2).ToArray();
+				if (this.nativeCommands.ContainsKey(commandText)) //ToLower is bad I know.
 				{
-					//We need to send the response back.
-					await this.actionScheduler.CreateReplyAsync(response, message.MessageId);
-					Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().Assembly.FullName}.{command.GetType().Name}: {response}");
-				}
-			}else {
-				
-				if (this.priorityProcessor.ProcessCommand(message, out var action) ||
-				          this.processors.Any(p => p.ProcessCommand(message, out action)))
-				{
-					await action.Execute(this.actionScheduler);
+					//Instance the command, and let it execute.
+					var command = (ICommand)Activator.CreateInstance(this.nativeCommands[commandText]);
+					var response = command.ProcessMessage(message, parameters);
+					if (response != null)
+					{
+						//We need to send the response back.
+						await this.actionScheduler.CreateReplyAsync(response, message.MessageId);
+						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().Assembly.FullName}.{command.GetType().Name}: {response}");
+					}
 				}
 				else
 				{
-					await IAction.ExecuteDefaultAction(message, this.actionScheduler);
-				}
 
+					if (this.priorityProcessor.ProcessCommand(message, out var action) ||
+					    this.processors.Any(p => p.ProcessCommand(message, out action)))
+					{
+						await action.Execute(this.actionScheduler);
+					}
+					else
+					{
+						await IAction.ExecuteDefaultAction(message, this.actionScheduler);
+					}
+
+				}
 			}
+			catch (Exception e)
+			{
+				string exceptionMsg = $"    Well thanks, {message.Username}. You broke me. \r\n\r\n" + e.ToString();
+				string codified = string.Join("\r\n    ", exceptionMsg.Split("\r\n"));
+				await this.actionScheduler.CreateMessageAsync(codified);
+			}
+			
 		}
 
 		/// <summary>
