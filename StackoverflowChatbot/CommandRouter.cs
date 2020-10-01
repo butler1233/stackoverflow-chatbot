@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
@@ -31,10 +30,10 @@ namespace StackoverflowChatbot
 		{
 			try
 			{
-				var commandParts = message.Content.Split(" "); //We need to split this properly to account for "strings in quotes" being treated proeprly. Soon tho.
+				var commandParts = message.Content.Split(" "); //We need to split this properly to account for "strings in quotes" being treated properly. Soon tho.
 				var commandText = commandParts[1].ToLower(); //Part 0 will be the trigger word.
 				var parameters = commandParts.Skip(2).ToArray();
-				if (this.nativeCommands.ContainsKey(commandText)) //ToLower is bad I know.
+				if (this.nativeCommands.ContainsKey(commandText))
 				{
 					//Instance the command, and let it execute.
 					var command = (ICommand)Activator.CreateInstance(this.nativeCommands[commandText]);
@@ -50,7 +49,7 @@ namespace StackoverflowChatbot
 				{
 
 					if (this.priorityProcessor.ProcessCommand(message, out var action) ||
-					    this.processors.Any(p => p.ProcessCommand(message, out action)))
+						this.processors.Any(p => p.ProcessCommand(message, out action)))
 					{
 						await action.Execute(this.actionScheduler);
 					}
@@ -67,7 +66,7 @@ namespace StackoverflowChatbot
 				string codified = string.Join("\r\n    ", exceptionMsg.Split("\r\n"));
 				await this.actionScheduler.CreateMessageAsync(codified);
 			}
-			
+
 		}
 
 		/// <summary>
@@ -81,7 +80,7 @@ namespace StackoverflowChatbot
 				assembly.GetTypes().Where(x => commandInterface.IsAssignableFrom(x) && !x.IsInterface));
 			foreach (var implementer in implementers)
 			{
-				var instance = (ICommand) Activator.CreateInstance(implementer);
+				var instance = (ICommand)Activator.CreateInstance(implementer);
 				this.nativeCommands.Add(instance.CommandName().ToLower(), implementer);
 				Console.WriteLine($"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
 			}
