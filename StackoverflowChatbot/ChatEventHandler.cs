@@ -15,7 +15,8 @@ namespace StackoverflowChatbot
 		{
 			var chatEvent = EventData.FromJson(data);
 
-			if (!chatEvent.ContainsTrigger()) return;
+			if (!chatEvent.ContainsTrigger())
+				return;
 
 			this.OnEvent?.Invoke(EventData.FromJson(data));
 		}
