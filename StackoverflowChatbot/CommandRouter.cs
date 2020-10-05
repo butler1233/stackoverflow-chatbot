@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Web;
 using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
@@ -15,7 +16,7 @@ namespace StackoverflowChatbot
 		private readonly ActionScheduler actionScheduler;
 		private readonly IReadOnlyCollection<ICommandProcessor> processors;
 
-		private readonly IDictionary<string, Type> nativeCommands;
+		internal static readonly IDictionary<string, Type> nativeCommands = new Dictionary<string, Type>();
 
 		public CommandRouter(IRoomService roomService, int roomId, ActionScheduler actionScheduler)
 		{
@@ -23,7 +24,6 @@ namespace StackoverflowChatbot
 			this.actionScheduler = actionScheduler;
 			this.processors = new ICommandProcessor[0];
 
-			this.nativeCommands = new Dictionary<string, Type>();
 			this.ReloadCommands();
 		}
 
@@ -33,11 +33,11 @@ namespace StackoverflowChatbot
 			{
 				var commandParts = message.Content.Split(" "); //We need to split this properly to account for "strings in quotes" being treated proeprly. Soon tho.
 				var commandText = commandParts[1].ToLower(); //Part 0 will be the trigger word.
-				var parameters = commandParts.Skip(2).ToArray();
-				if (this.nativeCommands.ContainsKey(commandText)) //ToLower is bad I know.
+				var parameters = commandParts.Skip(2).Select(c => HttpUtility.HtmlDecode(c)).ToArray();
+				if (nativeCommands.ContainsKey(commandText)) //ToLower is bad I know.
 				{
 					//Instance the command, and let it execute.
-					var command = (ICommand)Activator.CreateInstance(this.nativeCommands[commandText]);
+					var command = (ICommand)Activator.CreateInstance(nativeCommands[commandText]);
 					var response = command.ProcessMessage(message, parameters);
 					if (response != null)
 					{
@@ -75,14 +75,14 @@ namespace StackoverflowChatbot
 		/// </summary>
 		internal void ReloadCommands()
 		{
-			this.nativeCommands.Clear();
+			nativeCommands.Clear();
 			var commandInterface = typeof(ICommand);
 			var implementers = AppDomain.CurrentDomain.GetAssemblies().SelectMany((assembly) =>
 				assembly.GetTypes().Where(x => commandInterface.IsAssignableFrom(x) && !x.IsInterface));
 			foreach (var implementer in implementers)
 			{
 				var instance = (ICommand) Activator.CreateInstance(implementer);
-				this.nativeCommands.Add(instance.CommandName().ToLower(), implementer);
+				nativeCommands.Add(instance.CommandName().ToLower(), implementer);
 				Console.WriteLine($"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
 			}
 		}
