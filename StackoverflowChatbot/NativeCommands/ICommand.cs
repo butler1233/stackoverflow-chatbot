@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.NativeCommands
 {
 	public interface ICommand
 	{
-
 		/// <summary>
 		/// The actual process your command performs. Do whatever you like in here. It's strongly advised to return *something*, although if you return null, which you can do, there will simply be no response from the bot. 
 		/// </summary>
@@ -14,7 +11,7 @@ namespace StackoverflowChatbot.NativeCommands
 		/// <param name="parameters"></param>
 		/// <returns></returns>
 #nullable enable
-		string? ProcessMessage(EventData eventContext, string[] parameters);
+		IAction? ProcessMessage(EventData eventContext, string[] parameters);
 #nullable disable
 
 		/// <summary>

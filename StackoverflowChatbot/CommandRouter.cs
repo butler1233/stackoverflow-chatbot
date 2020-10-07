@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Web;
 using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
@@ -38,12 +37,12 @@ namespace StackoverflowChatbot
 				{
 					//Instance the command, and let it execute.
 					var command = (ICommand)Activator.CreateInstance(nativeCommands[commandText]);
-					var response = command.ProcessMessage(message, parameters);
-					if (response != null)
+					var action = command.ProcessMessage(message, parameters);
+					if (action != null)
 					{
+						await action.Execute(this.actionScheduler);
 						//We need to send the response back.
-						await this.actionScheduler.CreateReplyAsync(response, message.MessageId);
-						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().Assembly.FullName}.{command.GetType().Name}: {response}");
+						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().AssemblyQualifiedName}: {commandText}");
 					}
 				}
 				else
@@ -81,10 +80,8 @@ namespace StackoverflowChatbot
 				assembly.GetTypes().Where(x => commandInterface.IsAssignableFrom(x) && !x.IsInterface));
 			foreach (var implementer in implementers)
 			{
-				var instance = (ICommand) Activator.CreateInstance(implementer);
-				nativeCommands.Add(instance.CommandName().ToLower(), implementer);
 				var instance = (ICommand)Activator.CreateInstance(implementer);
-				this.nativeCommands.Add(instance.CommandName().ToLower(), implementer);
+				nativeCommands.Add(instance.CommandName().ToLower(), implementer);
 				Console.WriteLine($"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
 			}
 		}

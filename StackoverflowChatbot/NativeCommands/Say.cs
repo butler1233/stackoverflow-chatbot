@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.NativeCommands
 {
 	internal class Say: ICommand
 	{
-		public string? ProcessMessage(EventData eventContext, string[] parameters)
-		{
-			return string.Join(" ",parameters);
-		}
+		public IAction? ProcessMessage(EventData eventContext, string[] parameters) => new SendMessage(string.Join(" ", parameters));
 
 		public string CommandName() => "say";
 
