@@ -1,15 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
-using System.Text;
 using System.Threading.Tasks;
+using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.NativeCommands
 {
-	internal class Shutdown : ICommand
+	internal class Shutdown: ICommand
 	{
-		public string? ProcessMessage(EventData eventContext, string[] parameters)
+		public IAction? ProcessMessage(EventData eventContext, string[] parameters)
 		{
 			if (Config.Manager.Config().Controllers.Contains(eventContext.UserId))
 			{
@@ -18,11 +16,11 @@ namespace StackoverflowChatbot.NativeCommands
 					Task.Delay(1000);
 					Environment.Exit(0);
 				});
-				return "byeeeee";
+				return new SendMessage("Byeeeee");
 			}
 			else
 			{
-				return "YOU'RE NOT THE BOSS OF ME";
+				return new SendMessage("YOU'RE NOT THE BOSS OF ME");
 			}
 		}
 

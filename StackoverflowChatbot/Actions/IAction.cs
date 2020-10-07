@@ -4,7 +4,7 @@ using SharpExchange.Chat.Actions;
 
 namespace StackoverflowChatbot.Actions
 {
-	internal interface IAction
+	public interface IAction
 	{
 		/// <summary>
 		/// Call this in case of an unknown command.
