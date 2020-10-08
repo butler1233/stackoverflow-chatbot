@@ -1,5 +1,6 @@
 using System;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.CommandProcessors;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -9,10 +10,10 @@ namespace StackoverflowChatbot.NativeCommands
 		{
 			if (parameters.Length > 0)
 			{
-				if (CommandRouter.nativeCommands.ContainsKey(parameters[0]))
+				if (PriorityProcessor.nativeCommands.ContainsKey(parameters[0]))
 				{
 					//We have a command which lines up with what they wanted.
-					var command = (ICommand)Activator.CreateInstance(CommandRouter.nativeCommands[parameters[0]]);
+					var command = (ICommand)Activator.CreateInstance(PriorityProcessor.nativeCommands[parameters[0]]);
 					return new SendMessage($"`{command.CommandName()}`: *{command.CommandDescription()}*");
 				}
 				else
@@ -24,7 +25,7 @@ namespace StackoverflowChatbot.NativeCommands
 			{
 				//Return a big list of commands.
 				var returnable = "All 'native' commands (you can get more by asking me `help <command>`): ";
-				foreach (var nativeCommand in CommandRouter.nativeCommands)
+				foreach (var nativeCommand in PriorityProcessor.nativeCommands)
 				{
 					returnable += $"{nativeCommand.Key}, ";
 				}

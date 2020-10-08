@@ -23,6 +23,9 @@ namespace StackoverflowChatbot
 		/// </summary>
 		internal string Command => RemoveTriggerFrom(this.Content);
 
+		/// <summary>
+		/// Name of the command without trigger or parameters.
+		/// </summary>
 		internal string CommandName => this.Command.Substring(0, this.Command.IndexOf(' '));
 
 		internal string CommandParameters => this.Command.Substring(this.Command.IndexOf(' '));

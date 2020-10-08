@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.NativeCommands;
 
 namespace StackoverflowChatbot.CommandProcessors
 {
@@ -13,6 +16,30 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private readonly IRoomService roomService;
 		private readonly int roomId;
+
+		internal static readonly IReadOnlyDictionary<string, Type> nativeCommands =
+			LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
+
+		private static IEnumerable<(string commandName, Type implementer)> LoadNativeCommands()
+		{
+			var implementers = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly =>
+				assembly.GetTypes().Where(x => typeof(ICommand).IsAssignableFrom(x) && !x.IsInterface));
+
+			foreach (var implementer in implementers)
+			{
+				var instance = (ICommand)Activator.CreateInstance(implementer);
+				if (instance != null)
+				{
+					Console.WriteLine(
+						$"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
+					yield return (instance.CommandName().ToLower(), implementer);
+				}
+				else
+				{
+					Console.WriteLine($"Could not load command {implementer.FullName}.");
+				}
+			}
+		}
 
 		// Key: Room; Value: Set of users who summoned to this room;
 		private static readonly Dictionary<int, HashSet<int>> peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
@@ -31,6 +58,11 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			var command = data.Command;
 
+			if (TryGetNativeCommand(data, out action))
+			{
+				return true;
+			}
+
 			if (IsCommand(command, "leave", out var commandParameter))
 			{
 				action = this.LeaveRoomCommand(commandParameter);
@@ -41,6 +73,19 @@ namespace StackoverflowChatbot.CommandProcessors
 			{
 				action = this.JoinRoomCommand(data);
 				return true;
+			}
+
+			action = null;
+			return false;
+		}
+
+		private static bool TryGetNativeCommand(EventData data, out IAction action)
+		{
+			if (nativeCommands.TryGetValue(data.CommandName, out var commandType))
+			{
+				action = ((ICommand)Activator.CreateInstance(commandType))?.ProcessMessage(data,
+					data.CommandParameters.Split(" "));
+				return action != null;
 			}
 
 			action = null;
