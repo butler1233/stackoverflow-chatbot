@@ -31,13 +31,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			var command = data.Command;
 
-			if (IsCommand(command, "say", out var commandParameter))
-			{
-				action = NewMessageAction(commandParameter);
-				return true;
-			}
-
-			if (IsCommand(command, "leave", out commandParameter))
+			if (IsCommand(command, "leave", out var commandParameter))
 			{
 				action = this.LeaveRoomCommand(commandParameter);
 				return true;
@@ -46,12 +40,6 @@ namespace StackoverflowChatbot.CommandProcessors
 			if (IsCommand(command, "join", out _))
 			{
 				action = this.JoinRoomCommand(data);
-				return true;
-			}
-
-			if (command == "shutdown")
-			{
-				action = ShutdownCommand();
 				return true;
 			}
 
@@ -78,16 +66,6 @@ namespace StackoverflowChatbot.CommandProcessors
 			// Can be told to leave other rooms.
 			this.roomService.LeaveRoom(IsSingleNumber(commandParameter.Trim(), out var room) ? room : this.roomId);
 			return NewMessageAction(room > 0 ? $"Leaving room {room}!" : "Bye!");
-		}
-
-		private static IAction ShutdownCommand()
-		{
-			_ = System.Threading.Tasks.Task.Run(async () =>
-			{
-				await System.Threading.Tasks.Task.Delay(1000);
-				System.Diagnostics.Process.GetCurrentProcess().Kill();
-			});
-			return NewMessageAction("Bye");
 		}
 
 		private SendMessage JoinRoomCommand(EventData data)

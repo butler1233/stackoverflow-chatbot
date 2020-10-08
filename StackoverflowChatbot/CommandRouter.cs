@@ -15,13 +15,13 @@ namespace StackoverflowChatbot
 		private readonly ActionScheduler actionScheduler;
 		private readonly IReadOnlyCollection<ICommandProcessor> processors;
 
-		internal static readonly IDictionary<string, Type> nativeCommands = new Dictionary<string, Type>();
+		private static readonly IDictionary<string, Type> nativeCommands = new Dictionary<string, Type>();
 
 		public CommandRouter(IRoomService roomService, int roomId, ActionScheduler actionScheduler)
 		{
 			this.priorityProcessor = new PriorityProcessor(roomService, roomId);
 			this.actionScheduler = actionScheduler;
-			this.processors = new ICommandProcessor[0];
+			this.processors = Array.Empty<ICommandProcessor>();
 
 			this.ReloadCommands();
 		}
@@ -30,19 +30,18 @@ namespace StackoverflowChatbot
 		{
 			try
 			{
-				var commandParts = message.Content.Split(" "); //We need to split this properly to account for "strings in quotes" being treated properly. Soon tho.
-				var commandText = commandParts[1].ToLower(); //Part 0 will be the trigger word.
-				var parameters = commandParts.Skip(2).Select(c => HttpUtility.HtmlDecode(c)).ToArray();
-				if (nativeCommands.ContainsKey(commandText))
+				var commandName = message.CommandName.ToLower();
+				var parameters = message.CommandParameters.Split(" ").Select(HttpUtility.HtmlDecode).ToArray();
+				if (nativeCommands.ContainsKey(commandName))
 				{
 					//Instance the command, and let it execute.
-					var command = (ICommand)Activator.CreateInstance(nativeCommands[commandText]);
+					var command = (ICommand)Activator.CreateInstance(nativeCommands[commandName]);
 					var action = command.ProcessMessage(message, parameters);
 					if (action != null)
 					{
 						await action.Execute(this.actionScheduler);
 						//We need to send the response back.
-						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().AssemblyQualifiedName}: {commandText}");
+						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().AssemblyQualifiedName}: {commandName}");
 					}
 				}
 				else
@@ -62,8 +61,8 @@ namespace StackoverflowChatbot
 			}
 			catch (Exception e)
 			{
-				string exceptionMsg = $"    Well thanks, {message.Username}. You broke me. \r\n\r\n" + e.ToString();
-				string codified = string.Join("\r\n    ", exceptionMsg.Split("\r\n"));
+				var exceptionMsg = $"    Well thanks, {message.Username}. You broke me. \r\n\r\n" + e.ToString();
+				var codified = string.Join("\r\n    ", exceptionMsg.Split("\r\n"));
 				await this.actionScheduler.CreateMessageAsync(codified);
 			}
 
