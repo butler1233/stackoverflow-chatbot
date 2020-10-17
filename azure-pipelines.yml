@@ -24,6 +24,8 @@ steps:
     command: 'build'
     projects: 'StackoverflowChatbot/StackoverflowChatbot.csproj'
 
+- script: dir /s
+
 - task: ArchiveFiles@2
   displayName: Zip up results
   inputs:
