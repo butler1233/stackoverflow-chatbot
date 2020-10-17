@@ -15,15 +15,22 @@ namespace StackoverflowChatbot.Config
 		{
 			if (instance == null)
 			{
-                var cf = new FileInfo(CONFIG_FILENAME);
-                Console.WriteLine($"About to open {cf.FullName} ({cf.Length / 1024}kB)");
-				using var confStream = File.OpenRead(CONFIG_FILENAME);
-				var configSpan = new Span<byte>(new byte[confStream.Length]);
-				confStream.Position = 0;
-				confStream.Read(configSpan);
-				var configData = JsonSerializer.Deserialize<Base>(configSpan);
-				instance = configData;
-                Console.WriteLine($"Loaded config. my triggers are: {string.Join(", ", instance.Triggers)}");
+                try
+                {
+                    var cf = new FileInfo(CONFIG_FILENAME);
+                    Console.WriteLine($"About to open {cf.FullName} ({cf.Length / 1024}kB)");
+                    using var confStream = File.OpenRead(CONFIG_FILENAME);
+                    var configSpan = new Span<byte>(new byte[confStream.Length]);
+                    confStream.Position = 0;
+                    confStream.Read(configSpan);
+                    var configData = JsonSerializer.Deserialize<Base>(configSpan);
+                    instance = configData;
+                    Console.WriteLine($"Loaded config. my triggers are: {string.Join(", ", instance.Triggers)}");
+                }
+                catch (Exception e)
+				{
+					Console.WriteLine(e.ToString());
+				}
 			}
 			return instance;
 		}
