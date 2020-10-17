@@ -22,7 +22,7 @@ steps:
   displayName: "BuildBot"
   inputs:
     command: 'build'
-    projects: '**/StackoverflowChatbot.csproj.csproj'
+    projects: 'StackoverflowChatbot/StackoverflowChatbot.csproj'
 
 - task: ArchiveFiles@2
   displayName: Zip up results
