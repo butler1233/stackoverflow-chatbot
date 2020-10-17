@@ -17,7 +17,7 @@ pool:
 steps:
 
 - script: dir /s
- 
+
 - task: DotNetCoreCLI@2
   displayName: "BuildBot"
   inputs:
@@ -33,8 +33,11 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     replaceExistingArchive: true
     
-- task: PublishBuildArtifacts@1
+- task: AzureFileCopy@4
+  displayName: Copy To Azure
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    ArtifactName: 'botBuild.zip'
-    publishLocation: 'Container'
+    SourcePath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    azureSubscription: 'Base Subscription(1)(fa77dc99-d303-482a-a595-14414e3cb5e5)'
+    Destination: 'AzureBlob'
+    storage: 'leerbcsharpbot'
+    ContainerName: 'deploy'
