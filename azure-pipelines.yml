@@ -36,7 +36,7 @@ steps:
     replaceExistingArchive: true
     
 - task: AzureFileCopy@4
-  condition: startsWith(variables['Build.SourceBranch']), 'refs/heads/')
+  condition: startsWith(variables['Build.SourceBranch'], 'refs/heads/')
   inputs:
     SourcePath: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
     azureSubscription: 'Base Subscription(fa77dc99-d303-482a-a595-14414e3cb5e5)'
