@@ -19,7 +19,11 @@ namespace StackoverflowChatbot.NativeCommands
                     Environment.Exit(0);
 				});
                 thread.Start(); //This should work a bit better.
-				return new SendMessage("`I'll be back...`");
+                if (eventContext.RoomId == 1)
+                {
+	                return new SendMessage("`I'll be back...`");
+				}
+                return new SendMessage("`I'll be back...` (*but in the sandbox so you'll have to invite me back here in a minute*)");
 			}
 			else
 			{
