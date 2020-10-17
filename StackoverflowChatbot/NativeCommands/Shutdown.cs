@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
@@ -16,12 +18,13 @@ namespace StackoverflowChatbot.NativeCommands
 		{
 			if (Manager.Config().Controllers.Contains(eventContext.UserId))
 			{
-				Task.Run(() =>
+				var thread = new Thread(() =>
 				{
-					Task.Delay(1000);
-					Environment.Exit(0);
+                    Thread.Sleep(2500);
+                    Environment.Exit(0);
 				});
-				return new SendMessage("Byeeeee");
+                thread.Start(); //This should work a bit better.
+				return new SendMessage("`I'll be back...`");
 			}
 			else
 			{
