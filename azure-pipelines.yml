@@ -16,10 +16,7 @@ pool:
 
 steps:
 
-- task: BatchScript@1
-  inputs:
-    filename: 'dir'
-    arguments: '/s'
+- script: dir /s
  
 - task: DotNetCoreCLI@2
   displayName: "BuildBot"
