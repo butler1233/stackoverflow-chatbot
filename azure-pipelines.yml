@@ -30,14 +30,13 @@ steps:
     rootFolderOrFile: '$(Build.BinariesDirectory)'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
     replaceExistingArchive: true
     
 - task: AzureFileCopy@4
-  displayName: Copy To Azure
   inputs:
-    SourcePath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    azureSubscription: 'Base Subscription(1)(fa77dc99-d303-482a-a595-14414e3cb5e5)'
+    SourcePath: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
+    azureSubscription: 'Base Subscription(fa77dc99-d303-482a-a595-14414e3cb5e5)'
     Destination: 'AzureBlob'
     storage: 'leerbcsharpbot'
     ContainerName: 'deploy'
