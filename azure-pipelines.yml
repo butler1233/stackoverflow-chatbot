@@ -1,0 +1,45 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - master
+
+pr:
+ branches:
+   include:
+     - '*'
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+
+- script: dir /s
+
+- task: DotNetCoreCLI@2
+  displayName: "BuildBot"
+  inputs:
+    command: 'build'
+    projects: 'StackoverflowChatbot/StackoverflowChatbot.csproj'
+
+- script: dir /s
+
+- task: ArchiveFiles@2
+  displayName: Zip up results
+  inputs:
+    rootFolderOrFile: 'StackoverflowChatbot/bin/*'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
+    replaceExistingArchive: true
+    
+- task: AzureFileCopy@4
+  condition: startsWith(variables['Build.SourceBranch'], 'refs/heads/')
+  inputs:
+    SourcePath: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
+    azureSubscription: 'Base Subscription(fa77dc99-d303-482a-a595-14414e3cb5e5)'
+    Destination: 'AzureBlob'
+    storage: 'leerbcsharpbot'
+    ContainerName: 'deploy'

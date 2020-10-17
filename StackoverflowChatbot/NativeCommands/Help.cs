@@ -1,7 +1,7 @@
 using System;
+using System.Linq;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
-
 namespace StackoverflowChatbot.NativeCommands
 {
 	internal class Help: ICommand
@@ -38,5 +38,6 @@ namespace StackoverflowChatbot.NativeCommands
 		public string CommandName() => "help";
 
 		public string? CommandDescription() => "Details what commands are available";
+		public bool NeedsAdmin() => false;
 	}
 }

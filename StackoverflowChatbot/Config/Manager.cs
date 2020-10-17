@@ -11,7 +11,7 @@ namespace StackoverflowChatbot.Config
 	{
 		private static Base instance = null;
 
-		private const string CONFIG_FILENAME = "config.json";
+		internal static string CONFIG_FILENAME = "config.json";
 
 		public static Base Config()
 		{
@@ -29,6 +29,19 @@ namespace StackoverflowChatbot.Config
 			return instance;
 		}
 
+		public static void SaveConfig()
+		{
+			var json = JsonSerializer.Serialize(instance);
+			using (var confStream = File.OpenWrite(CONFIG_FILENAME))
+			{
+				confStream.Position = 0; //Just to make sure
+				var bytes = Encoding.UTF8.GetBytes(json);
+				confStream.Write(bytes, 0, bytes.Length);
+				confStream.SetLength(bytes.Length);
+
+			}
+			//Tada, it should be saved
+		}
 
 	}
 }

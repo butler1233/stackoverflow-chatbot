@@ -78,6 +78,7 @@ namespace StackoverflowChatbot.NativeCommands
 		public string CommandName() => "cs";
 
 		public string? CommandDescription() => "Enables you to compile and run cs snippets";
+		public bool NeedsAdmin() => false;
 	}
 
 	public class IllegalSnippetException: Exception
