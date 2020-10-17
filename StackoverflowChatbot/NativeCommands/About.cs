@@ -11,5 +11,6 @@ namespace StackoverflowChatbot.NativeCommands
 		public string CommandName() => "about";
 
 		public string? CommandDescription() => "Tells you about the bot.";
+		public bool NeedsAdmin() => false;
 	}
 }

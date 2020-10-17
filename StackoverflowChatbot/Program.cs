@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot
 {
@@ -11,6 +12,14 @@ namespace StackoverflowChatbot
 		public static IHostBuilder CreateHostBuilder(string[] args)
 		{
 			System.Console.WriteLine("Args[0]: " + args[0]);
+
+			//Update config file as 3rd arg if it's available.
+			if (args.Length >= 3)
+			{
+				Manager.CONFIG_FILENAME = args[2];
+			}
+
+
 			return Host.CreateDefaultBuilder(args)
 			.ConfigureServices(
 				(hostContext, services) =>

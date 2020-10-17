@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -9,7 +10,7 @@ namespace StackoverflowChatbot.NativeCommands
 	{
 		public IAction? ProcessMessage(EventData eventContext, string[] parameters)
 		{
-			if (Config.Manager.Config().Controllers.Contains(eventContext.UserId))
+			if (Manager.Config().Controllers.Contains(eventContext.UserId))
 			{
 				Task.Run(() =>
 				{
@@ -20,6 +21,7 @@ namespace StackoverflowChatbot.NativeCommands
 			}
 			else
 			{
+				//In theory this is redundant as the ICommand interface and teh CommandRouter process adminosity.
 				return new SendMessage("YOU'RE NOT THE BOSS OF ME");
 			}
 		}
@@ -27,5 +29,6 @@ namespace StackoverflowChatbot.NativeCommands
 		public string CommandName() => "shutdown";
 
 		public string? CommandDescription() => "Shutdown the bot (if you're allowed to)";
+		public bool NeedsAdmin() => true;
 	}
 }

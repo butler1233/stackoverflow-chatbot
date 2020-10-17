@@ -37,13 +37,27 @@ namespace StackoverflowChatbot
 				{
 					//Instance the command, and let it execute.
 					var command = (ICommand)Activator.CreateInstance(nativeCommands[commandText]);
-					var action = command.ProcessMessage(message, parameters);
-					if (action != null)
+
+					//If it's a admin command and the user isn't an admin, tell them to sod off.
+					if (command.NeedsAdmin() && !Config.Manager.Config().Controllers.Contains(message.UserId))
 					{
-						await action.Execute(this.actionScheduler);
-						//We need to send the response back.
+						var response = new SendMessage($":{message.MessageId} YOU'RE NOT MY MOM/DAD *(you don't have permssion to execure that command)*");
+						response.Execute(this.actionScheduler);
+						Console.WriteLine($"[{message.RoomId}] {message.Username} attempted (unsuccessfully) to invoke {command.GetType().AssemblyQualifiedName}: {commandText}");
+					}
+					else
+					{
+						var action = command.ProcessMessage(message, parameters);
+						if (action != null)
+						{
+							await action.Execute(this.actionScheduler);
+							//We need to send the response back.
+							
+						}
 						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {command.GetType().AssemblyQualifiedName}: {commandText}");
 					}
+
+					
 				}
 				else
 				{

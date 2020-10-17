@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -13,6 +15,7 @@ namespace StackoverflowChatbot.NativeCommands
 				{
 					//We have a command which lines up with what they wanted.
 					var command = (ICommand)Activator.CreateInstance(CommandRouter.nativeCommands[parameters[0]]);
+
 					return new SendMessage($"`{command.CommandName()}`: *{command.CommandDescription()}*");
 				}
 				else
@@ -37,5 +40,6 @@ namespace StackoverflowChatbot.NativeCommands
 		public string CommandName() => "help";
 
 		public string? CommandDescription() => "Details what commands are available";
+		public bool NeedsAdmin() => false;
 	}
 }

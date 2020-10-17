@@ -9,5 +9,6 @@ namespace StackoverflowChatbot.NativeCommands
 		public string CommandName() => "test";
 
 		public string? CommandDescription() => null;
+		public bool NeedsAdmin() => true;
 	}
 }

@@ -10,11 +10,11 @@ namespace StackoverflowChatbot.Config
 		/// <summary>
 		/// Trigger phrases for the bot
 		/// </summary>
-		public string[] Triggers { get; set; }
+		public List<string> Triggers { get; set; }
 
 		/// <summary>
 		/// users who are allowed to control the bot
 		/// </summary>
-		public int[] Controllers { get; set; }
+		public List<int> Controllers { get; set; }
 	}
 }

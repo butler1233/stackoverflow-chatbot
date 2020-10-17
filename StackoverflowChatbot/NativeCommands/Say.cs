@@ -9,5 +9,6 @@ namespace StackoverflowChatbot.NativeCommands
 		public string CommandName() => "say";
 
 		public string? CommandDescription() => "Says whatever you tell him to say";
+		public bool NeedsAdmin() => false;
 	}
 }
