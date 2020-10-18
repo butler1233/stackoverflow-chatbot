@@ -1,16 +1,20 @@
+using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.NativeCommands
 {
-	internal class About: ICommand
+	/// <summary>
+	/// Returns information about this bot.
+	/// </summary>
+	[UsedImplicitly]
+	internal class About: BaseCommand
 	{
-		public IAction? ProcessMessage(EventData eventContext, string[] parameters) =>
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters) =>
 			new SendMessage(
 				"    Lee Botler: A bot for C# which probably won't work. \r\n    Written by CaptainObvious, based originally on Sandy, by SquirrelKiller. ");
 
-		public string CommandName() => "about";
+		internal override string CommandName() => "about";
 
-		public string? CommandDescription() => "Tells you about the bot.";
-		public bool NeedsAdmin() => false;
+		internal override string? CommandDescription() => "Tells you about the bot.";
 	}
 }

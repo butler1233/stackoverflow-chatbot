@@ -5,9 +5,9 @@ namespace StackoverflowChatbot.Actions
 {
 	internal class SendMessage: IAction
 	{
-		internal readonly string Message;
+		private readonly string message;
 
-		public SendMessage(string message) => this.Message = message;
-		public async Task Execute(ActionScheduler scheduler) => await scheduler.CreateMessageAsync(this.Message);
+		public SendMessage(string message) => this.message = message;
+		public async Task Execute(ActionScheduler scheduler) => await scheduler.CreateMessageAsync(this.message);
 	}
 }
