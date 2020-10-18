@@ -1,43 +1,39 @@
 using System;
-using System.Linq;
+using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
+
 namespace StackoverflowChatbot.NativeCommands
 {
-	internal class Help: ICommand
+	/// <summary>
+	/// Returns information about a specific command or a list of commands.
+	/// </summary>
+	[UsedImplicitly]
+	internal class Help: BaseCommand
 	{
-		public IAction? ProcessMessage(EventData eventContext, string[] parameters)
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters)
 		{
 			if (parameters.Length > 0)
 			{
-				if (PriorityProcessor.nativeCommands.ContainsKey(parameters[0]))
+				if (PriorityProcessor.NativeCommands.TryGetValue(parameters[0], out var commandType))
 				{
 					//We have a command which lines up with what they wanted.
-					var command = (ICommand)Activator.CreateInstance(PriorityProcessor.nativeCommands[parameters[0]]);
+					var command = (BaseCommand)Activator.CreateInstance(commandType)!;
 					return new SendMessage($"`{command.CommandName()}`: *{command.CommandDescription()}*");
 				}
-				else
-				{
-					return new SendMessage($"Couldn't find any help for '{parameters[0]}'.");
-				}
-			}
-			else
-			{
-				//Return a big list of commands.
-				var returnable = "All 'native' commands (you can get more by asking me `help <command>`): ";
-				foreach (var nativeCommand in PriorityProcessor.nativeCommands)
-				{
-					returnable += $"{nativeCommand.Key}, ";
-				}
 
-				return new SendMessage(returnable.TrimEnd(char.Parse(",")));
+				return new SendMessage($"Couldn't find any help for '{parameters[0]}'.");
 			}
+
+			//Return a big list of commands.
+			var returnable = "All 'native' commands (you can get more by asking me `help <command>`): ";
+			returnable += string.Join(", ", PriorityProcessor.NativeCommands.Keys);
+			return new SendMessage(returnable.TrimEnd(char.Parse(",")));
 
 		}
 
-		public string CommandName() => "help";
+		internal override string CommandName() => "help";
 
-		public string? CommandDescription() => "Details what commands are available";
-		public bool NeedsAdmin() => false;
+		internal override string? CommandDescription() => "Details what commands are available";
 	}
 }

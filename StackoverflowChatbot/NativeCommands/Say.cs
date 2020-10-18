@@ -1,14 +1,18 @@
+using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.NativeCommands
 {
-	internal class Say: ICommand
+	/// <summary>
+	/// Just returns what you tell it to say.
+	/// </summary>
+	[UsedImplicitly]
+	internal class Say: BaseCommand
 	{
-		public IAction? ProcessMessage(EventData eventContext, string[] parameters) => new SendMessage(string.Join(" ", parameters));
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters) => new SendMessage(string.Join(" ", parameters));
 
-		public string CommandName() => "say";
+		internal override string CommandName() => "say";
 
-		public string? CommandDescription() => "Says whatever you tell him to say";
-		public bool NeedsAdmin() => false;
+		internal override string? CommandDescription() => "Says whatever you tell him to say";
 	}
 }

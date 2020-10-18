@@ -7,7 +7,7 @@ namespace StackoverflowChatbot
 {
 	internal class ChatEventHandler: ChatEventDataProcessor
 	{
-		public event Action<EventData> OnEvent;
+		public event Action<EventData> OnEvent = null!;
 
 		public override EventType[] Events { get; } = { EventType.MessagePosted, EventType.MessageEdited };
 

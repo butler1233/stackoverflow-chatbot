@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace StackoverflowChatbot.Config
 {
@@ -10,11 +8,11 @@ namespace StackoverflowChatbot.Config
 		/// <summary>
 		/// Trigger phrases for the bot
 		/// </summary>
-		public List<string> Triggers { get; set; }
+		public List<string> Triggers { get; set; } = null!;
 
 		/// <summary>
 		/// users who are allowed to control the bot
 		/// </summary>
-		public List<int> Controllers { get; set; }
+		public List<int> Controllers { get; set; } = null!;
 	}
 }

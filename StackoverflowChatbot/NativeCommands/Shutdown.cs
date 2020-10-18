@@ -1,14 +1,18 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.NativeCommands
 {
-	internal class Shutdown: ICommand
+	/// <summary>
+	/// Shuts down the bot.
+	/// </summary>
+	[UsedImplicitly]
+	internal class Shutdown: BaseCommand
 	{
-		public IAction? ProcessMessage(EventData eventContext, string[] parameters)
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters)
 		{
 			if (Manager.Config().Controllers.Contains(eventContext.UserId))
 			{
@@ -21,14 +25,14 @@ namespace StackoverflowChatbot.NativeCommands
 			}
 			else
 			{
-				//In theory this is redundant as the ICommand interface and teh CommandRouter process adminosity.
+				//In theory this is redundant as the BaseCommand interface and the CommandRouter process adminosity.
 				return new SendMessage("YOU'RE NOT THE BOSS OF ME");
 			}
 		}
 
-		public string CommandName() => "shutdown";
+		internal override string CommandName() => "shutdown";
 
-		public string? CommandDescription() => "Shutdown the bot (if you're allowed to)";
-		public bool NeedsAdmin() => true;
+		internal override string? CommandDescription() => "Shutdown the bot (if you're allowed to)";
+		internal override bool NeedsAdmin() => true;
 	}
 }

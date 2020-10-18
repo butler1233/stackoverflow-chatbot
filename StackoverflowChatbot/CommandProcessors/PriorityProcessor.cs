@@ -17,17 +17,17 @@ namespace StackoverflowChatbot.CommandProcessors
 		private readonly IRoomService roomService;
 		private readonly int roomId;
 
-		internal static readonly IReadOnlyDictionary<string, Type> nativeCommands =
+		internal static readonly IReadOnlyDictionary<string, Type> NativeCommands =
 			LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
 
 		private static IEnumerable<(string commandName, Type implementer)> LoadNativeCommands()
 		{
 			var implementers = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly =>
-				assembly.GetTypes().Where(x => typeof(ICommand).IsAssignableFrom(x) && !x.IsInterface));
+				assembly.GetTypes().Where(x => typeof(BaseCommand).IsAssignableFrom(x) && !x.IsAbstract));
 
 			foreach (var implementer in implementers)
 			{
-				var instance = (ICommand)Activator.CreateInstance(implementer);
+				var instance = (BaseCommand)Activator.CreateInstance(implementer)!;
 				if (instance != null)
 				{
 					Console.WriteLine(
@@ -54,7 +54,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		/// Process the event if a suitable command is found.
 		/// </summary>
 		/// <returns>Whether or not the event was processed.</returns>
-		public bool ProcessCommand(EventData data, out IAction action)
+		public bool ProcessCommand(EventData data, out IAction? action)
 		{
 			var command = data.Command;
 
@@ -79,11 +79,11 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		private static bool TryGetNativeCommand(EventData data, out IAction action)
+		private static bool TryGetNativeCommand(EventData data, out IAction? action)
 		{
-			if (nativeCommands.TryGetValue(data.CommandName, out var commandType))
+			if (NativeCommands.TryGetValue(data.CommandName, out var commandType))
 			{
-				action = ((ICommand)Activator.CreateInstance(commandType))?.ProcessMessage(data,
+				action = ((BaseCommand)Activator.CreateInstance(commandType)!)?.ProcessMessage(data,
 					data.CommandParameters.Split(" "));
 				return action != null;
 			}
