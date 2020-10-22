@@ -9,9 +9,26 @@ namespace StackoverflowChatbot
 {
 	public class EventData
 	{
+		private static readonly string[] emptyPhrases = { "please " };
+
 		internal static EventData FromJson(JToken json) => json.ToObject<EventData>();
 
-		private static string RemoveTriggerFrom(string content) => content.Substring(GetTriggerFrom(content).Length).Trim();
+		private static string GetCommandWithoutTrigger(string content)
+		{
+			var withoutTrigger = content.Substring(GetTriggerFrom(content).Length).Trim();
+			if (StartsWithEmptyPhrase(withoutTrigger, out var emptyPhrase))
+			{
+				withoutTrigger = withoutTrigger.Substring(emptyPhrase.Length).Trim();
+			}
+
+			return withoutTrigger;
+		}
+
+		private static bool StartsWithEmptyPhrase(string input, out string emptyPhrase)
+		{
+			emptyPhrase = emptyPhrases.FirstOrDefault(input.StartsWith);
+			return emptyPhrase != null;
+		}
 
 		private static string GetTriggerFrom(string content) => Manager.Config().Triggers
 			.First(trigger => content.StartsWith(trigger, StringComparison.InvariantCultureIgnoreCase));
@@ -21,7 +38,7 @@ namespace StackoverflowChatbot
 		/// <summary>
 		/// The command without the trigger in the beginning.
 		/// </summary>
-		internal string Command => RemoveTriggerFrom(this.Content);
+		internal string Command => GetCommandWithoutTrigger(this.Content);
 
 		/// <summary>
 		/// Name of the command without trigger or parameters.
