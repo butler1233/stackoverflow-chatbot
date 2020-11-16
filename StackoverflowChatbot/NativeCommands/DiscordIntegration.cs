@@ -5,17 +5,17 @@ using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.NativeCommands
 {
-	internal class DiscordIntegration : ICommand
+	internal class DiscordIntegration : BaseCommand
 	{
-		public IAction? ProcessMessage(EventData eventContext, string[] parameters) {
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters) {
 
 			throw new NotImplementedException();
 		}
 
-		public string CommandName() => "DiscordIntegration";
+		internal override string CommandName() => "DiscordIntegration";
 
-		public string? CommandDescription() => "Controls integration with discord.";
+		internal override string? CommandDescription() => "Controls integration with discord.";
 
-		public bool NeedsAdmin() => true;
+		internal override bool NeedsAdmin() => true;
 	}
 }
