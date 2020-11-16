@@ -1,14 +1,19 @@
+using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.NativeCommands
 {
-	internal class Tester: ICommand
+	/// <summary>
+	/// See if the bot works.
+	/// </summary>
+	[UsedImplicitly]
+	internal class Tester: BaseCommand
 	{
-		public IAction? ProcessMessage(EventData eventContext, string[] parameters) => new SendMessage("Testes. Heh.");
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters) => new SendMessage("Testes. Heh.");
 
-		public string CommandName() => "test";
+		internal override string CommandName() => "test";
 
-		public string? CommandDescription() => null;
-		public bool NeedsAdmin() => true;
+		internal override string? CommandDescription() => null;
+		internal override bool NeedsAdmin() => true;
 	}
 }

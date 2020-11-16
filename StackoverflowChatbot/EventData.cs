@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
@@ -14,22 +11,24 @@ namespace StackoverflowChatbot
 	{
 		internal static EventData FromJson(JToken json) => json.ToObject<EventData>();
 
-		private static string RemoveTriggerFrom(string content)
-		{
-			var keyword = Manager.Config().Triggers
-				.First(s => content.IndexOf(s, StringComparison.InvariantCultureIgnoreCase) == 0);
-			return content.Substring(keyword.Length).Trim();
-		}
+		private static string RemoveTriggerFrom(string content) => content.Substring(GetTriggerFrom(content).Length).Trim();
 
-		internal bool SentByController()
-		{
-			return Manager.Config().Controllers.Contains(this.UserId);
-		}
+		private static string GetTriggerFrom(string content) => Manager.Config().Triggers
+			.First(trigger => content.StartsWith(trigger, StringComparison.InvariantCultureIgnoreCase));
+
+		internal bool SentByController() => Manager.Config().Controllers.Contains(this.UserId);
 
 		/// <summary>
 		/// The command without the trigger in the beginning.
 		/// </summary>
 		internal string Command => RemoveTriggerFrom(this.Content);
+
+		/// <summary>
+		/// Name of the command without trigger or parameters.
+		/// </summary>
+		internal string CommandName => this.Command.Substring(0, this.Command.IndexOf(' '));
+
+		internal string CommandParameters => this.Command.Substring(this.Command.IndexOf(' '));
 
 		[JsonProperty("event_type")]
 		public readonly EventType Type;

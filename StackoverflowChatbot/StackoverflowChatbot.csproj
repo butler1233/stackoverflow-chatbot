@@ -4,7 +4,15 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>dotnet-StackoverflowChatbot-4D158022-F3B4-42C6-9CFF-DA4BEB95AC64</UserSecretsId>
     <LangVersion>latest</LangVersion>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="EventProcessors\**" />
+    <Content Remove="EventProcessors\**" />
+    <EmbeddedResource Remove="EventProcessors\**" />
+    <None Remove="EventProcessors\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CS-Script.Core" Version="1.3.2" />
@@ -15,9 +23,5 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.5" />
     <PackageReference Include="SharpExchange" Version="3.0.0" />
     <PackageReference Include="System.CodeDom" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="EventProcessors\" />
   </ItemGroup>
 </Project>
