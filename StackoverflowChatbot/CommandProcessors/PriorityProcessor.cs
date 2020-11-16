@@ -58,18 +58,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			var command = data.Command;
 
-			//Check if we're on Discord.
-			var config = Config.Manager.Config();
-			if (config.StackToDiscordMap.ContainsKey(data.RoomId))
-			{
-				//SEND INTO DISCORD
-				var message = $"[**{data.Username}** *on SO*] {data.Content}";
-				var channelName = config.StackToDiscordMap[data.RoomId];
-				var discord = Discord.GetDiscord().GetChannel(config.DiscordChannelNamesToIds[channelName]);
-				Console.WriteLine("pls");
-			}
-
-			//Do other thuings
+			
 			if (TryGetNativeCommand(data, out action))
 			{
 				return true;

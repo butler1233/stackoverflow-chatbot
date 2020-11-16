@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Discord.WebSocket;
 using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
@@ -24,6 +25,11 @@ namespace StackoverflowChatbot
 
 		internal async void RouteCommand(EventData message)
 		{
+
+			
+
+			//Do other thuings
+
 			try
 			{
 				if (this.priorityProcessor.ProcessCommand(message, out var action) ||

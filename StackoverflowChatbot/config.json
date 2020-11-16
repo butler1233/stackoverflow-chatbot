@@ -14,7 +14,9 @@
   "DiscordChannelNamesToIds": {
 	"sand-box": 777818912108576768,
 	"so-chat": 777824562376867851
-  } 
-
+  },
+  "IgnoredUsers": [
+	  13750349
+  ] 
 
 }
