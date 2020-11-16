@@ -10,13 +10,13 @@ namespace StackoverflowChatbot
 	public class Worker: BackgroundService
 	{
 		private readonly ILogger<Worker> logger;
-		private readonly IRoomService chatService;
+		internal static IRoomService chatService; //Statics weeeeeeeeeeeeeee
 		internal readonly IConfiguration Configuration;
 
 		public Worker(ILogger<Worker> logger, IRoomService chatService, IConfiguration config)
 		{
 			this.logger = logger;
-			this.chatService = chatService;
+			Worker.chatService = chatService;
 			this.Configuration = config;
 			AppDomain.CurrentDomain.SetData("AdminId", this.Configuration.GetValue<int>("AdminId"));
 		}
@@ -39,8 +39,8 @@ namespace StackoverflowChatbot
 			return base.StartAsync(cancellationToken);
 		}
 
-		private bool JoinRoom(int roomNumber) => this.chatService.JoinRoom(roomNumber);
-		private bool Login() => this.chatService.Login();
+		private bool JoinRoom(int roomNumber) => Worker.chatService.JoinRoom(roomNumber);
+		private bool Login() => Worker.chatService.Login();
 		public override void Dispose() => base.Dispose();
 	}
 }

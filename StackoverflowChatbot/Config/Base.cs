@@ -16,5 +16,16 @@ namespace StackoverflowChatbot.Config
 		/// users who are allowed to control the bot
 		/// </summary>
 		public List<int> Controllers { get; set; }
+
+		/// <summary>
+		/// Token for logging in yo discord and doing things.
+		/// </summary>
+		public string DiscordToken { get; set; }
+
+		public Dictionary<int,string> StackToDiscordMap { get; set; }
+
+		public Dictionary<string,int> DiscordToStackMap { get; set; }
+
+		public string DiscordInviteLink { get; set; }
 	}
 }

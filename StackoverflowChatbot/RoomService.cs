@@ -9,7 +9,7 @@ namespace StackoverflowChatbot
 {
 	internal class RoomService: IRoomService
 	{
-		private const string Host = "chat.stackoverflow.com";
+		internal const string Host = "chat.stackoverflow.com";
 		private readonly EmailAuthenticationProvider auth;
 		private readonly Dictionary<int, RoomWatcher<DefaultWebSocket>> activeRooms;
 		public RoomService(string username, string password)
@@ -28,7 +28,10 @@ namespace StackoverflowChatbot
 			}
 
 			var newRoomWatcher = this.NewRoomWatcherFor(roomNumber);
+			Discord.StackRoomWatchers.Add(roomNumber, newRoomWatcher);
 			this.activeRooms.Add(roomNumber, newRoomWatcher);
+			var discord = Discord.GetDiscord();
+			
 			return true;
 		}
 
