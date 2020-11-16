@@ -18,7 +18,7 @@ namespace StackoverflowChatbot
 
 		internal static DiscordSocketClient GetDiscord()
 		{
-			if (_client != null)
+			if (_client == null)
 			{
 				InitialiseDiscord();
 			}
@@ -46,40 +46,48 @@ namespace StackoverflowChatbot
 		}
 
 		private static Task ClientRecieved(SocketMessage arg)
+
 		{
-			var config = Config.Manager.Config();
-			Console.WriteLine($"[DIS {arg.Channel.Name}] {arg.Content}");
-			//Check if we have a mapping.
-			if (config.DiscordToStackMap.ContainsKey(arg.Channel.Name))
+
+			if (arg.Author is SocketGuildUser user)
 			{
-				//We are setup to map this channel's messages to stack.
-				var roomId = config.DiscordToStackMap[arg.Channel.Name];
-				//Build the message
-				var message = $@"\[**{arg.Author.Username}** *(on [Discord]({config.DiscordInviteLink}))*] {arg.Content}";
-				//Find the room scheduler
-				if (StackSchedulers.ContainsKey(roomId))
+				if (arg.Author.IsBot) return Task.CompletedTask;
+				var config = Config.Manager.Config();
+				Console.WriteLine($"[DIS {arg.Channel.Name}] {arg.Content}");
+				//Check if we have a mapping.
+				if (config.DiscordToStackMap.ContainsKey(arg.Channel.Name))
 				{
-					//We already have a scheduler, lets goooo
-					var sched = StackSchedulers[roomId];
-					sched.CreateMessageAsync(message);
+					//We are setup to map this channel's messages to stack.
+					var roomId = config.DiscordToStackMap[arg.Channel.Name];
+					//Build the message
+					var message = $@"\[**{user.Nickname}** *(on [Discord]({config.DiscordInviteLink}))*] {arg.Content}";
+					//Find the room scheduler
+					if (StackSchedulers.ContainsKey(roomId))
+					{
+						//We already have a scheduler, lets goooo
+						var sched = StackSchedulers[roomId];
+						sched.CreateMessageAsync(message);
+						return Task.CompletedTask;
+					}
+					//Or create one if we already have a watcher.
+					if (StackRoomWatchers.ContainsKey(roomId))
+					{
+						var watcher = StackRoomWatchers[roomId];
+						var newScheduler = new ActionScheduler(watcher.Auth, RoomService.Host, roomId);
+						StackSchedulers.Add(roomId, newScheduler);
+						newScheduler.CreateMessageAsync(message);
+						arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
+						return Task.CompletedTask;
+					}
+					//or complain about not watching stack.
+					arg.Channel.SendMessageAsync(
+						"Unable to sync messages to Stack - I'm not watching the corresponding channel. Invite me to the channel on stack and tryagain.");
 					return Task.CompletedTask;
 				}
-				//Or create one if we already have a watcher.
-				if (StackRoomWatchers.ContainsKey(roomId))
-				{
-					var watcher = StackRoomWatchers[roomId];
-					var newScheduler = new ActionScheduler(watcher.Auth, RoomService.Host, roomId);
-					StackSchedulers.Add(roomId, newScheduler);
-					newScheduler.CreateMessageAsync(message);
-					arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
-					return Task.CompletedTask;
-				}
-				//or complain about not watching stack.
-				arg.Channel.SendMessageAsync(
-					"Unable to sync messages to Stack - I'm not watching the corresponding channel. Invite me to the channel on stack and tryagain.");
+				//Nothing to do, who cares
 				return Task.CompletedTask;
 			}
-			//Nothing to do, who cares
+
 			return Task.CompletedTask;
 		}
 

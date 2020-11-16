@@ -5,15 +5,11 @@
 	"👏👏"
   ],
   "Controllers": [ 3033062, 4364057 ],
-  "DiscordToken": "Nzc3OTU5NzM4Mzk3Njg3ODQw.X7LBdw.hRg2tuIa16Fxd402KZ8tZTCd1hM",
+  "DiscordToken": "Nzc3OTU5NzM4Mzk3Njg3ODQw.X7LBdw.XmqkU8AwxqTZudOs2aoCt5nI75o",
   "DiscordInviteLink": "https://discord.gg/PNMq3pBSUe",
   "DiscordToStackMap": {
 	"sand-box": 1,
 	"so-chat": 7
-  },
-  "StackToDiscordMap": {
-	"1": "sand-box",
-	"7": "so-chat" 
   }
 
 

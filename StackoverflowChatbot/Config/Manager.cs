@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -24,6 +25,12 @@ namespace StackoverflowChatbot.Config
             confStream.Position = 0;
             confStream.Read(configSpan);
             var configData = JsonSerializer.Deserialize<Base>(configSpan);
+					configData.StackToDiscordMap = new Dictionary<int, string>();
+			foreach (var pair in configData.DiscordToStackMap)
+			{
+				
+			}
+
             instance = configData;
             Console.WriteLine($"Loaded config. my triggers are: {string.Join(", ", instance.Triggers)}");
         }
