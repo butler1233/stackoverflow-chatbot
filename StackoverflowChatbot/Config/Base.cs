@@ -37,5 +37,7 @@ namespace StackoverflowChatbot.Config
 
 		public string DiscordInviteLink { get; set; }
 
+		public List<int> IgnoredUsers { get; set; }
+
 	}
 }
