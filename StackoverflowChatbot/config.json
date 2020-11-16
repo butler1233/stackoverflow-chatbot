@@ -10,7 +10,11 @@
   "DiscordToStackMap": {
 	"sand-box": 1,
 	"so-chat": 7
-  }
+  },
+  "DiscordChannelNamesToIds": {
+	"sand-box": 777818912108576768,
+	"so-chat": 777824562376867851
+  } 
 
 
 }

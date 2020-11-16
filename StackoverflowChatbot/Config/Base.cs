@@ -33,6 +33,8 @@ namespace StackoverflowChatbot.Config
 		/// </summary>
 		public Dictionary<string,int> DiscordToStackMap { get; set; }
 
+		public Dictionary<string,ulong> DiscordChannelNamesToIds { get; set; }
+
 		public string DiscordInviteLink { get; set; }
 
 	}
