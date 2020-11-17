@@ -26,7 +26,16 @@ namespace StackoverflowChatbot
 		/// <summary>
 		/// Name of the command without trigger or parameters.
 		/// </summary>
-		internal string CommandName => this.Command.Substring(0, this.Command.IndexOf(' '));
+		internal string CommandName
+		{
+			get
+			{
+				var idx = this.Command.IndexOf(' ');
+				if (idx == -1)
+					return string.Empty;
+				return this.Command.Substring(0, idx);
+			}
+		}
 
 		internal string CommandParameters => this.Command.Substring(this.Command.IndexOf(' '));
 

@@ -11,7 +11,17 @@ namespace StackoverflowChatbot
 
 		public static IHostBuilder CreateHostBuilder(string[] args)
 		{
-			System.Console.WriteLine("Args[0]: " + args[0]);
+			if (args == null || args.Length == 0)
+			{
+				Console.Write("Enter username: ");
+				var u = Console.ReadLine();
+				Console.Write("Enter password: ");
+				var p = Console.ReadLine();
+				args = new [] { u, p };
+			}
+			var username = args[0];
+			var password = args[1];
+			System.Console.WriteLine("Args[0]: " + username);
 
 			//Update config file as 3rd arg if it's available.
 			if (args.Length >= 3)
@@ -24,7 +34,7 @@ namespace StackoverflowChatbot
 			.ConfigureServices(
 				(hostContext, services) =>
 				_ = services.AddHostedService<Worker>()
-				.AddSingleton<IRoomService>(new RoomService(args[0], args[1]))
+				.AddSingleton<IRoomService>(new RoomService(username, password))
 			);
 		}
 	}
