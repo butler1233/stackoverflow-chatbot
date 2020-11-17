@@ -8,9 +8,9 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Config: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters)
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
-			if (parameters.Any())
+			if (parameters?.Any() == true)
 			{
 				switch (parameters[0].ToLower())
 				{
