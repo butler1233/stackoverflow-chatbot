@@ -38,7 +38,7 @@ namespace StackoverflowChatbot
 
 					var finalMessage = nohtml;
 					//SEND INTO DISCORD
-					var newmessage = $"[**[{chatEvent.Username}](https://chat.stackoverflow.com/transcript/message/{chatEvent.MessageId}#{chatEvent.MessageId})**] {finalMessage}";
+					var newmessage = $"[**{chatEvent.Username}**] {finalMessage}";
 					var channelName = config.StackToDiscordMap[chatEvent.RoomId];
 					var discord = Discord.GetDiscord().GetChannel(config.DiscordChannelNamesToIds[channelName]);
 					if (discord is SocketTextChannel textChannel)
