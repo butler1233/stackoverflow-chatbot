@@ -42,7 +42,7 @@ namespace StackoverflowChatbot
 					var match = this.multilineCodeRegex.Match(nohtml);
 					if (match.Success)
 					{
-						nohtml = $"\r\n```\r\n{match.Groups[0]}```";
+						nohtml = $"\r\n```\r\n{match.Groups[1]}```";
 					}
 
 					var finalMessage = nohtml;
