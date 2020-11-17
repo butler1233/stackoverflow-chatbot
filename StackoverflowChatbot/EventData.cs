@@ -29,7 +29,7 @@ namespace StackoverflowChatbot
 		internal string CommandName => this.Command.Substring(0, this.Command.IndexOf(' '));
 
 		/// <summary>
-		/// Paramters to the command without trigger or command name.
+		/// Parameters to the command without trigger or command name.
 		/// </summary>
 		internal string CommandParameters => this.Command.Substring(this.Command.IndexOf(' ') + 1);
 

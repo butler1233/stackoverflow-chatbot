@@ -7,35 +7,82 @@ namespace StackoverflowChatbot.Tests
 	[TestClass]
 	public class EventDataTests
 	{
-		// Message is "S, say hello"
-		private readonly JToken serializedData = JToken.Parse(System.IO.File.ReadAllText("EventData.json"));
-		private EventData eventData;
+		#region [ Setup ]
 
-		public IEnumerable<string> CommandsToTestAgainst() =>
-			new[]
+		[ClassInitialize]
+		public static void SetupTestClass(TestContext _) =>
+			Config.Manager.Config().Triggers = new List<string>()
 			{
-				"S, say hello",
-				"S, shutdown"
+				"S, ",
+				"Sandy, "
 			};
 
-		[TestInitialize]
-		public void Setup() => this.eventData = EventData.FromJson(this.serializedData);
+		// Message is "S, say hello"
+		private static readonly JToken serializedData = JToken.Parse(System.IO.File.ReadAllText("EventData.json"));
 
-		[TestMethod]
-		public void FromJson_ShouldBuildCorrectObject()
+		public static IEnumerable<TestCase[]> CommandsToTestAgainst()
 		{
-			Assert.AreEqual("Squirrelkiller", this.eventData.Username);
-			Assert.AreEqual("Sandbox", this.eventData.RoomName);
+			yield return new[]{ new TestCase()
+			{
+				TestData = GetDataWithCommand("S, say hello"),
+				Trigger = "S, ",
+				CommandName = "say",
+				Parameters = "hello"
+			} };
+			yield return new[]{ new TestCase()
+			{
+				TestData = GetDataWithCommand("Sandy, shutdown"),
+				Trigger = "Sandy, ",
+				CommandName = "shutdown",
+				Parameters = null
+			} };
 		}
 
-		[TestMethod]
-		public void Command_ShouldReturnCommandWithoutTrigger() => Assert.AreEqual("say hello", this.eventData.Command);
+		private static EventData GetDataWithCommand(string command)
+		{
+			var newData = serializedData.DeepClone();
+			newData["content"] = command;
+			return EventData.FromJson(newData);
+		}
 
-		[TestMethod]
-		public void CommandName_ShouldReturnCommandNameOnly() => Assert.AreEqual("say", this.eventData.CommandName);
+		#endregion
 
-		[TestMethod]
-		public void CommandParameters_ShouldReturnParametersAfterCommandName() =>
-			Assert.AreEqual("hello", this.eventData.CommandParameters);
+		[DataTestMethod]
+		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		public void FromJson_ShouldBuildCorrectObject(TestCase testCase)
+		{
+			Assert.AreEqual("Squirrelkiller", testCase.TestData.Username);
+			Assert.AreEqual("Sandbox", testCase.TestData.RoomName);
+		}
+
+		[DataTestMethod]
+		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		public void Command_ShouldReturnCommandWithoutTrigger(TestCase testCase)
+		{
+			var expectedCommand = testCase.CommandName;
+			if (testCase.Parameters != null)
+			{
+				expectedCommand += $" {testCase.Parameters}";
+			}
+			Assert.AreEqual(expectedCommand, testCase.TestData.Command);
+		}
+
+		[DataTestMethod]
+		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		public void CommandName_ShouldReturnCommandNameOnly(TestCase testCase) =>
+			Assert.AreEqual(testCase.CommandName, testCase.TestData.CommandName);
+
+		[DataTestMethod]
+		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		public void CommandParameters_ShouldReturnParametersAfterCommandName(TestCase testCase) =>
+			Assert.AreEqual(testCase.Parameters, testCase.TestData.CommandParameters);
+	}
+
+	public class TestCase
+	{
+		internal EventData TestData = null!;
+		internal string Trigger = null!;
+		internal string CommandName = null!;
+		internal string? Parameters;
 	}
 }
