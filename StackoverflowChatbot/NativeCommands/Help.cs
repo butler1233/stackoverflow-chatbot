@@ -11,9 +11,9 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Help: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters)
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
-			if (parameters.Length > 0)
+			if (parameters?.Length > 0)
 			{
 				if (PriorityProcessor.NativeCommands.TryGetValue(parameters[0], out var commandType))
 				{

@@ -9,7 +9,7 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Say: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters) => new SendMessage(string.Join(" ", parameters));
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters) => new SendMessage(parameters != null ? string.Join(" ", parameters) : "");
 
 		internal override string CommandName() => "say";
 

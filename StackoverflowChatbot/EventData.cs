@@ -26,12 +26,16 @@ namespace StackoverflowChatbot
 		/// <summary>
 		/// Name of the command without trigger or parameters.
 		/// </summary>
-		internal string CommandName => this.Command.Substring(0, this.Command.IndexOf(' '));
+		internal string CommandName => this.Command.Contains(' ')
+			? this.Command.Substring(0, this.Command.IndexOf(' '))
+			: this.Command;
 
 		/// <summary>
 		/// Parameters to the command without trigger or command name.
 		/// </summary>
-		internal string CommandParameters => this.Command.Substring(this.Command.IndexOf(' ') + 1);
+		internal string? CommandParameters => this.Command.Contains(' ')
+			? this.Command.Substring(this.Command.IndexOf(' ') + 1)
+			: null;
 
 		[JsonProperty("event_type")]
 		public readonly EventType Type;
