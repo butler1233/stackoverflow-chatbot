@@ -28,7 +28,10 @@ namespace StackoverflowChatbot
 		/// </summary>
 		internal string CommandName => this.Command.Substring(0, this.Command.IndexOf(' '));
 
-		internal string CommandParameters => this.Command.Substring(this.Command.IndexOf(' '));
+		/// <summary>
+		/// Paramters to the command without trigger or command name.
+		/// </summary>
+		internal string CommandParameters => this.Command.Substring(this.Command.IndexOf(' ') + 1);
 
 		[JsonProperty("event_type")]
 		public readonly EventType Type;

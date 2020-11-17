@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Code", "2. Code", "{29AE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Tests", "3. Tests", "{E67A8034-2957-4E04-AA38-3C315E7A9C6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StackoverflowChatbot.Tests", "StackoverflowChatbot.Tests\StackoverflowChatbot.Tests.csproj", "{0E5F701E-E9DB-4BAB-BD04-D0888526558F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,12 +28,17 @@ Global
 		{6577B0B6-103B-4F46-9B84-0DD52BBB1E9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6577B0B6-103B-4F46-9B84-0DD52BBB1E9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6577B0B6-103B-4F46-9B84-0DD52BBB1E9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E5F701E-E9DB-4BAB-BD04-D0888526558F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E5F701E-E9DB-4BAB-BD04-D0888526558F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E5F701E-E9DB-4BAB-BD04-D0888526558F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E5F701E-E9DB-4BAB-BD04-D0888526558F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6577B0B6-103B-4F46-9B84-0DD52BBB1E9C} = {29AEC0D3-9FAC-45C1-B602-200C511B0FA8}
+		{0E5F701E-E9DB-4BAB-BD04-D0888526558F} = {E67A8034-2957-4E04-AA38-3C315E7A9C6A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EAAE3093-A817-447C-9528-0ECE392425DA}
