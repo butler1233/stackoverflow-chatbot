@@ -60,7 +60,9 @@ namespace StackoverflowChatbot
 					//We are setup to map this channel's messages to stack.
 					var roomId = config.DiscordToStackMap[arg.Channel.Name];
 					//Build the message
-					var message = $@"\[**{user.Nickname}** *(on [Discord]({config.DiscordInviteLink}))*] {arg.Content}";
+					var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
+
+					var message = $@"\[**[{displayname}]({config.DiscordInviteLink})**] {arg.Content}";
 					//Find the room scheduler
 					if (StackSchedulers.ContainsKey(roomId))
 					{

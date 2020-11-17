@@ -1,4 +1,5 @@
 using System;
+using System.Web;
 using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
@@ -25,8 +26,19 @@ namespace StackoverflowChatbot
 				var config = Config.Manager.Config();
 				if (config.StackToDiscordMap.ContainsKey(chatEvent.RoomId))
 				{
+					//Tidy the message up
+					var nohtml = HttpUtility.HtmlDecode(chatEvent.Content);
+					//Spoiler onbox content so we don't kill everyone with spam.
+					if (nohtml.StartsWith("<div class=\"onebox"))
+					{
+						nohtml = $"Onebox content! ||{nohtml}||";
+					}
+
+
+
+					var finalMessage = nohtml;
 					//SEND INTO DISCORD
-					var newmessage = $"[**{chatEvent.Username}** *on SO*] {chatEvent.Content}";
+					var newmessage = $"[**[{chatEvent.Username}](https://chat.stackoverflow.com/transcript/message/{chatEvent.MessageId}#{chatEvent.MessageId})**] {finalMessage}";
 					var channelName = config.StackToDiscordMap[chatEvent.RoomId];
 					var discord = Discord.GetDiscord().GetChannel(config.DiscordChannelNamesToIds[channelName]);
 					if (discord is SocketTextChannel textChannel)
