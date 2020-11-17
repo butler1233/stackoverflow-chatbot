@@ -31,7 +31,8 @@ namespace StackoverflowChatbot
 					//Spoiler onbox content so we don't kill everyone with spam.
 					if (nohtml.StartsWith("<div class=\"onebox"))
 					{
-						nohtml = $"Onebox content! ||{nohtml}||";
+						nohtml = $"Onebox content! ||```html\r\n{nohtml}```||";
+
 					}
 
 
