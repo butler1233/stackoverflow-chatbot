@@ -58,7 +58,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			var command = data.Command;
 
-			
+
 			if (TryGetNativeCommand(data, out action))
 			{
 				return true;
@@ -85,7 +85,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			if (NativeCommands.TryGetValue(data.CommandName, out var commandType))
 			{
 				action = ((BaseCommand)Activator.CreateInstance(commandType)!)?.ProcessMessage(data,
-					data.CommandParameters.Split(" "));
+					data.CommandParameters?.Split(" "));
 				return action != null;
 			}
 

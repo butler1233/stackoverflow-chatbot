@@ -6,7 +6,7 @@ namespace StackoverflowChatbot.NativeCommands
 {
 	public abstract class BaseCommand
 	{
-		internal IAction? ProcessMessage(EventData data, string[] parameters)
+		internal IAction? ProcessMessage(EventData data, string[]? parameters)
 		{
 			//If it's a admin command and the user isn't an admin, tell them to sod off.
 			if (this.NeedsAdmin() && !StackoverflowChatbot.Config.Manager.Config().Controllers.Contains(data.UserId))
@@ -16,13 +16,14 @@ namespace StackoverflowChatbot.NativeCommands
 			}
 			return this.ProcessMessageInternal(data, parameters);
 		}
+
 		/// <summary>
 		/// The actual process your command performs. Do whatever you like in here. It's strongly advised to return *something*, although if you return null, which you can do, there will simply be no response from the bot. 
 		/// </summary>
 		/// <param name="eventContext"></param>
 		/// <param name="parameters"></param>
 		/// <returns></returns>
-		internal abstract IAction? ProcessMessageInternal(EventData eventContext, string[] parameters);
+		internal abstract IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters);
 
 		/// <summary>
 		/// The name of the command. This will be the word that users use to invoke your command. Anything that comes after this will be passed in the Parameters field. 

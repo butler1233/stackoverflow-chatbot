@@ -87,3 +87,7 @@ csharp_style_unused_value_expression_statement_preference                       
 [*.yml]
 indent_style = space
 indent_size = 2
+
+[*.xml,*.csproj]
+indent_style = space
+indent_size = 2

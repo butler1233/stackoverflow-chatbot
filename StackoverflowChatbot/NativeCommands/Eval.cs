@@ -14,8 +14,13 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	public class Eval: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters)
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
+			if (parameters == null)
+			{
+				return new SendMessage("Yeah well I'm not even gonna try to compile that.");
+			}
+
 			switch (parameters.First())
 			{
 				case "using":
@@ -24,7 +29,6 @@ namespace StackoverflowChatbot.NativeCommands
 
 			//This is probably hilariously unsafe but who cares
 			var reconstitutedSource = string.Join(" ", parameters.Select(HttpUtility.HtmlDecode));
-
 
 
 			try
@@ -44,8 +48,6 @@ namespace StackoverflowChatbot.NativeCommands
 			{
 				return new SendMessage("🙃");
 			}
-
-
 		}
 
 		private string AddUsings(IEnumerable<string> usings)

@@ -7,7 +7,7 @@ namespace StackoverflowChatbot.NativeCommands
 {
 	internal class DiscordIntegration : BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters) {
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters) {
 
 			throw new NotImplementedException();
 		}

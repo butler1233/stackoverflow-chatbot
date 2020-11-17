@@ -14,7 +14,7 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Shutdown: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[] parameters)
+		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
 			if (Manager.Config().Controllers.Contains(eventContext.UserId))
 			{
