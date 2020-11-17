@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Web;
 using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
@@ -12,6 +13,10 @@ namespace StackoverflowChatbot
 		public event Action<EventData> OnEvent = null!;
 
 		public override EventType[] Events { get; } = { EventType.MessagePosted, EventType.MessageEdited };
+
+		public Regex multilineCodeRegex = new Regex("(?:<pre)(?: class='full')?>(.+)(?=</pre>)", RegexOptions.Singleline);
+
+
 
 		public override void ProcessEventData(EventType eventType, JToken data)
 		{
@@ -32,10 +37,13 @@ namespace StackoverflowChatbot
 					if (nohtml.StartsWith("<div class=\"onebox"))
 					{
 						nohtml = $"Onebox content! ||```html\r\n{nohtml}```||";
-
 					}
-
-
+					//Try to match the multiline code
+					var match = this.multilineCodeRegex.Match(nohtml);
+					if (match.Success)
+					{
+						nohtml = $"\r\n```\r\n{match.Groups[0]}```";
+					}
 
 					var finalMessage = nohtml;
 					//SEND INTO DISCORD
