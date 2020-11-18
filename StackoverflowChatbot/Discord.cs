@@ -102,6 +102,11 @@ namespace StackoverflowChatbot
 			{
 				messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");
 			}
+			foreach (var mentionedChannel in arg.MentionedChannels)
+			{
+				// Library doesn't provide channel mention string
+				messageContent.Replace($"<#{mentionedChannel.Id}>", $"[@{mentionedChannel.Name}]({config.DiscordInviteLink})");
+			}
 			
 			var embeddedCode = Regex.Matches(messageContent, "```.+```", RegexOptions.Multiline);
 			foreach (Match codeBlock in embeddedCode)
