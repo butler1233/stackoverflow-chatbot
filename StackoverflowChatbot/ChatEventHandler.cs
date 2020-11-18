@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
 using StackoverflowChatbot.Extensions;
+using StackoverflowChatbot.Relay;
 
 namespace StackoverflowChatbot
 {
@@ -46,12 +47,15 @@ namespace StackoverflowChatbot
 
 					var finalMessage = nohtml;
 					//SEND INTO DISCORD
-					var newmessage = $"[**{chatEvent.Username}**] {finalMessage}";
+					
 					var channelName = config.StackToDiscordMap[chatEvent.RoomId];
 					var discordClient = await Discord.GetDiscord();
 					var discord = discordClient.GetChannel(config.DiscordChannelNamesToIds[channelName]);
 					if (discord is SocketTextChannel textChannel)
 					{
+						var model = new DiscordMessageModel{MessageContent = finalMessage};
+						model = model.OneboxImages();
+						var newmessage = $"[**{chatEvent.Username}**] {model.MessageContent}";
 						await textChannel.SendMessageAsync(newmessage);
 					}
 
