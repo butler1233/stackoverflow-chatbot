@@ -1,16 +1,17 @@
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FluentAssertions;
 using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 
 namespace StackoverflowChatbot.Tests
 {
-	[TestClass]
+	[TestFixture]
 	public class EventDataTests
 	{
-		#region [ Setup ]
+		#region [ OneTimeSetUp ]
 
-		[ClassInitialize]
-		public static void SetupTestClass(TestContext _) =>
+		[OneTimeSetUp]
+		public static void SetupTestClass() =>
 			Config.Manager.Config().Triggers = new List<string>()
 			{
 				"S, ",
@@ -20,22 +21,22 @@ namespace StackoverflowChatbot.Tests
 		// Message is "S, say hello"
 		private static readonly JToken serializedData = JToken.Parse(System.IO.File.ReadAllText("EventData.json"));
 
-		public static IEnumerable<TestCase[]> CommandsToTestAgainst()
+		public static IEnumerable<TestCase> CommandsToTestAgainst()
 		{
-			yield return new[]{ new TestCase()
+			yield return new TestCase()
 			{
 				TestData = GetDataWithCommand("S, say hello"),
 				Trigger = "S, ",
 				CommandName = "say",
 				Parameters = "hello"
-			} };
-			yield return new[]{ new TestCase()
+			};
+			yield return new TestCase()
 			{
 				TestData = GetDataWithCommand("Sandy, shutdown"),
 				Trigger = "Sandy, ",
 				CommandName = "shutdown",
 				Parameters = null
-			} };
+			};
 		}
 
 		private static EventData GetDataWithCommand(string command)
@@ -47,16 +48,14 @@ namespace StackoverflowChatbot.Tests
 
 		#endregion
 
-		[DataTestMethod]
-		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		[Test, TestCaseSource(nameof(CommandsToTestAgainst))]
 		public void FromJson_ShouldBuildCorrectObject(TestCase testCase)
 		{
-			Assert.AreEqual("Squirrelkiller", testCase.TestData.Username);
-			Assert.AreEqual("Sandbox", testCase.TestData.RoomName);
+			testCase.TestData.Username.Should().Be("Squirrelkiller");
+			testCase.TestData.RoomName.Should().Be("Sandbox");
 		}
 
-		[DataTestMethod]
-		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		[Test, TestCaseSource(nameof(CommandsToTestAgainst))]
 		public void Command_ShouldReturnCommandWithoutTrigger(TestCase testCase)
 		{
 			var expectedCommand = testCase.CommandName;
@@ -64,18 +63,16 @@ namespace StackoverflowChatbot.Tests
 			{
 				expectedCommand += $" {testCase.Parameters}";
 			}
-			Assert.AreEqual(expectedCommand, testCase.TestData.Command);
+			testCase.TestData.Command.Should().Be(expectedCommand);
 		}
 
-		[DataTestMethod]
-		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		[Test, TestCaseSource(nameof(CommandsToTestAgainst))]
 		public void CommandName_ShouldReturnCommandNameOnly(TestCase testCase) =>
-			Assert.AreEqual(testCase.CommandName, testCase.TestData.CommandName);
+			testCase.TestData.CommandName.Should().Be(testCase.CommandName);
 
-		[DataTestMethod]
-		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
+		[Test, TestCaseSource(nameof(CommandsToTestAgainst))]
 		public void CommandParameters_ShouldReturnParametersAfterCommandName(TestCase testCase) =>
-			Assert.AreEqual(testCase.Parameters, testCase.TestData.CommandParameters);
+			testCase.TestData.CommandParameters.Should().Be(testCase.Parameters);
 	}
 
 	public class TestCase
