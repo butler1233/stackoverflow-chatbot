@@ -13,14 +13,13 @@ namespace StackoverflowChatbot
 {
 	internal static class Discord
 	{
-
 		private static DiscordSocketClient _client = null;
 
-		internal static DiscordSocketClient GetDiscord()
+		internal static async Task<DiscordSocketClient> GetDiscord()
 		{
 			if (_client == null)
 			{
-				InitialiseDiscord();
+				_client = await CreateDiscordClient();
 			}
 
 			return _client;
@@ -29,20 +28,16 @@ namespace StackoverflowChatbot
 		internal static Dictionary<int,RoomWatcher<DefaultWebSocket>> StackRoomWatchers = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		internal static Dictionary<int,ActionScheduler> StackSchedulers = new Dictionary<int, ActionScheduler>();
 
-		private static void InitialiseDiscord()
+		private static async Task<DiscordSocketClient> CreateDiscordClient()
 		{
 			var client = new DiscordSocketClient();
 			//Setuo handlers
 			client.MessageReceived += ClientRecieved;
 			//Logs in
-			client.LoginAsync(TokenType.Bot, Config.Manager.Config().DiscordToken);
-			client.StartAsync();
-			while (client.LoginState != LoginState.LoggedIn)
-			{
-				Thread.Sleep(100);
-			}
+			await client.LoginAsync(TokenType.Bot, Config.Manager.Config().DiscordToken);
+			await client.StartAsync();
 			//Now wr're done
-			_client = client;
+			return client;
 		}
 
 		private static Task ClientRecieved(SocketMessage arg)

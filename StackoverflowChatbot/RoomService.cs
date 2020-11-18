@@ -30,7 +30,7 @@ namespace StackoverflowChatbot
 			var newRoomWatcher = this.NewRoomWatcherFor(roomNumber);
 			Discord.StackRoomWatchers.Add(roomNumber, newRoomWatcher);
 			this.activeRooms.Add(roomNumber, newRoomWatcher);
-			var discord = Discord.GetDiscord();
+			//var discord = Discord.GetDiscord();
 			
 			return true;
 		}

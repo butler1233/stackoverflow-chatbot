@@ -17,8 +17,7 @@ namespace StackoverflowChatbot
 		public Regex multilineCodeRegex = new Regex("(?:<pre)(?: class='full')?>(.+)(?=</pre>)", RegexOptions.Singleline);
 
 
-
-		public override void ProcessEventData(EventType eventType, JToken data)
+		public override async void ProcessEventData(EventType eventType, JToken data)
 		{
 			
 
@@ -49,10 +48,11 @@ namespace StackoverflowChatbot
 					//SEND INTO DISCORD
 					var newmessage = $"[**{chatEvent.Username}**] {finalMessage}";
 					var channelName = config.StackToDiscordMap[chatEvent.RoomId];
-					var discord = Discord.GetDiscord().GetChannel(config.DiscordChannelNamesToIds[channelName]);
+					var discordClient = await Discord.GetDiscord();
+					var discord = discordClient.GetChannel(config.DiscordChannelNamesToIds[channelName]);
 					if (discord is SocketTextChannel textChannel)
 					{
-						textChannel.SendMessageAsync(newmessage);
+						await textChannel.SendMessageAsync(newmessage);
 					}
 
 				}
