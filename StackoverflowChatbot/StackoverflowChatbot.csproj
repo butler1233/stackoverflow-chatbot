@@ -17,6 +17,8 @@
   <ItemGroup>
     <PackageReference Include="CS-Script.Core" Version="1.3.2" />
     <PackageReference Include="Discord.Net" Version="2.2.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="2.3.0-beta01" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="3.3.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0-4.final" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.7.0-4.final" />
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="3.6.0" />

@@ -40,13 +40,14 @@ namespace StackoverflowChatbot
 			return client;
 		}
 
-		private static Task ClientRecieved(SocketMessage arg)
+		private static async Task ClientRecieved(SocketMessage arg)
 
 		{
 
 			if (arg.Author is SocketGuildUser user)
 			{
-				if (arg.Author.IsBot) return Task.CompletedTask;
+				if (arg.Author.IsBot) return;
+
 				var config = Config.Manager.Config();
 				Console.WriteLine($"[DIS {arg.Channel.Name}] {arg.Content}");
 				//Check if we have a mapping.
@@ -63,29 +64,27 @@ namespace StackoverflowChatbot
 					{
 						//We already have a scheduler, lets goooo
 						var sched = StackSchedulers[roomId];
-						sched.CreateMessageAsync(message);
-						return Task.CompletedTask;
+						await sched.CreateMessageAsync(message);
 					}
 					//Or create one if we already have a watcher.
-					if (StackRoomWatchers.ContainsKey(roomId))
+					else if (StackRoomWatchers.ContainsKey(roomId))
 					{
 						var watcher = StackRoomWatchers[roomId];
 						var newScheduler = new ActionScheduler(watcher.Auth, RoomService.Host, roomId);
 						StackSchedulers.Add(roomId, newScheduler);
-						newScheduler.CreateMessageAsync(message);
-						arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
-						return Task.CompletedTask;
+						await newScheduler.CreateMessageAsync(message);
+						await arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
+						return;
 					}
-					//or complain about not watching stack.
-					arg.Channel.SendMessageAsync(
-						"Unable to sync messages to Stack - I'm not watching the corresponding channel. Invite me to the channel on stack and tryagain.");
-					return Task.CompletedTask;
+					else
+					{
+						//or complain about not watching stack.
+						await arg.Channel.SendMessageAsync(
+							"Unable to sync messages to Stack - I'm not watching the corresponding channel. Invite me to the channel on stack and tryagain.");
+					}
 				}
 				//Nothing to do, who cares
-				return Task.CompletedTask;
 			}
-
-			return Task.CompletedTask;
 		}
 
 

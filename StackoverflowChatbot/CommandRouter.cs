@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
+using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot
 {
@@ -14,9 +15,9 @@ namespace StackoverflowChatbot
 		private readonly ActionScheduler actionScheduler;
 		private readonly IReadOnlyCollection<ICommandProcessor> processors;
 
-		public CommandRouter(IRoomService roomService, int roomId, ActionScheduler actionScheduler)
+		public CommandRouter(IRoomService roomService, ICommandService commandService, int roomId, ActionScheduler actionScheduler)
 		{
-			this.priorityProcessor = new PriorityProcessor(roomService, roomId);
+			this.priorityProcessor = new PriorityProcessor(roomService, commandService, roomId);
 			this.actionScheduler = actionScheduler;
 
 			// Populate these with dynamic commands (from a db or something) once that is a thing
@@ -25,11 +26,7 @@ namespace StackoverflowChatbot
 
 		internal async void RouteCommand(EventData message)
 		{
-
-			
-
 			//Do other thuings
-
 			try
 			{
 				if (this.priorityProcessor.ProcessCommand(message, out var action) ||
@@ -37,10 +34,29 @@ namespace StackoverflowChatbot
 				{
 					await action!.Execute(this.actionScheduler);
 					Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
-
 				}
 				else
 				{
+					// TODO refactor this!
+					action = await this.priorityProcessor.ProcessCommandAsync(message);
+					if (action == null)
+					{
+						foreach(var processor in this.processors)
+						{
+							action = await processor.ProcessCommandAsync(message);
+							if (action != null)
+							{
+								await action!.Execute(this.actionScheduler);
+								Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
+								return;
+							}
+						}
+					}
+					else
+					{
+						await action!.Execute(this.actionScheduler);
+						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
+					}
 					await IAction.ExecuteDefaultAction(message, this.actionScheduler);
 				}
 			}

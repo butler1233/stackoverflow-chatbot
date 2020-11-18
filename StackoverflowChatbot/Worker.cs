@@ -4,19 +4,20 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot
 {
 	public class Worker: BackgroundService
 	{
 		private readonly ILogger<Worker> logger;
-		internal static IRoomService chatService; //Statics weeeeeeeeeeeeeee
+		internal readonly IRoomService chatService; //Statics weeeeeeeeeeeeeee // no more
 		internal readonly IConfiguration Configuration;
 
 		public Worker(ILogger<Worker> logger, IRoomService chatService, IConfiguration config)
 		{
 			this.logger = logger;
-			Worker.chatService = chatService;
+			this.chatService = chatService;
 			this.Configuration = config;
 			AppDomain.CurrentDomain.SetData("AdminId", this.Configuration.GetValue<int>("AdminId"));
 		}
@@ -39,8 +40,8 @@ namespace StackoverflowChatbot
 			return base.StartAsync(cancellationToken);
 		}
 
-		private bool JoinRoom(int roomNumber) => Worker.chatService.JoinRoom(roomNumber);
-		private bool Login() => Worker.chatService.Login();
+		private bool JoinRoom(int roomNumber) => this.chatService.JoinRoom(roomNumber);
+		private bool Login() => this.chatService.Login();
 		public override void Dispose() => base.Dispose();
 	}
 }
