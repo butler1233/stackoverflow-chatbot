@@ -32,6 +32,7 @@ namespace StackoverflowChatbot.Relay
 			if (xkcd.Success)
 			{
 				embed.ImageUrl = match.Groups[2].Value;
+				embed.Footer = new EmbedFooterBuilder();
 				embed.Footer.Text = match.Groups[3].Value;
 				embed.Url = match.Groups[1].Value;
 				model.MessageContent = "";
