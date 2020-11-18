@@ -56,7 +56,7 @@ namespace StackoverflowChatbot
 						var model = new DiscordMessageModel{MessageContent = finalMessage};
 						model = model.OneboxImages();
 						var newmessage = $"[**{chatEvent.Username}**] {model.MessageContent}";
-						await textChannel.SendMessageAsync(newmessage);
+						await textChannel.SendMessageAsync(newmessage, false, model.Embed);
 					}
 
 				}
