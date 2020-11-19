@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -13,14 +14,13 @@ namespace StackoverflowChatbot
 {
 	internal static class Discord
 	{
-
 		private static DiscordSocketClient _client = null;
 
-		internal static DiscordSocketClient GetDiscord()
+		internal static async Task<DiscordSocketClient> GetDiscord()
 		{
 			if (_client == null)
 			{
-				InitialiseDiscord();
+				_client = await CreateDiscordClient();
 			}
 
 			return _client;
@@ -29,24 +29,19 @@ namespace StackoverflowChatbot
 		internal static Dictionary<int,RoomWatcher<DefaultWebSocket>> StackRoomWatchers = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		internal static Dictionary<int,ActionScheduler> StackSchedulers = new Dictionary<int, ActionScheduler>();
 
-		private static void InitialiseDiscord()
+		private static async Task<DiscordSocketClient> CreateDiscordClient()
 		{
 			var client = new DiscordSocketClient();
 			//Setuo handlers
 			client.MessageReceived += ClientRecieved;
 			//Logs in
-			client.LoginAsync(TokenType.Bot, Config.Manager.Config().DiscordToken);
-			client.StartAsync();
-			while (client.LoginState != LoginState.LoggedIn)
-			{
-				Thread.Sleep(100);
-			}
+			await client.LoginAsync(TokenType.Bot, Config.Manager.Config().DiscordToken);
+			await client.StartAsync();
 			//Now wr're done
-			_client = client;
+			return client;
 		}
 
 		private static Task ClientRecieved(SocketMessage arg)
-
 		{
 
 			if (arg.Author is SocketGuildUser user)
@@ -62,7 +57,8 @@ namespace StackoverflowChatbot
 					//Build the message
 					var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
 
-					var message = $@"\[**[{displayname}]({config.DiscordInviteLink})**] {arg.Content}";
+					var message = BuildSoMessage(user, config, arg);
+					// var message = $@"\[**[{displayname}]({config.DiscordInviteLink})**] {arg.Content}";
 					//Find the room scheduler
 					if (StackSchedulers.ContainsKey(roomId))
 					{
@@ -78,6 +74,7 @@ namespace StackoverflowChatbot
 						var newScheduler = new ActionScheduler(watcher.Auth, RoomService.Host, roomId);
 						StackSchedulers.Add(roomId, newScheduler);
 						newScheduler.CreateMessageAsync(message);
+						
 						arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
 						return Task.CompletedTask;
 					}
@@ -93,6 +90,33 @@ namespace StackoverflowChatbot
 			return Task.CompletedTask;
 		}
 
+        private static string BuildSoMessage(SocketGuildUser user, Config.Base config, SocketMessage arg)
+        {
+			var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
+            var messageStart = $@"\[**[{displayname}]({config.DiscordInviteLink})**]";
+			var messageContent = arg.Content;
+			foreach (var mentionedUser in arg.MentionedUsers)
+			{
+				messageContent.Replace(mentionedUser.Mention, $"@{mentionedUser.Username}");
+			}
+			foreach (var mentionedRoles in arg.MentionedRoles)
+			{
+				messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");
+			}
+			foreach (var mentionedChannel in arg.MentionedChannels)
+			{
+				// Library doesn't provide channel mention string
+				messageContent.Replace($"<#{mentionedChannel.Id}>", $"[@{mentionedChannel.Name}]({config.DiscordInviteLink})");
+			}
+			
+			var embeddedCode = Regex.Matches(messageContent, "```.+```", RegexOptions.Multiline);
+			foreach (Match codeBlock in embeddedCode)
+			{
+				var soCodeBlock = codeBlock.ToString().Replace("\n", "\n    ");
+				messageContent.Replace(codeBlock.ToString(), soCodeBlock);
+			}
 
-	}
+			return messageStart + messageContent;
+        }
+    }
 }
