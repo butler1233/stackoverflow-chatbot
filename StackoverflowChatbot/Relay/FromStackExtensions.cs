@@ -9,7 +9,7 @@ namespace StackoverflowChatbot.Relay
 	{
 		internal static string ProcessStackMessage(this string message, int roomId, string roomName)
 		{
-			var baseUri = new Uri($"https://chat.stackoverflow.com/rooms/{roomId}/{roomName}");
+			var baseUri = new Uri($"https://chat.stackoverflow.com/rooms/{roomId}/{Uri.EscapeUriString(roomName)}");
 			var document = new HtmlDocument();
 			document.LoadHtml(message);
 			var rootNode = document.DocumentNode.FirstChild;
