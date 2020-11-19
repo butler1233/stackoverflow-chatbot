@@ -1,4 +1,4 @@
-namespace StackoverflowChatbot
+namespace StackoverflowChatbot.Services
 {
 	public interface IRoomService
 	{

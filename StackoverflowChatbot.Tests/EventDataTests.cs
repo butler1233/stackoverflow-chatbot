@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot.Tests
 {
@@ -73,6 +76,14 @@ namespace StackoverflowChatbot.Tests
 		[Test, TestCaseSource(nameof(CommandsToTestAgainst))]
 		public void CommandParameters_ShouldReturnParametersAfterCommandName(TestCase testCase) =>
 			testCase.TestData.CommandParameters.Should().Be(testCase.Parameters);
+
+		[Test]
+		public async Task Firebase_TestData()
+		{
+			var config = Config.Manager.Config();
+			var repository = new RepositoryService(config.FirebaseProjectId);
+			await repository.Stupid();
+		}
 	}
 
 	public class TestCase

@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.NativeCommands;
+using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot.CommandProcessors
 {
@@ -15,10 +17,13 @@ namespace StackoverflowChatbot.CommandProcessors
 		private const int NumberOfRequiredSummons = 3;
 
 		private readonly IRoomService roomService;
+		private readonly ICommandService commandService;
 		private readonly int roomId;
 
 		internal static readonly IReadOnlyDictionary<string, Type> NativeCommands =
 			LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
+
+		private IList<CustomCommand>? commandList = null;
 
 		private static IEnumerable<(string commandName, Type implementer)> LoadNativeCommands()
 		{
@@ -44,9 +49,10 @@ namespace StackoverflowChatbot.CommandProcessors
 		// Key: Room; Value: Set of users who summoned to this room;
 		private static readonly Dictionary<int, HashSet<int>> peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
 
-		public PriorityProcessor(IRoomService roomService, int roomId)
+		public PriorityProcessor(IRoomService roomService, ICommandService commandService, int roomId)
 		{
 			this.roomService = roomService;
+			this.commandService = commandService;
 			this.roomId = roomId;
 		}
 
@@ -57,7 +63,6 @@ namespace StackoverflowChatbot.CommandProcessors
 		public bool ProcessCommand(EventData data, out IAction? action)
 		{
 			var command = data.Command;
-
 
 			if (TryGetNativeCommand(data, out action))
 			{
@@ -76,6 +81,13 @@ namespace StackoverflowChatbot.CommandProcessors
 				return true;
 			}
 
+			if (IsCommand(command, "learn", out commandParameter))
+			{
+				action = this.LearnCommand(commandParameter);
+				return true;
+			}
+
+			// Why is action getting assigned but not unused?
 			action = null;
 			return false;
 		}
@@ -112,6 +124,35 @@ namespace StackoverflowChatbot.CommandProcessors
 			// Can be told to leave other rooms.
 			this.roomService.LeaveRoom(IsSingleNumber(commandParameter.Trim(), out var room) ? room : this.roomId);
 			return NewMessageAction(room > 0 ? $"Leaving room {room}!" : "Bye!");
+		}
+
+		// TODO wrap to Task
+		private IAction LearnCommand(string commandParameter)
+		{
+			var @params = commandParameter.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+			if (@params.Length < 2)
+			{
+				return NewMessageAction("Missing args");
+			}
+
+			var name = @params[0];
+			var args = @params[1];
+			_ = this.commandService.AddCommand(name, args)
+				.ContinueWith(async t =>
+				{
+					if (t.IsFaulted)
+					{
+						Exception? exception = t.Exception;
+						while (exception is AggregateException aggregateException)
+							exception = aggregateException.InnerException;
+						Console.Write(exception);
+					}
+					else
+					{
+						await this.CacheCommand(new CustomCommand(name, args));
+					}
+				});
+			return NewMessageAction($"Learned the command {name}");
 		}
 
 		private SendMessage JoinRoomCommand(EventData data)
@@ -154,6 +195,32 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			room = -1;
 			return false;
+		}
+
+		private async Task EnsureCommandListReady()
+		{
+			if (this.commandList == null || this.commandList.Any())
+			{
+				this.commandList = await this.commandService.GetCommands();
+			}
+		}
+
+		private async Task CacheCommand(CustomCommand command)
+		{
+			await this.EnsureCommandListReady();
+			this.commandList?.Add(command);
+		}
+
+		public async Task<IAction?> ProcessCommandAsync(EventData data)
+		{
+			await this.EnsureCommandListReady();
+			var result = this.commandList.FirstOrDefault(e => e.Name == data.CommandName);
+			if (result != null)
+			{
+				return NewMessageAction(result.Parameter);
+			}
+
+			return null;
 		}
 	}
 }

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using StackoverflowChatbot.Actions;
 
 namespace StackoverflowChatbot.CommandProcessors
@@ -11,5 +12,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		/// <param name="action">Executable action on success, otherwise null.</param>
 		/// <returns>Whether or not this processor could process the command.</returns>
 		bool ProcessCommand(EventData data, out IAction? action);
+
+		Task<IAction?> ProcessCommandAsync(EventData data);
 	}
 }
