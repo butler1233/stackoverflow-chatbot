@@ -12,17 +12,19 @@ namespace StackoverflowChatbot.Relay
 			var baseUri = new Uri($"https://chat.stackoverflow.com/rooms/{roomId}/{Uri.EscapeUriString(roomName)}");
 			var document = new HtmlDocument();
 			document.LoadHtml(message);
-			var rootNode = document.DocumentNode.FirstChild;
+			var documentNode = document.DocumentNode;
 
 			// Handle code-blocks.
-			if (rootNode.Name.Equals("pre"))
+			if (documentNode.FirstChild.Name.Equals("pre"))
 			{
 				var text = HtmlEntity.DeEntitize(document.DocumentNode.InnerText);
 				return $"```\r\n{text}\r\n```";
 			}
 
 			// Handle onebox-content.
-			var classes = rootNode.GetAttributeValue("class", string.Empty).Split(' ').Select(x => x.ToLowerInvariant()).ToHashSet();
+			var classes = documentNode.FirstChild.GetAttributeValue("class", string.Empty).Split(' ')
+				.Select(x => x.ToLowerInvariant())
+				.ToHashSet();
 			if (classes.Contains("ob-xkcd") || classes.Contains("ob-image"))
 			{
 				var img = document.DocumentNode.SelectSingleNode("//img");
@@ -37,28 +39,31 @@ namespace StackoverflowChatbot.Relay
 			}
 
 			// Handle (multiline) text.
-			using (var writer = new StringWriter())
-			{
-				ConvertTo(rootNode, writer);
-				writer.Flush();
-				return writer.ToString();
-			}
+			using var writer = new StringWriter();
+			ConvertTo(document.DocumentNode, writer);
+			writer.Flush();
+			return writer.ToString();
 		}
 
 		private static void ConvertTo(HtmlNode node, TextWriter writer)
 		{
 			switch (node.NodeType)
 			{
-				case HtmlNodeType.Element:
-					if (node.Name.Equals("p") || node.Name.Equals("br"))
-						writer.Write("\r\n");
+				case HtmlNodeType.Document:
 					if (node.HasChildNodes)
 						foreach (var childNode in node.ChildNodes)
 							ConvertTo(childNode, writer);
 					break;
+				case HtmlNodeType.Element:
+					if (node.HasChildNodes)
+						foreach (var childNode in node.ChildNodes)
+							ConvertTo(childNode, writer);
+					if (node.Name.Equals("br") || node.Name.Equals("p"))
+						writer.Write("\r\n");
+					break;
 				case HtmlNodeType.Text:
-					if (node.InnerText.Trim().Length == 0) break;
-					writer.Write(HtmlEntity.DeEntitize(node.InnerText.Trim()));
+					if (node.InnerText.TrimStart().Length == 0) break;
+					writer.Write(HtmlEntity.DeEntitize(node.InnerText.TrimStart()));
 					break;
 			}
 		}

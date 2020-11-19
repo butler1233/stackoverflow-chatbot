@@ -10,6 +10,14 @@ namespace StackoverflowChatbot.Tests
 		private const string RoomName = "c";
 
 		[TestMethod]
+		public void MessageWithMultipleBlocks()
+		{
+			var html = "Hello <b>world</b>, how are <i>you?</i>";
+			var text = html.ProcessStackMessage(RoomId, RoomName);
+			Assert.AreEqual(text, "Hello world, how are you?");
+		}
+
+		[TestMethod]
 		public void MessageHtml()
 		{
 			var html = "Foo &#xA9; bar";
@@ -22,7 +30,7 @@ namespace StackoverflowChatbot.Tests
 		{
 			var html = "<div class=\"full\">a <br> a</div>";
 			var text = html.ProcessStackMessage(RoomId, RoomName);
-			Assert.AreEqual(text, "a\r\na");
+			Assert.AreEqual(text, "a \r\na");
 		}
 
 		[TestMethod]
@@ -60,9 +68,9 @@ namespace StackoverflowChatbot.Tests
 		[TestMethod]
 		public void OneboxYouTube()
 		{
-			var html = "<div class=\"onebox ob-youtube\"><a rel=\"nofollow noopener noreferrer\" style=\"text-decoration: none;\" href=\"https://www.youtube.com/watch?v=A_sY2rjxq6M\"><img src=\"https://i2.ytimg.com/vi/A_sY2rjxq6M/hqdefault.jpg\" class=\"ob-youtube-preview\" width=\"240\" height=\"180\"><div class=\"ob-youtube-title\">The Trammps - Disco Inferno</div><div class=\"ob-youtube-overlay\">►</div></a></div>";
+			var html = "<div class=\"onebox ob-youtube\"><a rel=\"nofollow noopener noreferrer\" style=\"text-decoration: none;\" href=\"https://www.youtube.com/watch?v=m3_I2rfApYk\"><img src=\"https://i2.ytimg.com/vi/m3_I2rfApYk/hqdefault.jpg\" width=\"240\" height=\"180\" class=\"ob-youtube-preview\"/><div class=\"ob-youtube-title\">Brexit, Briefly</div><div class=\"ob-youtube-overlay\">►</div></a></div>\r\n[Captain Obvious] botler, shutdown";
 			var text = html.ProcessStackMessage(RoomId, RoomName);
-			Assert.AreEqual(text, "https://www.youtube.com/watch?v=A_sY2rjxq6M");
+			Assert.AreEqual(text, "https://www.youtube.com/watch?v=m3_I2rfApYk");
 		}
 	}
 }
