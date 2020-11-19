@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackoverflowChatbot.Config;
+using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot
 {
@@ -29,12 +30,16 @@ namespace StackoverflowChatbot
 				Manager.CONFIG_FILENAME = args[2];
 			}
 
-
+			// TODO make the Config a service also
+			var config = Manager.Config();
 			return Host.CreateDefaultBuilder(args)
 			.ConfigureServices(
 				(hostContext, services) =>
 				_ = services.AddHostedService<Worker>()
-				.AddSingleton<IRoomService>(new RoomService(username, password))
+				.AddSingleton<IIdentityProvider>(new IdentityProvider(username, password))
+				.AddSingleton<IRepositoryService>(new RepositoryService(config.FirebaseProjectId))
+				.AddSingleton<ICommandService, CommandService>()
+				.AddSingleton<IRoomService, RoomService>()
 			);
 		}
 	}

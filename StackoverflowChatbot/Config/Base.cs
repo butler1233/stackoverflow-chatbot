@@ -22,6 +22,11 @@ namespace StackoverflowChatbot.Config
 		public string DiscordToken { get; set; }
 
 		/// <summary>
+		/// Project ID in Firebase
+		/// </summary>
+		public string FirebaseProjectId { get; set; }
+
+		/// <summary>
 		/// DO NOT SPECIFY THIS IN YOUR CONFIG.JSON - it will be inferred fromt he other one
 		/// </summary>
 		[Newtonsoft.Json.JsonIgnore]

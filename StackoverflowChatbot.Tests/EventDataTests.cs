@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot.Tests
 {
@@ -76,6 +78,14 @@ namespace StackoverflowChatbot.Tests
 		[DynamicData(nameof(CommandsToTestAgainst), DynamicDataSourceType.Method)]
 		public void CommandParameters_ShouldReturnParametersAfterCommandName(TestCase testCase) =>
 			Assert.AreEqual(testCase.Parameters, testCase.TestData.CommandParameters);
+
+		[DataTestMethod]
+		public async Task Firebase_TestData()
+		{
+			var config = Config.Manager.Config();
+			var repository = new RepositoryService(config.FirebaseProjectId);
+			await repository.Stupid();
+		}
 	}
 
 	public class TestCase
