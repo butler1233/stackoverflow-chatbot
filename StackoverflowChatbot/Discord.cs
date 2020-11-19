@@ -74,6 +74,7 @@ namespace StackoverflowChatbot
 						var newScheduler = new ActionScheduler(watcher.Auth, RoomService.Host, roomId);
 						StackSchedulers.Add(roomId, newScheduler);
 						newScheduler.CreateMessageAsync(message);
+						
 						arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
 						return Task.CompletedTask;
 					}
