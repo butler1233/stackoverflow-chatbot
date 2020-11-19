@@ -126,15 +126,19 @@ namespace StackoverflowChatbot.CommandProcessors
 			return NewMessageAction(room > 0 ? $"Leaving room {room}!" : "Bye!");
 		}
 
+		// TODO wrap to Task
 		private IAction LearnCommand(string commandParameter)
 		{
-			var name = commandParameter.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-			if (string.IsNullOrEmpty(name))
+			var @params = commandParameter.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+			if (@params.Length < 2)
 			{
-				return NewMessageAction($"No command name found in '{commandParameter}'");
+				return NewMessageAction("Missing args");
 			}
-			_ = this.commandService.AddCommand(name, commandParameter)
-				.ContinueWith(t =>
+
+			var name = @params[0];
+			var args = @params[1];
+			_ = this.commandService.AddCommand(name, args)
+				.ContinueWith(async t =>
 				{
 					if (t.IsFaulted)
 					{
@@ -143,8 +147,12 @@ namespace StackoverflowChatbot.CommandProcessors
 							exception = aggregateException.InnerException;
 						Console.Write(exception);
 					}
+					else
+					{
+						await this.CacheCommand(new CustomCommand(name, args));
+					}
 				});
-			return NewMessageAction($"Learned the command {commandParameter}");
+			return NewMessageAction($"Learned the command {name}");
 		}
 
 		private SendMessage JoinRoomCommand(EventData data)
@@ -189,12 +197,23 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		public async Task<IAction?> ProcessCommandAsync(EventData data)
+		private async Task EnsureCommandListReady()
 		{
 			if (this.commandList == null || this.commandList.Any())
 			{
 				this.commandList = await this.commandService.GetCommands();
 			}
+		}
+
+		private async Task CacheCommand(CustomCommand command)
+		{
+			await this.EnsureCommandListReady();
+			this.commandList?.Add(command);
+		}
+
+		public async Task<IAction?> ProcessCommandAsync(EventData data)
+		{
+			await this.EnsureCommandListReady();
 			var result = this.commandList.FirstOrDefault(e => e.Name == data.CommandName);
 			if (result != null)
 			{

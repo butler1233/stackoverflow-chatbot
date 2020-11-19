@@ -48,7 +48,7 @@ namespace StackoverflowChatbot
 							{
 								await action!.Execute(this.actionScheduler);
 								Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
-								return;
+								break;
 							}
 						}
 					}
@@ -57,6 +57,9 @@ namespace StackoverflowChatbot
 						await action!.Execute(this.actionScheduler);
 						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
 					}
+				}
+				if (action == null)
+				{
 					await IAction.ExecuteDefaultAction(message, this.actionScheduler);
 				}
 			}
