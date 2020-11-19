@@ -27,14 +27,14 @@ namespace StackoverflowChatbot.Config
 		public string FirebaseProjectId { get; set; }
 
 		/// <summary>
-		/// DO NOT SPECIFY THIS IN YOUR CONFIG.JSON - it will be inferred fromt he other one
+		/// DO NOT SPECIFY THIS IN YOUR CONFIG.JSON - it will be inferred from the other one
 		/// </summary>
 		[Newtonsoft.Json.JsonIgnore]
 		[JsonIgnore]
 		public Dictionary<int,string> StackToDiscordMap { get; set; }
 
 		/// <summary>
-		/// Your mappins here will be reversed for th eother one.
+		/// Your mappins here will be reversed for the other one.
 		/// </summary>
 		public Dictionary<string,int> DiscordToStackMap { get; set; }
 
