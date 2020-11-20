@@ -48,3 +48,4 @@ steps:
   inputs:
     testResultsFormat: NUnit
     testResultsFiles: '**/test-results.xml'
+    failTaskOnFailedTests: true
