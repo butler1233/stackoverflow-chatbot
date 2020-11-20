@@ -43,3 +43,8 @@ steps:
     Destination: 'AzureBlob'
     storage: 'leerbcsharpbot'
     ContainerName: 'deploy'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: NUnit
+    testResultsFiles: '**/test-results.xml'
