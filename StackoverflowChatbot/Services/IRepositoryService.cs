@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Google.Cloud.Firestore;
 
 namespace StackoverflowChatbot.Services
 {
 	public interface IRepositoryService
 	{
-		Task<FirestoreDb> Database();
+		Task<List<T>> GetList<T>(string name, CancellationToken cancellationToken = default);
+		Task<string?> Add<T>(string name, T value, CancellationToken cancellationToken = default);
 	}
 }

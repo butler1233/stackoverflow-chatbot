@@ -81,7 +81,7 @@ namespace StackoverflowChatbot.Tests
 		public async Task Firebase_TestData()
 		{
 			var config = Config.Manager.Config();
-			var repository = new RepositoryService(config.FirebaseProjectId);
+			var repository = new FirebaseRepositoryService(config.FirebaseProjectId);
 			await repository.Stupid();
 		}
 	}
