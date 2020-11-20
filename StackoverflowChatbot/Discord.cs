@@ -30,7 +30,11 @@ namespace StackoverflowChatbot
 
 		private static async Task<DiscordSocketClient> CreateDiscordClient()
 		{
-			var client = new DiscordSocketClient();
+			var config = new DiscordSocketConfig();
+			config.AlwaysDownloadUsers = true;
+			
+			var client = new DiscordSocketClient(config);
+			
 			//Setuo handlers
 			client.MessageReceived += ClientRecieved;
 			//Logs in
