@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -24,8 +25,8 @@ namespace StackoverflowChatbot
 			return _client;
 		}
 
-		internal static Dictionary<int,RoomWatcher<DefaultWebSocket>> StackRoomWatchers = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
-		internal static Dictionary<int,ActionScheduler> StackSchedulers = new Dictionary<int, ActionScheduler>();
+		internal static Dictionary<int, RoomWatcher<DefaultWebSocket>> StackRoomWatchers = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
+		internal static Dictionary<int, ActionScheduler> StackSchedulers = new Dictionary<int, ActionScheduler>();
 
 		private static async Task<DiscordSocketClient> CreateDiscordClient()
 		{
@@ -39,12 +40,13 @@ namespace StackoverflowChatbot
 			return client;
 		}
 
-		private static Task ClientRecieved(SocketMessage arg)
+		private static async Task ClientRecieved(SocketMessage arg)
 		{
 
 			if (arg.Author is SocketGuildUser user)
 			{
-				if (arg.Author.IsBot) return Task.CompletedTask;
+				if (arg.Author.IsBot) return;
+
 				var config = Config.Manager.Config();
 				Console.WriteLine($"[DIS {arg.Channel.Name}] {arg.Content}");
 				//Check if we have a mapping.
@@ -57,7 +59,7 @@ namespace StackoverflowChatbot
 
 					// Create a list of messages in case there are embedded codeblocks or stuff alongside text
 					var messages = FromDiscordExtensions.BuildSoMessage(user, config, arg);
-					
+
 					foreach (var message in messages)
 					{
 						//Find the room scheduler
@@ -65,7 +67,7 @@ namespace StackoverflowChatbot
 						{
 							//We already have a scheduler, lets goooo
 							var sched = StackSchedulers[roomId];
-							sched.CreateMessageAsync(message);
+							await sched.CreateMessageAsync(message);
 						}
 						//Or create one if we already have a watcher.
 						else if (StackRoomWatchers.ContainsKey(roomId))
@@ -73,24 +75,48 @@ namespace StackoverflowChatbot
 							var watcher = StackRoomWatchers[roomId];
 							var newScheduler = new ActionScheduler(watcher.Auth, RoomService.Host, roomId);
 							StackSchedulers.Add(roomId, newScheduler);
-							newScheduler.CreateMessageAsync(message);
-							
-							arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
+							await newScheduler.CreateMessageAsync(message);
+
+							await arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
 						}
 						else
 						{
 							//or complain about not watching stack.
-							arg.Channel.SendMessageAsync(
+							await arg.Channel.SendMessageAsync(
 								"Unable to sync messages to Stack - I'm not watching the corresponding channel. Invite me to the channel on stack and tryagain.");
-							return Task.CompletedTask;
 						}
 					}
 				}
-				//Nothing to do, who cares
-				return Task.CompletedTask;
+			}
+		}
+
+		private static string BuildSoMessage(SocketGuildUser user, Config.Base config, SocketMessage arg)
+		{
+			var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
+			var messageStart = $@"\[**[{displayname}]({config.DiscordInviteLink})**]";
+			var messageContent = arg.Content;
+			foreach (var mentionedUser in arg.MentionedUsers)
+			{
+				messageContent.Replace(mentionedUser.Mention, $"@{mentionedUser.Username}");
+			}
+			foreach (var mentionedRoles in arg.MentionedRoles)
+			{
+				messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");
+			}
+			foreach (var mentionedChannel in arg.MentionedChannels)
+			{
+				// Library doesn't provide channel mention string
+				messageContent.Replace($"<#{mentionedChannel.Id}>", $"[@{mentionedChannel.Name}]({config.DiscordInviteLink})");
 			}
 
-			return Task.CompletedTask;
-		}       
-    }
+			var embeddedCode = Regex.Matches(messageContent, "```.+```", RegexOptions.Multiline);
+			foreach (Match codeBlock in embeddedCode)
+			{
+				var soCodeBlock = codeBlock.ToString().Replace("\n", "\n    ");
+				messageContent.Replace(codeBlock.ToString(), soCodeBlock);
+			}
+
+			return messageStart + messageContent;
+		}
+	}
 }

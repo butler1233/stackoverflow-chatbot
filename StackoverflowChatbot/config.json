@@ -1,24 +1,25 @@
 {
-  "Triggers": [
-	"Botler! ",
-	"Botler, ",
-	"👏👏"
-  ],
-  "Controllers": [ 3033062, 4364057 ],
-  "DiscordToken": "Nzc3OTU5NzM4Mzk3Njg3ODQw.X7LBdw.XmqkU8AwxqTZudOs2aoCt5nI75o",
-  "DiscordInviteLink": "https://discord.gg/PNMq3pBSUe",
-  "DiscordToStackMap": {
-	"sand-box": 1,
-	"so-chat": 7
-  },
-  "DiscordChannelNamesToIds": {
-	"sand-box": 777818912108576768,
-	"so-chat": 777824562376867851
-  },
-  "IgnoredUsers": [
-	12265685,
-	13750349,
-	11518920
-  ]
+	"Triggers": [
+		"Botler! ",
+		"Botler, ",
+		"👏👏"
+	],
+	"Controllers": [ 3033062, 4364057 ],
+	"DiscordToken": "Nzc3OTU5NzM4Mzk3Njg3ODQw.X7LBdw.XmqkU8AwxqTZudOs2aoCt5nI75o",
+	"FirebaseProjectId": "so-chatbot-8413e",
+	"DiscordInviteLink": "https://discord.gg/PNMq3pBSUe",
+	"DiscordToStackMap": {
+		"sand-box": 1,
+		"so-chat": 7
+	},
+	"DiscordChannelNamesToIds": {
+		"sand-box": 777818912108576768,
+		"so-chat": 777824562376867851
+	},
+	"IgnoredUsers": [
+		12265685,
+		13750349,
+		11518920
+	]
 
 }

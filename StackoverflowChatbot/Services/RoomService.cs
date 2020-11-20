@@ -4,6 +4,7 @@ using SharpExchange.Chat.Actions;
 using SharpExchange.Chat.Events;
 using SharpExchange.Net.WebSockets;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot
 {
@@ -12,9 +13,12 @@ namespace StackoverflowChatbot
 		internal const string Host = "chat.stackoverflow.com";
 		private readonly EmailAuthenticationProvider auth;
 		private readonly Dictionary<int, RoomWatcher<DefaultWebSocket>> activeRooms;
-		public RoomService(string username, string password)
+		private readonly ICommandService commandService;
+
+		public RoomService(IIdentityProvider identityProvider, ICommandService commandService)
 		{
-			this.auth = new EmailAuthenticationProvider(username, password);
+			this.auth = new EmailAuthenticationProvider(identityProvider.Username, identityProvider.Password);
+			this.commandService = commandService;
 			this.activeRooms = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		}
 
@@ -40,8 +44,8 @@ namespace StackoverflowChatbot
 			var newRoomWatcher =
 				new RoomWatcher<DefaultWebSocket>(this.auth, $"https://chat.stackoverflow.com/rooms/{roomNumber}");
 			var messageHandler = new ChatEventHandler();
-			var scheduler = new SharpExchange.Chat.Actions.ActionScheduler(this.auth, Host, roomNumber);
-			var router = new CommandRouter(this, roomNumber,
+			var scheduler = new ActionScheduler(this.auth, Host, roomNumber);
+			var router = new CommandRouter(this, this.commandService, roomNumber,
 				scheduler);
 			messageHandler.OnEvent += router.RouteCommand;
 			newRoomWatcher.EventRouter.AddProcessor(messageHandler);
