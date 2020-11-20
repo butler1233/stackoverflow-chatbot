@@ -2,6 +2,10 @@ using System;
 using System.IO;
 using System.Linq;
 using HtmlAgilityPack;
+using System.Text.RegularExpressions;
+using System.Linq;
+using System.Collections.Generic;
+using Discord.WebSocket;
 
 namespace StackoverflowChatbot.Relay
 {
@@ -71,5 +75,38 @@ namespace StackoverflowChatbot.Relay
 					break;
 			}
 		}
+
+		
+        internal static string MakePingsGreatAgain(string message, DiscordSocketClient discordClient, bool inCaseMultipleFoundUseFirst = true)
+        {
+            var pings = Regex.Matches(message, @"[@#][^\s]+");
+			foreach (Match possiblePing in pings)
+			{
+				if (possiblePing.ToString()[0] == '@')
+				{
+					var pingString = possiblePing.ToString().Replace("@", "");
+					var possibleUsers = Discord.GetUserByName(pingString);
+					if (possibleUsers.Count() == 1 || (inCaseMultipleFoundUseFirst && possibleUsers.Count() > 1))
+					{
+						message = message.Replace(possiblePing.ToString(), possibleUsers.First().Mention);
+					}
+					else if (possibleUsers.Count() == 0)
+					{
+						// Role ping UwU
+						var possibleRoles = Discord.GetRolesByName(pingString);
+						if (possibleRoles.Count() == 1 || (inCaseMultipleFoundUseFirst && possibleRoles.Count() > 1))
+						{
+							message = message.Replace(possiblePing.ToString(), possibleRoles.First().Mention);
+						}
+					}
+				}
+				else
+				{
+					// Channel mention, probably fine without doing anything
+				}
+			}
+
+			return message;
+        }
 	}
 }
