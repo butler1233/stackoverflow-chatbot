@@ -5,6 +5,7 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using StackoverflowChatbot.Services;
+using StackoverflowChatbot.Services.Repositories;
 
 namespace StackoverflowChatbot.Tests
 {

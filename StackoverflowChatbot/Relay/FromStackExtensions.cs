@@ -25,13 +25,13 @@ namespace StackoverflowChatbot.Relay
 			var classes = documentNode.FirstChild.GetAttributeValue("class", string.Empty).Split(' ')
 				.Select(x => x.ToLowerInvariant())
 				.ToHashSet();
-			if (classes.Contains("ob-xkcd") || classes.Contains("ob-image"))
+			if (classes.Contains("ob-image"))
 			{
 				var img = document.DocumentNode.SelectSingleNode("//img");
 				var src = HtmlEntity.DeEntitize(img?.GetAttributeValue("src", string.Empty));
 				if (Uri.TryCreate(baseUri, src, out var result)) return result.ToString();
 			}
-			else if (classes.Contains("ob-youtube") || classes.Contains("ob-message"))
+			else if (classes.Contains("ob-xkcd") || classes.Contains("ob-youtube") || classes.Contains("ob-message"))
 			{
 				var anchor = document.DocumentNode.SelectSingleNode("//a");
 				var href = HtmlEntity.DeEntitize(anchor?.GetAttributeValue("href", string.Empty));
