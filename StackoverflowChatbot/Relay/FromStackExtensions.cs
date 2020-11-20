@@ -55,11 +55,15 @@ namespace StackoverflowChatbot.Relay
 							ConvertTo(childNode, writer);
 					break;
 				case HtmlNodeType.Element:
+					if (node.Name.Equals("code"))
+						writer.Write("`");
 					if (node.HasChildNodes)
 						foreach (var childNode in node.ChildNodes)
 							ConvertTo(childNode, writer);
 					if (node.Name.Equals("br") || node.Name.Equals("p"))
 						writer.Write("\r\n");
+					if (node.Name.Equals("code"))
+						writer.Write("` ");
 					break;
 				case HtmlNodeType.Text:
 					if (node.InnerText.TrimStart().Length == 0) break;
