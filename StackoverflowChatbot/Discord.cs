@@ -89,34 +89,5 @@ namespace StackoverflowChatbot
 				}
 			}
 		}
-
-		private static string BuildSoMessage(SocketGuildUser user, Config.Base config, SocketMessage arg)
-		{
-			var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
-			var messageStart = $@"\[**[{displayname}]({config.DiscordInviteLink})**]";
-			var messageContent = arg.Content;
-			foreach (var mentionedUser in arg.MentionedUsers)
-			{
-				messageContent.Replace(mentionedUser.Mention, $"@{mentionedUser.Username}");
-			}
-			foreach (var mentionedRoles in arg.MentionedRoles)
-			{
-				messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");
-			}
-			foreach (var mentionedChannel in arg.MentionedChannels)
-			{
-				// Library doesn't provide channel mention string
-				messageContent.Replace($"<#{mentionedChannel.Id}>", $"[@{mentionedChannel.Name}]({config.DiscordInviteLink})");
-			}
-
-			var embeddedCode = Regex.Matches(messageContent, "```.+```", RegexOptions.Multiline);
-			foreach (Match codeBlock in embeddedCode)
-			{
-				var soCodeBlock = codeBlock.ToString().Replace("\n", "\n    ");
-				messageContent.Replace(codeBlock.ToString(), soCodeBlock);
-			}
-
-			return messageStart + messageContent;
-		}
 	}
 }
