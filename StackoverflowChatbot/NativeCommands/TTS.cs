@@ -25,21 +25,18 @@ namespace StackoverflowChatbot.NativeCommands
                 return new SendMessage("you need to provide something that can be read");
 
             var language = "en";
-
             var saneText = string.Empty;
-            var sanityRegex = new Regex("[^a-zA-Z0-9 -]", RegexOptions.Singleline);
-            var langSet = false;
-            // sanitize input
-            foreach (var param in parameters)
+        
+            if (_languageApis.ContainsKey(parameters[0]))
+                language = parameters[0];
+            else 
+                saneText += parameters[0];
+
+            for (int i = 1; i < parameters.Length; i++)
             {
-                if (!langSet && _languageApis.ContainsKey(param))
-                {
-                    language = param;
-                    langSet = true;
-                    continue;
-                }
-                saneText += " " + sanityRegex.Replace(param, "");
+                saneText += " " + parameters[i];
             }
+            saneText = saneText.Trim();
 
             var client = new HttpClient();
             var request = client.GetAsync(_languageApis[language] + HttpUtility.UrlEncode(saneText)).GetAwaiter().GetResult();
@@ -47,7 +44,7 @@ namespace StackoverflowChatbot.NativeCommands
 
             var fileService = new htputFileService();
             var linkToAudio = fileService.UploadFileAsync(file, "<audio controls=\"controls\" autobuffer=\"autobuffer\" autoplay=\"autoplay\"><source src=\"data:audio/wav;base64,", "\"/></audio>").GetAwaiter().GetResult();
-            return new SendMessage(linkToAudio);
+            return new SendMessage($"TTS: [{saneText}]({linkToAudio})");
         }
 
 		internal override string CommandName() => "tts";
