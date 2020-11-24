@@ -32,10 +32,17 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			foreach (var implementer in implementers)
 			{
-				var instance = (BaseCommand)Activator.CreateInstance(implementer)!;
-				Console.WriteLine(
-					$"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
-				yield return (instance.CommandName().ToLower(), implementer);
+				var instance = (BaseCommand?)Activator.CreateInstance(implementer);
+				if (instance != null)
+				{
+					Console.WriteLine(
+						$"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
+					yield return (instance.CommandName().ToLower(), implementer);
+				}
+				else
+				{
+					Console.WriteLine($"Could not load command {implementer.FullName}.");
+				}
 			}
 		}
 

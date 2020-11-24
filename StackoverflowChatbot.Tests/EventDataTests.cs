@@ -78,6 +78,7 @@ namespace StackoverflowChatbot.Tests
 			testCase.TestData.CommandParameters.Should().Be(testCase.Parameters);
 
 		[Test]
+		[Ignore("Firebase OAuth disabled for the meantime...")]
 		public async Task Firebase_TestData()
 		{
 			var config = Config.Manager.Config();
