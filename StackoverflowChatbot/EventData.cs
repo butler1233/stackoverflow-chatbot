@@ -9,7 +9,7 @@ namespace StackoverflowChatbot
 {
 	public class EventData
 	{
-		internal static EventData FromJson(JToken json) => json.ToObject<EventData>();
+		internal static EventData FromJson(JToken json) => json.ToObject<EventData>()!;
 
 		private static string RemoveTriggerFrom(string content) => content.Substring(GetTriggerFrom(content).Length).Trim();
 

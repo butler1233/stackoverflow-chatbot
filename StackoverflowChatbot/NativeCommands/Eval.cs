@@ -14,12 +14,10 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	public class Eval: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
+		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
 			if (parameters == null)
-			{
 				return new SendMessage("Yeah well I'm not even gonna try to compile that.");
-			}
 
 			switch (parameters.First())
 			{
@@ -54,7 +52,7 @@ namespace StackoverflowChatbot.NativeCommands
 		{
 			var collection = usings as string[] ?? usings.ToArray();
 			this.UsingList.AddRange(collection);
-			return $"Added {collection.Count()} usings. We now have {this.UsingList.Count} in total.";
+			return $"Added {collection.Length} usings. We now have {this.UsingList.Count} in total.";
 		}
 
 		private string BuildCode(string source)
@@ -85,7 +83,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 		internal override string CommandName() => "cs";
 
-		internal override string? CommandDescription() => "Enables you to compile and run cs snippets";
+		internal override string CommandDescription() => "Enables you to compile and run cs snippets";
 	}
 
 	public class IllegalSnippetException: Exception

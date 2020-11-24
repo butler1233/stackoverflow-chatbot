@@ -14,35 +14,35 @@ namespace StackoverflowChatbot.Config
 		/// <summary>
 		/// users who are allowed to control the bot
 		/// </summary>
-		public List<int> Controllers { get; set; }
+		public List<int> Controllers { get; set; } = null!;
 
 		/// <summary>
 		/// Token for logging in yo discord and doing things.
 		/// </summary>
-		public string DiscordToken { get; set; }
+		public string DiscordToken { get; set; } = null!;
 
 		/// <summary>
 		/// Project ID in Firebase
 		/// </summary>
-		public string FirebaseProjectId { get; set; }
+		public string FirebaseProjectId { get; set; } = null!;
 
 		/// <summary>
 		/// DO NOT SPECIFY THIS IN YOUR CONFIG.JSON - it will be inferred from the other one
 		/// </summary>
 		[Newtonsoft.Json.JsonIgnore]
 		[JsonIgnore]
-		public Dictionary<int,string> StackToDiscordMap { get; set; }
+		public Dictionary<int, string> StackToDiscordMap { get; set; } = null!;
 
 		/// <summary>
 		/// Your mappins here will be reversed for the other one.
 		/// </summary>
-		public Dictionary<string,int> DiscordToStackMap { get; set; }
+		public Dictionary<string, int> DiscordToStackMap { get; set; } = null!;
 
-		public Dictionary<string,ulong> DiscordChannelNamesToIds { get; set; }
+		public Dictionary<string, ulong> DiscordChannelNamesToIds { get; set; } = null!;
 
-		public string DiscordInviteLink { get; set; }
+		public string DiscordInviteLink { get; set; } = null!;
 
-		public List<int> IgnoredUsers { get; set; }
+		public List<int> IgnoredUsers { get; set; } = null!;
 
 	}
 }
