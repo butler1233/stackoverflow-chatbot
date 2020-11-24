@@ -12,7 +12,7 @@ namespace StackoverflowChatbot.Services.Repositories
 
 		public async Task<string?> Add<T>(string name, T value, CancellationToken cancellationToken)
 		{
-			var list = await this.GetList<T>(name, cancellationToken) ?? new HashSet<T>();
+			var list = await this.GetList<T>(name, cancellationToken);
 			list.Add(value);
 			Barrel.Current.Add(name, list, Timeout.InfiniteTimeSpan);
 			// TODO return the inserted id?
@@ -22,7 +22,7 @@ namespace StackoverflowChatbot.Services.Repositories
 		public Task<HashSet<T>> GetList<T>(string name, CancellationToken cancellationToken)
 		{
 			var data = Barrel.Current.Get<HashSet<T>>(name);
-			return Task.FromResult(data);
+			return Task.FromResult(data ?? new HashSet<T>());
 		}
 
 		public void Clear(string collectionName) => Barrel.Current.Empty(collectionName);

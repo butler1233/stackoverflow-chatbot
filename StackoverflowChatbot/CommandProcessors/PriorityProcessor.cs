@@ -92,7 +92,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			{
 				action = this.LearnCommand(commandParameter);
 				return true;
-			}
+			}	
 
 			// Why is action getting assigned but not unused?
 			action = null;

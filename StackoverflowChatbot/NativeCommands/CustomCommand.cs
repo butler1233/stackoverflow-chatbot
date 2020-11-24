@@ -55,14 +55,20 @@ namespace StackoverflowChatbot.NativeCommands
 		{
 			var components = text.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
 			var apiString = components.First();
-			var responseType = ParseResponseType(components.Last());
 			var result = Uri.TryCreate(apiString, UriKind.Absolute, out var uri) &&
 				(uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+			if (!result)
+			{
+				cmd = null;
+				return false;
+			}
 			var argsCount = Regex.Matches(apiString, "(={\\d+})").Count;
+			var responseType = ParseResponseType(components.Last());
 			cmd = result ? new DynamicCommand(uri!, argsCount, responseType) : null;
 			return result;
 		}
 
+		// TODO this shouldn't throw as part of the *TryParse
 		private static ResponseType ParseResponseType(string text)
 		{
 			if (!text.StartsWith("-t"))
