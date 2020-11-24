@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackoverflowChatbot.Config;
 using StackoverflowChatbot.Services;
+using StackoverflowChatbot.Services.Repositories;
 
 namespace StackoverflowChatbot
 {
@@ -37,7 +38,8 @@ namespace StackoverflowChatbot
 				(hostContext, services) =>
 				_ = services.AddHostedService<Worker>()
 				.AddSingleton<IIdentityProvider>(new IdentityProvider(username, password))
-				.AddSingleton<IRepositoryService>(new RepositoryService(config.FirebaseProjectId))
+				//.AddSingleton<IRepositoryService>(new FirebaseRepositoryService(config.FirebaseProjectId))
+				.AddSingleton<IRepositoryService>(new MonkeyCacheRepositoryService(config.FirebaseProjectId))
 				.AddSingleton<ICommandService, CommandService>()
 				.AddSingleton<IRoomService, RoomService>()
 			);

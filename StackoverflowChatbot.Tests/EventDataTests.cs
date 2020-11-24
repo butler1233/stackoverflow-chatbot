@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.Threading.Tasks;
 using StackoverflowChatbot.Services;
+using StackoverflowChatbot.Services.Repositories;
 
 namespace StackoverflowChatbot.Tests
 {
@@ -80,7 +81,7 @@ namespace StackoverflowChatbot.Tests
 		public async Task Firebase_TestData()
 		{
 			var config = Config.Manager.Config();
-			var repository = new RepositoryService(config.FirebaseProjectId);
+			var repository = new FirebaseRepositoryService(config.FirebaseProjectId);
 			await repository.Stupid();
 		}
 	}

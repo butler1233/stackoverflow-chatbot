@@ -130,7 +130,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			var name = @params[0];
 			var args = @params[1];
-			_ = this.commandService.AddCommand(name, args)
+			_ = this.commandService.AddCommand(new CustomCommand(name, args))
 				.ContinueWith(async t =>
 				{
 					if (t.IsFaulted)

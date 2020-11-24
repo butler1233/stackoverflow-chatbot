@@ -9,7 +9,7 @@ namespace StackoverflowChatbot.Services
 {
 	public interface ICommandService
 	{
-		Task<string> AddCommand(string name, string parameter, CancellationToken cancellationToken = default);
-		Task<IList<CustomCommand>> GetCommands(CancellationToken cancellationToken = default);
+		Task<string?> AddCommand(CustomCommand command, CancellationToken cancellationToken = default);
+		Task<List<CustomCommand>> GetCommands(CancellationToken cancellationToken = default);
 	}
 }
