@@ -3,7 +3,6 @@ using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot.Tests

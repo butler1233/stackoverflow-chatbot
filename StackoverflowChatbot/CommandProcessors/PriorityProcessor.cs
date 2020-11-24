@@ -23,7 +23,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		internal static readonly IReadOnlyDictionary<string, Type> NativeCommands =
 			LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
 
-		private IList<CustomCommand>? commandList = null;
+		private IList<CustomCommand>? commandList = new List<CustomCommand>();
 
 		private static IEnumerable<(string commandName, Type implementer)> LoadNativeCommands()
 		{
@@ -33,16 +33,9 @@ namespace StackoverflowChatbot.CommandProcessors
 			foreach (var implementer in implementers)
 			{
 				var instance = (BaseCommand)Activator.CreateInstance(implementer)!;
-				if (instance != null)
-				{
-					Console.WriteLine(
-						$"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
-					yield return (instance.CommandName().ToLower(), implementer);
-				}
-				else
-				{
-					Console.WriteLine($"Could not load command {implementer.FullName}.");
-				}
+				Console.WriteLine(
+					$"Loaded command {instance.CommandName()} from type {implementer.Name} from {implementer.Assembly.FullName}");
+				yield return (instance.CommandName().ToLower(), implementer);
 			}
 		}
 
@@ -214,10 +207,10 @@ namespace StackoverflowChatbot.CommandProcessors
 		public async Task<IAction?> ProcessCommandAsync(EventData data)
 		{
 			await this.EnsureCommandListReady();
-			var result = this.commandList.FirstOrDefault(e => e.Name == data.CommandName);
+			var result = this.commandList?.FirstOrDefault(e => e.Name == data.CommandName);
 			if (result != null)
 			{
-				return NewMessageAction(result.Parameter);
+				return NewMessageAction(result.Parameter!);
 			}
 
 			return null;
