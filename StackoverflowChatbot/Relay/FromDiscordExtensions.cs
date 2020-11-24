@@ -33,10 +33,13 @@ namespace StackoverflowChatbot.Relay
 				return new List<string>() { messageStart + messageContent };
 
 			// Complex message with codeblocks...
-			int cursor = 0;
+			var cursor = 0;
 			result.Add(messageStart);
-			foreach (Match codeBlock in embeddedCode)
+			foreach (Match? codeBlock in embeddedCode)
 			{
+				if (codeBlock == null)
+					continue;
+
 				var indicatorCount = Regex.Matches(messageContent.Substring(0, codeBlock.Index + 3), "```", RegexOptions.Singleline).Count;
 				if(indicatorCount % 2 == 0)
 					continue;

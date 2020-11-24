@@ -9,12 +9,12 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class About: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters) =>
+		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters) =>
 			new SendMessage(
 				"    Lee Botler: A bot for C# which probably won't work. \r\n    Written by CaptainObvious, based originally on Sandy, by SquirrelKiller. ");
 
 		internal override string CommandName() => "about";
 
-		internal override string? CommandDescription() => "Tells you about the bot.";
+		internal override string CommandDescription() => "Tells you about the bot.";
 	}
 }

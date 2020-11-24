@@ -8,7 +8,7 @@ namespace StackoverflowChatbot.Config
 {
 	internal static class Manager
 	{
-		private static Base instance = null!;
+		private static Base? instance;
 
 		internal static string CONFIG_FILENAME = "config.json";
 

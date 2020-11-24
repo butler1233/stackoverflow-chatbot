@@ -13,17 +13,9 @@ namespace StackoverflowChatbot
 {
 	internal static class Discord
 	{
-		private static DiscordSocketClient _client = null;
+		private static DiscordSocketClient? _client;
 
-		internal static async Task<DiscordSocketClient> GetDiscord()
-		{
-			if (_client == null)
-			{
-				_client = await CreateDiscordClient();
-			}
-
-			return _client;
-		}
+		internal static async Task<DiscordSocketClient> GetDiscord() => _client ??= await CreateDiscordClient();
 
 		internal static Dictionary<int, RoomWatcher<DefaultWebSocket>> StackRoomWatchers = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		internal static Dictionary<int, ActionScheduler> StackSchedulers = new Dictionary<int, ActionScheduler>();
@@ -55,7 +47,7 @@ namespace StackoverflowChatbot
 					//We are setup to map this channel's messages to stack.
 					var roomId = config.DiscordToStackMap[arg.Channel.Name];
 					//Build the message
-					var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
+					//var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
 
 					// Create a list of messages in case there are embedded codeblocks or stuff alongside text
 					var messages = FromDiscordExtensions.BuildSoMessage(user, config, arg);
@@ -94,26 +86,29 @@ namespace StackoverflowChatbot
 		{
 			var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
 			var messageStart = $@"\[**[{displayname}]({config.DiscordInviteLink})**]";
-			var messageContent = arg.Content;
+			var messageContent = arg.Content!;
 			foreach (var mentionedUser in arg.MentionedUsers)
 			{
-				messageContent.Replace(mentionedUser.Mention, $"@{mentionedUser.Username}");
+				messageContent = messageContent.Replace(mentionedUser.Mention, $"@{mentionedUser.Username}");
 			}
 			foreach (var mentionedRoles in arg.MentionedRoles)
 			{
-				messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");
+				messageContent = messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");
 			}
 			foreach (var mentionedChannel in arg.MentionedChannels)
 			{
 				// Library doesn't provide channel mention string
-				messageContent.Replace($"<#{mentionedChannel.Id}>", $"[@{mentionedChannel.Name}]({config.DiscordInviteLink})");
+				messageContent = messageContent.Replace($"<#{mentionedChannel.Id}>", $"[@{mentionedChannel.Name}]({config.DiscordInviteLink})");
 			}
 
 			var embeddedCode = Regex.Matches(messageContent, "```.+```", RegexOptions.Multiline);
-			foreach (Match codeBlock in embeddedCode)
+			foreach (Match? codeBlock in embeddedCode)
 			{
+				if (codeBlock == null)
+					continue;
+
 				var soCodeBlock = codeBlock.ToString().Replace("\n", "\n    ");
-				messageContent.Replace(codeBlock.ToString(), soCodeBlock);
+				messageContent = messageContent.Replace(codeBlock.ToString(), soCodeBlock);
 			}
 
 			return messageStart + messageContent;

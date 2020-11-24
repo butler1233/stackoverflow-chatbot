@@ -50,7 +50,7 @@ namespace StackoverflowChatbot.Services.Repositories
 			{
 				JsonCredentials = jsonCredential
 			};
-			this.database = FirestoreDb.Create(this.projectId, builder.Build());
+			this.database = await FirestoreDb.CreateAsync(this.projectId, await builder.BuildAsync());
 			return this.database;
 		}
 
@@ -79,9 +79,11 @@ namespace StackoverflowChatbot.Services.Repositories
 		{
 			var jsonCredential = await GetJsonCredentialService();
 			this.Authenticate(this.projectId, jsonCredential);
-			var builder = new FirestoreClientBuilder();
-			builder.JsonCredentials = jsonCredential;
-			var db = FirestoreDb.Create(this.projectId, builder.Build());
+			var builder = new FirestoreClientBuilder
+			{
+				JsonCredentials = jsonCredential
+			};
+			var db = await FirestoreDb.CreateAsync(this.projectId, await builder.BuildAsync());
 			var collection = db.Collection("Commands");
 
 			var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
