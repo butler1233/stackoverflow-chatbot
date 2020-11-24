@@ -42,6 +42,5 @@ namespace StackoverflowChatbot
 
 		private bool JoinRoom(int roomNumber) => this.chatService.JoinRoom(roomNumber);
 		private bool Login() => this.chatService.Login();
-		public override void Dispose() => base.Dispose();
 	}
 }

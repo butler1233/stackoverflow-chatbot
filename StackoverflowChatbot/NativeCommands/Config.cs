@@ -8,32 +8,29 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Config: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
+		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
-			if (parameters?.Any() == true)
-			{
-				switch (parameters[0].ToLower())
-				{
-					case "save":
-						Manager.SaveConfig();
-						return new SendMessage($"I have (hopefully) saved my config.");
-					case "admin":
-						if (parameters.Length != 3)
-							return new SendMessage(
-								$":{eventContext.MessageId} You must supply exactly 3 parameters to config. `{this.CommandName()} admin [add|remove] [adminId]`");
+			if (parameters?.Any() != true)
+				return new SendMessage(
+					$":{eventContext.MessageId} Well done genius. What do you want me to do with that?");
 
-						var add = parameters[1].Equals("add");
-						return !int.TryParse(parameters[2], out var adminId)
-							? new SendMessage($":{eventContext.MessageId} I can only deal with numeric user IDs, not names.")
-							: this.AddRemoveController(add, adminId);
-
-					default:
-						return new SendMessage($":{eventContext.MessageId} You're an idiot.");
-				}
-			}
-			else
+			switch (parameters[0].ToLower())
 			{
-				return new SendMessage($":{eventContext.MessageId} Well done genius. What do you want me to do with that?");
+				case "save":
+					Manager.SaveConfig();
+					return new SendMessage($"I have (hopefully) saved my config.");
+				case "admin":
+					if (parameters.Length != 3)
+						return new SendMessage(
+							$":{eventContext.MessageId} You must supply exactly 3 parameters to config. `{this.CommandName()} admin [add|remove] [adminId]`");
+
+					var add = parameters[1].Equals("add");
+					return !int.TryParse(parameters[2], out var adminId)
+						? new SendMessage($":{eventContext.MessageId} I can only deal with numeric user IDs, not names.")
+						: this.AddRemoveController(add, adminId);
+
+				default:
+					return new SendMessage($":{eventContext.MessageId} You're an idiot.");
 			}
 		}
 
@@ -60,7 +57,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 		internal override string CommandName() => "conf";
 
-		internal override string? CommandDescription() => "Control the bot config. If you don't know what you're doing here you probably shouldn't be doing it.";
+		internal override string CommandDescription() => "Control the bot config. If you don't know what you're doing here you probably shouldn't be doing it.";
 
 		internal override bool NeedsAdmin() => true;
 	}

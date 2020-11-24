@@ -13,7 +13,7 @@ namespace StackoverflowChatbot
 
 		public static IHostBuilder CreateHostBuilder(string[] args)
 		{
-			if (args == null || args.Length == 0)
+			if (args.Length == 0)
 			{
 				Console.Write("Enter username: ");
 				var u = Console.ReadLine();
@@ -23,7 +23,7 @@ namespace StackoverflowChatbot
 			}
 			var username = args[0];
 			var password = args[1];
-			System.Console.WriteLine("Args[0]: " + username);
+			Console.WriteLine("Args[0]: " + username);
 
 			//Update config file as 3rd arg if it's available.
 			if (args.Length >= 3)

@@ -12,8 +12,8 @@ namespace StackoverflowChatbot.Services
 			this.Password = password;
 		}
 
-		public string Username { get; private set; }
+		public string Username { get; }
 
-		public string Password { get; private set; }
+		public string Password { get; }
 	}
 }
