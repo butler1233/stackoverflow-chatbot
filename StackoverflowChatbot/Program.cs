@@ -39,9 +39,10 @@ namespace StackoverflowChatbot
 				_ = services.AddHostedService<Worker>()
 				.AddSingleton<IIdentityProvider>(new IdentityProvider(username, password))
 				//.AddSingleton<IRepositoryService>(new FirebaseRepositoryService(config.FirebaseProjectId))
-				.AddSingleton<IRepositoryService>(new MonkeyCacheRepositoryService(config.FirebaseProjectId))
-				.AddSingleton<ICommandService, CommandService>()
+				.AddSingleton<IRepositoryService>(new MonkeyCacheRepositoryService("so-chatbot"))
+				.AddSingleton<ICommandStore, CommandStore>()
 				.AddSingleton<IRoomService, RoomService>()
+				.AddSingleton<IHttpService, HttpService>()
 			);
 		}
 	}

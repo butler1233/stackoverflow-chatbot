@@ -15,9 +15,9 @@ namespace StackoverflowChatbot
 		private readonly ActionScheduler actionScheduler;
 		private readonly IReadOnlyCollection<ICommandProcessor> processors;
 
-		public CommandRouter(IRoomService roomService, ICommandService commandService, int roomId, ActionScheduler actionScheduler)
+		public CommandRouter(IRoomService roomService, ICommandStore commandService, IHttpService httpService, int roomId, ActionScheduler actionScheduler)
 		{
-			this.priorityProcessor = new PriorityProcessor(roomService, commandService, roomId);
+			this.priorityProcessor = new PriorityProcessor(roomService, commandService, httpService, roomId);
 			this.actionScheduler = actionScheduler;
 
 			// Populate these with dynamic commands (from a db or something) once that is a thing

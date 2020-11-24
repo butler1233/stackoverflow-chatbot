@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.NativeCommands;
 using StackoverflowChatbot.Services;
@@ -17,22 +20,41 @@ namespace StackoverflowChatbot.CommandProcessors
 		private const int NumberOfRequiredSummons = 3;
 
 		private readonly IRoomService roomService;
-		private readonly ICommandService commandService;
+		private readonly ICommandStore commandStore;
+		private readonly IHttpService httpService;
 		private readonly int roomId;
+		private readonly IReadOnlyDictionary<string, Type> nativeCommands;
+		private ISet<CustomCommand>? commandList = null;
 
-		internal static readonly IReadOnlyDictionary<string, Type> NativeCommands =
-			LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
+		public PriorityProcessor(
+			IRoomService roomService,
+			ICommandStore commandService,
+			IHttpService httpService,
+			int roomId)
+		{
+			this.roomService = roomService;
+			this.commandStore = commandService;
+			this.httpService = httpService;
+			this.roomId = roomId;
+			this.nativeCommands = this.LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
+		}
 
-		private IList<CustomCommand>? commandList = null;
-
-		private static IEnumerable<(string commandName, Type implementer)> LoadNativeCommands()
+		private IEnumerable<(string commandName, Type implementer)> LoadNativeCommands()
 		{
 			var implementers = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly =>
 				assembly.GetTypes().Where(x => typeof(BaseCommand).IsAssignableFrom(x) && !x.IsAbstract));
 
 			foreach (var implementer in implementers)
 			{
-				var instance = (BaseCommand)Activator.CreateInstance(implementer)!;
+				var t = implementer.GetConstructors()
+					.Where(e =>
+						e.GetParameters()
+						 .Select(p => p.ParameterType)
+						 .Contains(typeof(ICommandStore)))
+					.Any();
+				var instance = t ?
+					(BaseCommand)Activator.CreateInstance(implementer, this.commandStore)! :
+					(BaseCommand)Activator.CreateInstance(implementer)!;
 				if (instance != null)
 				{
 					Console.WriteLine(
@@ -47,14 +69,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		}
 
 		// Key: Room; Value: Set of users who summoned to this room;
-		private static readonly Dictionary<int, HashSet<int>> peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
-
-		public PriorityProcessor(IRoomService roomService, ICommandService commandService, int roomId)
-		{
-			this.roomService = roomService;
-			this.commandService = commandService;
-			this.roomId = roomId;
-		}
+		private readonly Dictionary<int, HashSet<int>> peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
 
 		/// <summary>
 		/// Process the event if a suitable command is found.
@@ -64,7 +79,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			var command = data.Command;
 
-			if (TryGetNativeCommand(data, out action))
+			if (this.TryGetNativeCommand(data, out action))
 			{
 				return true;
 			}
@@ -92,11 +107,20 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		private static bool TryGetNativeCommand(EventData data, out IAction? action)
+		private bool TryGetNativeCommand(EventData data, out IAction? action)
 		{
-			if (NativeCommands.TryGetValue(data.CommandName, out var commandType))
+			if (this.nativeCommands.TryGetValue(data.CommandName, out var commandType))
 			{
-				action = ((BaseCommand)Activator.CreateInstance(commandType)!)?.ProcessMessage(data,
+				var t = commandType.GetConstructors()
+					.Where(e =>
+						e.GetParameters()
+						 .Select(p => p.ParameterType)
+						 .Contains(typeof(ICommandStore)))
+					.Any();
+				var instance = t ?
+					(BaseCommand)Activator.CreateInstance(commandType, this.commandStore)! :
+					(BaseCommand)Activator.CreateInstance(commandType)!;
+				action = instance?.ProcessMessage(data,
 					data.CommandParameters?.Split(" "));
 				return action != null;
 			}
@@ -137,7 +161,12 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			var name = @params[0];
 			var args = @params[1];
-			_ = this.commandService.AddCommand(new CustomCommand(name, args))
+			var command = new CustomCommand(name, args);
+			if (DynamicCommand.TryParse(args, out var cmd))
+			{
+				command.DynamicCommand = cmd;
+			}
+			_ = this.commandStore.AddCommand(command)
 				.ContinueWith(async t =>
 				{
 					if (t.IsFaulted)
@@ -162,9 +191,9 @@ namespace StackoverflowChatbot.CommandProcessors
 				return NewMessageAction($"Couldn't find a valid room number.");
 			}
 
-			if (!peopleWhoSummoned.ContainsKey(room))
+			if (!this.peopleWhoSummoned.ContainsKey(room))
 			{
-				peopleWhoSummoned.Add(room, new HashSet<int>());
+				this.peopleWhoSummoned.Add(room, new HashSet<int>());
 			}
 
 			if (data.SentByController())
@@ -173,10 +202,10 @@ namespace StackoverflowChatbot.CommandProcessors
 				return NewMessageAction(joinedByAdmin ? $"I joined room {room}, Boss." : $"Couldn't join room {room}, guess I'm already there!");
 			}
 
-			if (peopleWhoSummoned[room].Count < NumberOfRequiredSummons)
+			if (this.peopleWhoSummoned[room].Count < NumberOfRequiredSummons)
 			{
-				_ = peopleWhoSummoned[room].Add(data.UserId);
-				return NewMessageAction($"{NumberOfRequiredSummons - peopleWhoSummoned[room].Count} more and I'll join room {room}");
+				_ = this.peopleWhoSummoned[room].Add(data.UserId);
+				return NewMessageAction($"{NumberOfRequiredSummons - this.peopleWhoSummoned[room].Count} more and I'll join room {room}");
 			}
 
 			var joined = this.roomService.JoinRoom(room);
@@ -201,7 +230,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			if (this.commandList == null || this.commandList.Any())
 			{
-				this.commandList = await this.commandService.GetCommands();
+				this.commandList = await this.commandStore.GetCommands();
 			}
 		}
 
@@ -214,12 +243,49 @@ namespace StackoverflowChatbot.CommandProcessors
 		public async Task<IAction?> ProcessCommandAsync(EventData data)
 		{
 			await this.EnsureCommandListReady();
-			var result = this.commandList.FirstOrDefault(e => e.Name == data.CommandName);
-			if (result != null)
+			var command = this.commandList.FirstOrDefault(e => e.Name == data.CommandName);
+			if (command != null)
 			{
-				return NewMessageAction(result.Parameter);
+				if (command.IsDynamic)
+				{
+					return await this.ProcessDynamicCommand(data, command);
+				}
+				return NewMessageAction(command!.Parameter!);
 			}
+			return null;
+		}
 
+		private async Task<IAction?> ProcessDynamicCommand(EventData data, CustomCommand command)
+		{
+			var dynaCmd = command.DynamicCommand!;
+			var args = data.CommandParameters?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			var expectedLength = dynaCmd.ExpectedArgsCount;
+			if (args != null && args.Length == expectedLength)
+			{
+				var timeout = TimeSpan.FromSeconds(10);
+				try
+				{
+					var components = command!.Parameter!.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+					var api = HttpUtility.HtmlDecode(string.Format(components.First(), args));
+					switch (dynaCmd.ResponseType)
+					{
+						case ResponseType.Text:
+							var cts = new CancellationTokenSource(timeout);
+							var response = await this.httpService.Get<object>(new Uri(api), cts.Token);
+							return NewMessageAction(response.ToString() ?? "No response???");
+						case ResponseType.Image: return NewMessageAction(api);
+					}
+				}
+				catch (OperationCanceledException)
+				{
+					return NewMessageAction($"I can't wait for longer than {timeout:s} and the API is slow.");
+				}
+			}
+			else
+			{
+				return NewMessageAction($"Expected {expectedLength} args, found {args?.Length ?? 0} for command '{command.Name}'");
+			}
+			// This shouldn't happen though
 			return null;
 		}
 	}

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
@@ -60,11 +59,11 @@ namespace StackoverflowChatbot.Services.Repositories
 			return database.Collection(name);
 		}
 
-		public async Task<List<T>> GetList<T>(string name, CancellationToken cancellationToken)
+		public async Task<HashSet<T>> GetList<T>(string name, CancellationToken cancellationToken)
 		{
 			var collection = await this.Collection(name);
 			var snapshot = await collection.GetSnapshotAsync(cancellationToken);
-			return snapshot.Documents.Select(e => e.ConvertTo<T>()).ToList();
+			return new HashSet<T>(snapshot.Documents.Select(e => e.ConvertTo<T>()));
 		}
 
 		public async Task<string?> Add<T>(string name, T value, CancellationToken cancellationToken)
@@ -73,6 +72,9 @@ namespace StackoverflowChatbot.Services.Repositories
 			var reference = await collection.AddAsync(value, cancellationToken);
 			return reference?.Id;
 		}
+
+		public void Clear(string collectionName) => throw new NotImplementedException(nameof(Clear));
+		public void ClearAll() => throw new NotImplementedException(nameof(ClearAll));
 
 		// NOTE for testing only
 		public async Task Stupid()

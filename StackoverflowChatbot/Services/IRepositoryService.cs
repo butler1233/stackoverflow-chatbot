@@ -6,7 +6,9 @@ namespace StackoverflowChatbot.Services
 {
 	public interface IRepositoryService
 	{
-		Task<List<T>> GetList<T>(string name, CancellationToken cancellationToken = default);
-		Task<string?> Add<T>(string name, T value, CancellationToken cancellationToken = default);
+		Task<HashSet<T>> GetList<T>(string collectionName, CancellationToken cancellationToken = default);
+		Task<string?> Add<T>(string collectionName, T value, CancellationToken cancellationToken = default);
+		void Clear(string collectionName);
+		void ClearAll();
 	}
 }

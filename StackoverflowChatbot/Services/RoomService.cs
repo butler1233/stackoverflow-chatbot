@@ -13,12 +13,14 @@ namespace StackoverflowChatbot
 		internal const string Host = "chat.stackoverflow.com";
 		private readonly EmailAuthenticationProvider auth;
 		private readonly Dictionary<int, RoomWatcher<DefaultWebSocket>> activeRooms;
-		private readonly ICommandService commandService;
+		private readonly ICommandStore commandService;
+		private readonly IHttpService httpService;
 
-		public RoomService(IIdentityProvider identityProvider, ICommandService commandService)
+		public RoomService(IIdentityProvider identityProvider, ICommandStore commandService, IHttpService httpService)
 		{
 			this.auth = new EmailAuthenticationProvider(identityProvider.Username, identityProvider.Password);
 			this.commandService = commandService;
+			this.httpService = httpService;
 			this.activeRooms = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		}
 
@@ -45,7 +47,7 @@ namespace StackoverflowChatbot
 				new RoomWatcher<DefaultWebSocket>(this.auth, $"https://chat.stackoverflow.com/rooms/{roomNumber}");
 			var messageHandler = new ChatEventHandler();
 			var scheduler = new ActionScheduler(this.auth, Host, roomNumber);
-			var router = new CommandRouter(this, this.commandService, roomNumber,
+			var router = new CommandRouter(this, this.commandService, this.httpService, roomNumber,
 				scheduler);
 			messageHandler.OnEvent += router.RouteCommand;
 			newRoomWatcher.EventRouter.AddProcessor(messageHandler);
