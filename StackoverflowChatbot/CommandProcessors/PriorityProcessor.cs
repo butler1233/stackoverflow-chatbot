@@ -46,15 +46,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			foreach (var implementer in implementers)
 			{
-				var t = implementer.GetConstructors()
-					.Where(e =>
-						e.GetParameters()
-						 .Select(p => p.ParameterType)
-						 .Contains(typeof(ICommandStore)))
-					.Any();
-				var instance = t ?
-					(BaseCommand)Activator.CreateInstance(implementer, this.commandStore)! :
-					(BaseCommand)Activator.CreateInstance(implementer)!;
+				var instance = this.CreateCommandInstance(implementer);
 				if (instance != null)
 				{
 					Console.WriteLine(
@@ -107,19 +99,15 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
+		public bool TryGetNativeCommands(string key, out Type? value) => this.nativeCommands.TryGetValue(key, out value);
+		public IEnumerable<string> NativeKeys => this.nativeCommands.Keys;
+
+		//NativeKeys, 
 		private bool TryGetNativeCommand(EventData data, out IAction? action)
 		{
 			if (this.nativeCommands.TryGetValue(data.CommandName, out var commandType))
 			{
-				var t = commandType.GetConstructors()
-					.Where(e =>
-						e.GetParameters()
-						 .Select(p => p.ParameterType)
-						 .Contains(typeof(ICommandStore)))
-					.Any();
-				var instance = t ?
-					(BaseCommand)Activator.CreateInstance(commandType, this.commandStore)! :
-					(BaseCommand)Activator.CreateInstance(commandType)!;
+				var instance = this.CreateCommandInstance(commandType);
 				action = instance?.ProcessMessage(data,
 					data.CommandParameters?.Split(" "));
 				return action != null;
@@ -127,6 +115,32 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			action = null;
 			return false;
+		}
+
+		// TODO refactor
+		private BaseCommand CreateCommandInstance(Type commandType)
+		{
+			var a = commandType.GetConstructors()
+				.Where(e =>
+					e.GetParameters()
+					 .Select(p => p.ParameterType)
+					 .Contains(typeof(ICommandStore)))
+				.Any();
+			var b = commandType.GetConstructors()
+				.Where(e =>
+					e.GetParameters()
+					 .Select(p => p.ParameterType)
+					 .Contains(typeof(PriorityProcessor)))
+				.Any();
+
+			if (a && b)
+				return (BaseCommand)Activator.CreateInstance(commandType, this.commandStore, this)!;
+			if (a)
+				return (BaseCommand)Activator.CreateInstance(commandType, this.commandStore)!;
+			if (b)
+				return (BaseCommand)Activator.CreateInstance(commandType, this)!;
+
+			return (BaseCommand)Activator.CreateInstance(commandType)!;
 		}
 
 		private static bool IsCommand(string commandMessage, string commandKeyword, out string commandParameter)
