@@ -6,7 +6,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Newtonsoft.Json.Linq;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.Extensions;
+using StackoverflowChatbot.Helpers;
 using StackoverflowChatbot.NativeCommands;
 using StackoverflowChatbot.Services;
 
@@ -117,28 +120,25 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		// TODO refactor
 		private BaseCommand CreateCommandInstance(Type commandType)
 		{
-			var a = commandType.GetConstructors()
-				.Where(e =>
-					e.GetParameters()
-					 .Select(p => p.ParameterType)
-					 .Contains(typeof(ICommandStore)))
-				.Any();
-			var b = commandType.GetConstructors()
-				.Where(e =>
-					e.GetParameters()
-					 .Select(p => p.ParameterType)
-					 .Contains(typeof(PriorityProcessor)))
-				.Any();
+			var parameterTypes = commandType
+				.GetConstructors()
+				.First()
+				.GetParameters()
+				.Select(e => e.ParameterType);
 
-			if (a && b)
-				return (BaseCommand)Activator.CreateInstance(commandType, this.commandStore, this)!;
-			if (a)
-				return (BaseCommand)Activator.CreateInstance(commandType, this.commandStore)!;
-			if (b)
-				return (BaseCommand)Activator.CreateInstance(commandType, this)!;
+			var parameterValues = new List<object>();
+			foreach(var param in parameterTypes)
+			{
+				if (param == typeof(ICommandStore))
+					parameterValues.Add(this.commandStore);
+				else if (param == typeof(ICommandProcessor))
+					parameterValues.Add(this);
+			}
+
+			if (parameterValues.Any())
+				return (BaseCommand)Activator.CreateInstance(commandType, parameterValues.ToArray())!;
 
 			return (BaseCommand)Activator.CreateInstance(commandType)!;
 		}
@@ -175,11 +175,11 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			var name = @params[0];
 			var args = @params[1];
-			var command = new CustomCommand(name, args);
-			if (DynamicCommand.TryParse(args, out var cmd))
+			var command = new CustomCommand(name, args)
 			{
-				command.DynamicCommand = cmd;
-			}
+				IsDynamic = DynamicCommand.TryParse(args, out var _)
+			};
+			// TODO find a good approach to synchronize the cached command from Command Store
 			_ = this.commandStore.AddCommand(command)
 				.ContinueWith(async t =>
 				{
@@ -242,7 +242,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private async Task EnsureCommandListReady()
 		{
-			if (this.commandList == null || this.commandList.Any())
+			if (this.commandList == null || !this.commandList.Any())
 			{
 				this.commandList = await this.commandStore.GetCommands();
 			}
@@ -271,36 +271,72 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private async Task<IAction?> ProcessDynamicCommand(EventData data, CustomCommand command)
 		{
-			var dynaCmd = command.DynamicCommand!;
-			var args = data.CommandParameters?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-			var expectedLength = dynaCmd.ExpectedArgsCount;
-			if (args != null && args.Length == expectedLength)
+			if (!DynamicCommand.TryParse(command.Parameter!, out var dynaCmd))
 			{
-				var timeout = TimeSpan.FromSeconds(10);
-				try
-				{
-					var components = command!.Parameter!.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-					var api = HttpUtility.HtmlDecode(string.Format(components.First(), args));
-					switch (dynaCmd.ResponseType)
-					{
-						case ResponseType.Text:
-							var cts = new CancellationTokenSource(timeout);
-							var response = await this.httpService.Get<object>(new Uri(api), cts.Token);
-							return NewMessageAction(response.ToString() ?? "No response???");
-						case ResponseType.Image: return NewMessageAction(api);
-					}
-				}
-				catch (OperationCanceledException)
-				{
-					return NewMessageAction($"I can't wait for longer than {timeout:s} and the API is slow.");
-				}
+				return NewMessageAction("Corrupted dynamic command");
 			}
-			else
-			{
+
+			var param = HttpUtility.HtmlDecode(data.CommandParameters ?? "");
+			var args = param?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			args = CliHelper.CombineOption(args, ' ').ToArray();
+			var expectedLength = dynaCmd!.ExpectedArgsCount;
+
+			if (args == null || args.Length != expectedLength)
 				return NewMessageAction($"Expected {expectedLength} args, found {args?.Length ?? 0} for command '{command.Name}'");
+
+			var timeout = TimeSpan.FromSeconds(10);
+			try
+			{
+				var api = Uri.UnescapeDataString(dynaCmd.ApiAddress.AbsoluteUri);
+				api = HttpUtility.HtmlDecode(string.Format(api, args));
+				if (dynaCmd.Method == Method.Get && dynaCmd.ResponseType == ResponseType.Image)
+				{
+					var alias = dynaCmd.Alias;
+					// TODO Discord doesn't have a hyperlink markdown yet unfortunately.
+					// but we can use this: https://leovoel.github.io/embed-visualizer/
+					api = string.IsNullOrEmpty(alias) ? api : $"[{alias}]({api})";
+					return NewMessageAction(api);
+				}
+				var cts = new CancellationTokenSource(timeout);
+				var apiResponse = await this.Fetch(api, dynaCmd.Method, dynaCmd.ContentType, cts.Token);
+				var stringContent = apiResponse.ToString() ?? "{}";
+				if (string.IsNullOrEmpty(dynaCmd.JsonPath))
+					return NewMessageAction(stringContent!);
+				var obj = JObject.Parse(stringContent);
+				var response = obj.SelectToken(dynaCmd.JsonPath)?.ToString() ?? stringContent;
+				return NewMessageAction(response);
 			}
-			// This shouldn't happen though
-			return null;
+			catch (OperationCanceledException)
+			{
+				return NewMessageAction($"I can't wait for longer than {timeout:s} and the API is slow.");
+			}
+		}
+
+		private Task<object> Fetch(string api, Method method, ContentType contentType, CancellationToken cancellationToken)
+		{
+			switch (method)
+			{
+				case Method.Post:
+					var components = api.Split('?', 2, StringSplitOptions.RemoveEmptyEntries);
+					var domain = components.First();
+					switch (contentType)
+					{
+						case ContentType.Json:
+						default:
+							var d1 = components.Length > 1 ? QueryStringHelper.ToObject<object>(components.Last()) : null;
+							return this.httpService.PostJson<object>(new Uri(domain!), d1?.ToString(), cancellationToken!);
+						case ContentType.Form:
+							var d2 = components.Length > 1 ? QueryStringHelper.ToDictionary(components.Last()) : new Dictionary<string, string>();
+							return this.httpService.PostUrlEncoded<object>(new Uri(domain!), d2!, cancellationToken!);
+						case ContentType.Multi:
+							// TODO this will crash
+							var d3 = components.Length > 1 ? components.Last().AsDictionary() : new Dictionary<string, object?>();
+							return this.httpService.PostMultipart<object>(new Uri(domain!), d3!, cancellationToken!);
+					}
+				case Method.Get:
+				default:
+					return this.httpService.Get<object>(new Uri(api!), cancellationToken!);
+			}
 		}
 	}
 }

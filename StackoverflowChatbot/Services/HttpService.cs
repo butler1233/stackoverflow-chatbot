@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -21,7 +20,7 @@ namespace StackoverflowChatbot.Services
 		public Task<T> Get<T>(string relativePath, CancellationToken cancellationToken) =>
 			this.Get<T>(new Uri(relativePath, UriKind.Relative), cancellationToken);
 
-		public Task<T> PostJson<T>(string relativePath, object data, CancellationToken cancellationToken) =>
+		public Task<T> PostJson<T>(string relativePath, object? data, CancellationToken cancellationToken) =>
 			this.PostJson<T>(new Uri(relativePath, UriKind.Relative), data, cancellationToken);
 
 		public Task<T> PostUrlEncoded<T>(string relativePath, IDictionary<string, string> data, CancellationToken cancellationToken) =>
@@ -37,7 +36,7 @@ namespace StackoverflowChatbot.Services
 			return await JsonSerializer.DeserializeAsync<T>(stream);
 		}
 
-		public async Task<T> PostJson<T>(Uri absolutePath, object data, CancellationToken cancellationToken)
+		public async Task<T> PostJson<T>(Uri absolutePath, object? data, CancellationToken cancellationToken)
 		{
 			var content = ObjectToStringContent(data);
 			var response = await this.httpClient.PostAsync(absolutePath, content, cancellationToken);
@@ -61,20 +60,16 @@ namespace StackoverflowChatbot.Services
 			return await JsonSerializer.DeserializeAsync<T>(stream);
 		}
 
-		private static StringContent ObjectToStringContent(object data)
+		private static StringContent ObjectToStringContent(object? data)
         {
             var payload = data == null ? string.Empty : JsonSerializer.Serialize(data);
             return new StringContent(payload, Encoding.UTF8, JsonContentType);
         }
 
-        private static FormUrlEncodedContent DictionaryToUrlEncodedContent(IDictionary<string, string> data)
-        {
-            var content = new FormUrlEncodedContent(data);
-            content.Headers.ContentType = new MediaTypeHeaderValue(JsonContentType);
-            return content;
-        }
+		private static FormUrlEncodedContent DictionaryToUrlEncodedContent(IDictionary<string, string> data) =>
+			new FormUrlEncodedContent(data);
 
-        private static MultipartFormDataContent DictionaryToMultipartContent(IDictionary<string, object> data)
+		private static MultipartFormDataContent DictionaryToMultipartContent(IDictionary<string, object> data)
         {
             var content = new MultipartFormDataContent();
             foreach (var entry in data)

@@ -14,20 +14,20 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Help: BaseCommand
 	{
-		private readonly PriorityProcessor priorityProcessor;
+		private readonly ICommandProcessor commandProcessor;
 		private readonly ICommandStore commandStore;
 
-		public Help(ICommandStore commandStore, PriorityProcessor priorityProcessor)
+		public Help(ICommandStore commandStore, ICommandProcessor commandProcessor)
 		{
 			this.commandStore = commandStore;
-			this.priorityProcessor = priorityProcessor;
+			this.commandProcessor = commandProcessor;
 		}
 
 		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
 			if (parameters?.Length > 0)
 			{
-				if (this.priorityProcessor.TryGetNativeCommands(parameters[0], out var commandType))
+				if (this.commandProcessor.TryGetNativeCommands(parameters[0], out var commandType))
 				{
 					//We have a command which lines up with what they wanted.
 					var command = this.CreateCommandInstance(commandType!);
@@ -39,7 +39,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 			//Return a big list of commands.
 			var returnable = "All 'native' commands (you can get more by asking me `help <command>`): ";
-			returnable += string.Join(", ", this.priorityProcessor.NativeKeys);
+			returnable += string.Join(", ", this.commandProcessor.NativeKeys);
 			return new SendMessage(returnable.TrimEnd(char.Parse(",")));
 
 		}
@@ -50,25 +50,23 @@ namespace StackoverflowChatbot.NativeCommands
 
 		private BaseCommand CreateCommandInstance(Type commandType)
 		{
-			var a = commandType.GetConstructors()
-				.Where(e =>
-					e.GetParameters()
-					 .Select(p => p.ParameterType)
-					 .Contains(typeof(ICommandStore)))
-				.Any();
-			var b = commandType.GetConstructors()
-				.Where(e =>
-					e.GetParameters()
-					 .Select(p => p.ParameterType)
-					 .Contains(typeof(PriorityProcessor)))
-				.Any();
+			var parameterTypes = commandType
+				.GetConstructors()
+				.First()
+				.GetParameters()
+				.Select(e => e.ParameterType);
 
-			if (a && b)
-				return (BaseCommand)Activator.CreateInstance(commandType, this.commandStore, this.priorityProcessor)!;
-			if (a)
-				return (BaseCommand)Activator.CreateInstance(commandType, this.commandStore)!;
-			if (b)
-				return (BaseCommand)Activator.CreateInstance(commandType, this.priorityProcessor)!;
+			var parameterValues = new List<object>();
+			foreach (var param in parameterTypes)
+			{
+				if (param == typeof(ICommandStore))
+					parameterValues.Add(this.commandStore);
+				else if (param == typeof(ICommandProcessor))
+					parameterValues.Add(this.commandProcessor);
+			}
+
+			if (parameterValues.Any())
+				return (BaseCommand)Activator.CreateInstance(commandType, parameterValues)!;
 
 			return (BaseCommand)Activator.CreateInstance(commandType)!;
 		}
