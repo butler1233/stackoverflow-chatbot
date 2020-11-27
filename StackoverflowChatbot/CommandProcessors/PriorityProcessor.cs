@@ -27,7 +27,6 @@ namespace StackoverflowChatbot.CommandProcessors
 		private readonly IHttpService httpService;
 		private readonly int roomId;
 		private readonly IReadOnlyDictionary<string, Type> nativeCommands;
-		private ISet<CustomCommand>? commandList = null;
 
 		public PriorityProcessor(
 			IRoomService roomService,
@@ -175,11 +174,13 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			var name = @params[0];
 			var args = @params[1];
-			var command = new CustomCommand(name, args)
+			var command = new CustomCommand(name, args);
+			if (DynamicCommand.TryParse(args, out var dynamicCommand))
 			{
-				IsDynamic = DynamicCommand.TryParse(args, out var _)
-			};
-			// TODO find a good approach to synchronize the cached command from Command Store
+				command.IsDynamic = true;
+				command.ExpectedDynamicCommandArgs = dynamicCommand!.ExpectedArgsCount;
+			}
+
 			_ = this.commandStore.AddCommand(command)
 				.ContinueWith(async t =>
 				{
@@ -189,10 +190,6 @@ namespace StackoverflowChatbot.CommandProcessors
 						while (exception is AggregateException aggregateException)
 							exception = aggregateException.InnerException;
 						Console.Write(exception);
-					}
-					else
-					{
-						await this.CacheCommand(new CustomCommand(name, args));
 					}
 				});
 			return NewMessageAction($"Learned the command {name}");
@@ -240,24 +237,12 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		private async Task EnsureCommandListReady()
-		{
-			if (this.commandList == null || !this.commandList.Any())
-			{
-				this.commandList = await this.commandStore.GetCommands();
-			}
-		}
-
-		private async Task CacheCommand(CustomCommand command)
-		{
-			await this.EnsureCommandListReady();
-			this.commandList?.Add(command);
-		}
+		private Task<HashSet<CustomCommand>> GetCustomCommands() => this.commandStore.GetCommands();
 
 		public async Task<IAction?> ProcessCommandAsync(EventData data)
 		{
-			await this.EnsureCommandListReady();
-			var command = this.commandList.FirstOrDefault(e => e.Name == data.CommandName);
+			var commandList = await this.GetCustomCommands();
+			var command = commandList.FirstOrDefault(e => e.Name == data.CommandName);
 			if (command != null)
 			{
 				if (command.IsDynamic)
@@ -279,7 +264,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			var param = HttpUtility.HtmlDecode(data.CommandParameters ?? "");
 			var args = param?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 			args = CliHelper.CombineOption(args, ' ').ToArray();
-			var expectedLength = dynaCmd!.ExpectedArgsCount;
+			var expectedLength = command.ExpectedDynamicCommandArgs;
 
 			if (args == null || args.Length != expectedLength)
 				return NewMessageAction($"Expected {expectedLength} args, found {args?.Length ?? 0} for command '{command.Name}'");
@@ -287,7 +272,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			var timeout = TimeSpan.FromSeconds(10);
 			try
 			{
-				var api = Uri.UnescapeDataString(dynaCmd.ApiAddress.AbsoluteUri);
+				var api = Uri.UnescapeDataString(dynaCmd!.ApiAddress.AbsoluteUri);
 				api = HttpUtility.HtmlDecode(string.Format(api, args));
 				if (dynaCmd.Method == Method.Get && dynaCmd.ResponseType == ResponseType.Image)
 				{

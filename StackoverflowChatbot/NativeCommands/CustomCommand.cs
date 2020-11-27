@@ -20,6 +20,7 @@ namespace StackoverflowChatbot.NativeCommands
 		public string? Parameter { get; set; }
 		public DynamicCommand? DynamicCommand { get; set; }
 		public bool IsDynamic { get; set; }
+		public int ExpectedDynamicCommandArgs { get; set; }
 
 		public override bool Equals(object? obj) => this.Equals(obj as CustomCommand);
 		public bool Equals(CustomCommand? other) => other != null && this.Name == other.Name && this.Parameter == other.Parameter && this.IsDynamic == other.IsDynamic;
