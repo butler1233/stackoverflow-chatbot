@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,15 +10,15 @@ using Google.Cloud.Firestore;
 using Google.Cloud.Firestore.V1;
 using Google.Cloud.Storage.V1;
 
-namespace StackoverflowChatbot.Services
+namespace StackoverflowChatbot.Services.Repositories
 {
-	public class RepositoryService : IRepositoryService
+	public class FirebaseRepositoryService : IRepositoryService
 	{
 		private bool authenticated;
 		private readonly string projectId;
 		private FirestoreDb? database;
 
-		public RepositoryService(string projectId) => this.projectId = projectId;
+		public FirebaseRepositoryService(string projectId) => this.projectId = projectId;
 
 		private static Task<string> GetJsonCredentialService() =>
 			File.ReadAllTextAsync("so-chatbot-firestore-key.json");
@@ -38,7 +39,7 @@ namespace StackoverflowChatbot.Services
 			this.authenticated = true;
 		}
 
-		public async Task<FirestoreDb> Database()
+		private async Task<FirestoreDb> Database()
 		{
 			if (this.database != null)
 				return this.database;
@@ -49,17 +50,40 @@ namespace StackoverflowChatbot.Services
 			{
 				JsonCredentials = jsonCredential
 			};
-			this.database = FirestoreDb.Create(this.projectId, builder.Build());
+			this.database = await FirestoreDb.CreateAsync(this.projectId, await builder.BuildAsync());
 			return this.database;
 		}
 
+		private async Task<CollectionReference> Collection(string name)
+		{
+			var database = await this.Database();
+			return database.Collection(name);
+		}
+
+		public async Task<List<T>> GetList<T>(string name, CancellationToken cancellationToken)
+		{
+			var collection = await this.Collection(name);
+			var snapshot = await collection.GetSnapshotAsync(cancellationToken);
+			return snapshot.Documents.Select(e => e.ConvertTo<T>()).ToList();
+		}
+
+		public async Task<string?> Add<T>(string name, T value, CancellationToken cancellationToken)
+		{
+			var collection = await this.Collection(name);
+			var reference = await collection.AddAsync(value, cancellationToken);
+			return reference?.Id;
+		}
+
+		// NOTE for testing only
 		public async Task Stupid()
 		{
 			var jsonCredential = await GetJsonCredentialService();
 			this.Authenticate(this.projectId, jsonCredential);
-			var builder = new FirestoreClientBuilder();
-			builder.JsonCredentials = jsonCredential;
-			var db = FirestoreDb.Create(this.projectId, builder.Build());
+			var builder = new FirestoreClientBuilder
+			{
+				JsonCredentials = jsonCredential
+			};
+			var db = await FirestoreDb.CreateAsync(this.projectId, await builder.BuildAsync());
 			var collection = db.Collection("Commands");
 
 			var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));

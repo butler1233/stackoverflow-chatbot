@@ -24,6 +24,8 @@ steps:
     command: 'build'
     projects: 'StackoverflowChatbot/StackoverflowChatbot.csproj'
 
+- script: dotnet test --test-adapter-path:. --logger:nunit --collect "Code coverage"
+
 - script: dir /s
 
 - task: ArchiveFiles@2
@@ -43,3 +45,9 @@ steps:
     Destination: 'AzureBlob'
     storage: 'leerbcsharpbot'
     ContainerName: 'deploy'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: NUnit
+    testResultsFiles: '**/TestResults.xml'
+    failTaskOnFailedTests: true

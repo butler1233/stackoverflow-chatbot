@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackoverflowChatbot.Config;
 using StackoverflowChatbot.Services;
+using StackoverflowChatbot.Services.Repositories;
 
 namespace StackoverflowChatbot
 {
@@ -12,7 +13,7 @@ namespace StackoverflowChatbot
 
 		public static IHostBuilder CreateHostBuilder(string[] args)
 		{
-			if (args == null || args.Length == 0)
+			if (args.Length == 0)
 			{
 				Console.Write("Enter username: ");
 				var u = Console.ReadLine();
@@ -22,7 +23,7 @@ namespace StackoverflowChatbot
 			}
 			var username = args[0];
 			var password = args[1];
-			System.Console.WriteLine("Args[0]: " + username);
+			Console.WriteLine("Args[0]: " + username);
 
 			//Update config file as 3rd arg if it's available.
 			if (args.Length >= 3)
@@ -37,7 +38,8 @@ namespace StackoverflowChatbot
 				(hostContext, services) =>
 				_ = services.AddHostedService<Worker>()
 				.AddSingleton<IIdentityProvider>(new IdentityProvider(username, password))
-				.AddSingleton<IRepositoryService>(new RepositoryService(config.FirebaseProjectId))
+				//.AddSingleton<IRepositoryService>(new FirebaseRepositoryService(config.FirebaseProjectId))
+				.AddSingleton<IRepositoryService>(new MonkeyCacheRepositoryService(config.FirebaseProjectId))
 				.AddSingleton<ICommandService, CommandService>()
 				.AddSingleton<IRoomService, RoomService>()
 			);
