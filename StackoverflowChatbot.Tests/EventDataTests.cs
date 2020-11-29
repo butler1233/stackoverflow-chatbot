@@ -3,8 +3,8 @@ using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using StackoverflowChatbot.Services;
+using StackoverflowChatbot.Services.Repositories;
 
 namespace StackoverflowChatbot.Tests
 {
@@ -78,10 +78,11 @@ namespace StackoverflowChatbot.Tests
 			testCase.TestData.CommandParameters.Should().Be(testCase.Parameters);
 
 		[Test]
+		[Ignore("Firebase OAuth disabled for the meantime...")]
 		public async Task Firebase_TestData()
 		{
 			var config = Config.Manager.Config();
-			var repository = new RepositoryService(config.FirebaseProjectId);
+			var repository = new FirebaseRepositoryService(config.FirebaseProjectId);
 			await repository.Stupid();
 		}
 	}

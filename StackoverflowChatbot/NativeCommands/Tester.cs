@@ -9,7 +9,7 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Tester: BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters) => new SendMessage("Testes. Heh.");
+		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters) => new SendMessage("Testes. Heh.");
 
 		internal override string CommandName() => "test";
 
