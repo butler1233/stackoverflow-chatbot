@@ -44,7 +44,7 @@ namespace StackoverflowChatbot.NativeCommands
 
             var fileService = new htputFileService();
             var linkToAudio = fileService.UploadFileAsync(file, "<audio controls=\"controls\" autobuffer=\"autobuffer\" autoplay=\"autoplay\"><source src=\"data:audio/wav;base64,", "\"/></audio>").GetAwaiter().GetResult();
-            return new SendMessage($"TTS: [{saneText}]({linkToAudio})");
+            return new SendMessage($"[**TTS**] [{saneText}]({linkToAudio})", $"[**TTS**] {linkToAudio}");
         }
 
 		internal override string CommandName() => "tts";
