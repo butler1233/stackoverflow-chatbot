@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -22,7 +22,11 @@ namespace StackoverflowChatbot
 
 		private static async Task<DiscordSocketClient> CreateDiscordClient()
 		{
-			var client = new DiscordSocketClient();
+			var config = new DiscordSocketConfig();
+			config.AlwaysDownloadUsers = true;
+			
+			var client = new DiscordSocketClient(config);
+			
 			//Setuo handlers
 			client.MessageReceived += ClientRecieved;
 			//Logs in
@@ -81,37 +85,63 @@ namespace StackoverflowChatbot
 				}
 			}
 		}
-
-		private static string BuildSoMessage(SocketGuildUser user, Config.Base config, SocketMessage arg)
+	
+		internal static IEnumerable<SocketGuildUser> GetUserByName(string name, bool onlyExactMatch = false)
 		{
-			var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
-			var messageStart = $@"\[**[{displayname}]({config.DiscordInviteLink})**]";
-			var messageContent = arg.Content!;
-			foreach (var mentionedUser in arg.MentionedUsers)
+			var discordClient = Discord.GetDiscord().GetAwaiter().GetResult();
+			var guilds = discordClient.Guilds;
+			foreach (var guild in guilds)
 			{
-				messageContent = messageContent.Replace(mentionedUser.Mention, $"@{mentionedUser.Username}");
+				guild?.DownloadUsersAsync();
 			}
-			foreach (var mentionedRoles in arg.MentionedRoles)
+			var guildUsers = guilds.Select(guild => guild?.Users);
+			var result = new List<SocketGuildUser>();
+
+			foreach (var guild in guildUsers)
 			{
-				messageContent = messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");
+				foreach (var user in guild)
+				{
+					var preferredName = user.Nickname;
+					if (user.Nickname == null)
+						preferredName = user.Username;
+					if(name.Equals(preferredName) || (!onlyExactMatch && (name.Contains(preferredName) || preferredName.Contains(name))))
+					{
+						result.Add(user);
+					}
+				}
 			}
-			foreach (var mentionedChannel in arg.MentionedChannels)
+			
+			return result;
+		}
+
+		internal static IEnumerable<SocketRole> GetRolesByName(string name, bool onlyExactMatch = false)
+		{
+			var discordClient = Discord.GetDiscord().GetAwaiter().GetResult();
+			var rolesPerGuild = discordClient.Guilds.Select(guild => guild.Roles.Where(role => !onlyExactMatch ?
+				name.Contains(role.Name) || role.Name.Contains(name) : name.Equals(role.Name)));
+			
+			var result = new List<SocketRole>();
+			foreach (var roles in rolesPerGuild)
 			{
-				// Library doesn't provide channel mention string
-				messageContent = messageContent.Replace($"<#{mentionedChannel.Id}>", $"[@{mentionedChannel.Name}]({config.DiscordInviteLink})");
+				result.AddRange(roles);
 			}
 
-			var embeddedCode = Regex.Matches(messageContent, "```.+```", RegexOptions.Multiline);
-			foreach (Match? codeBlock in embeddedCode)
-			{
-				if (codeBlock == null)
-					continue;
+			return result;
+		}
 
-				var soCodeBlock = codeBlock.ToString().Replace("\n", "\n    ");
-				messageContent = messageContent.Replace(codeBlock.ToString(), soCodeBlock);
+		internal static IEnumerable<SocketChannel> GetChannelsByName(string name, bool onlyExactMatch = false)
+		{
+			var discordClient = Discord.GetDiscord().GetAwaiter().GetResult();
+			var channelsPerGuild = discordClient.Guilds.Select(guild => guild.Channels.Where(channel => !onlyExactMatch ?
+				name.Contains(channel.Name) || channel.Name.Contains(name) : name.Equals(channel.Name)));
+
+			var result = new List<SocketChannel>();
+			foreach (var channels in channelsPerGuild)
+			{
+				result.AddRange(channels);
 			}
 
-			return messageStart + messageContent;
+			return result;
 		}
 	}
 }

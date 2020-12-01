@@ -28,6 +28,7 @@ namespace StackoverflowChatbot
 					if (discord is SocketTextChannel textChannel)
 					{
 						var message = chatEvent.Content.ProcessStackMessage(chatEvent.RoomId, chatEvent.RoomName);
+						message = FromStackExtensions.MakePingsGreatAgain(message, discordClient);
 						var newMessage = $"[**{chatEvent.Username}**] {message}";
 						await textChannel.SendMessageAsync(newMessage);
 					}
@@ -36,5 +37,5 @@ namespace StackoverflowChatbot
 				if (chatEvent.ContainsTrigger()) this.OnEvent(EventData.FromJson(data));
 			}
 		}
-	}
+    }
 }
