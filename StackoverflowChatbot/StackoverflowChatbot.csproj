@@ -36,4 +36,10 @@
 	</AssemblyAttribute>
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="so-chatbot-firestore-key.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

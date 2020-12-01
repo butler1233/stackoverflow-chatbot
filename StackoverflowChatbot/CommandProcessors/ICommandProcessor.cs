@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StackoverflowChatbot.Actions;
 
@@ -14,5 +16,9 @@ namespace StackoverflowChatbot.CommandProcessors
 		bool ProcessCommand(EventData data, out IAction? action);
 
 		Task<IAction?> ProcessCommandAsync(EventData data);
+
+		bool TryGetNativeCommands(string key, out Type? value);
+
+		IEnumerable<string> NativeKeys { get; }
 	}
 }
