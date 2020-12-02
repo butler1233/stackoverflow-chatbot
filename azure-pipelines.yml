@@ -24,7 +24,12 @@ steps:
     command: 'build'
     projects: 'StackoverflowChatbot/StackoverflowChatbot.csproj'
 
-- script: dotnet test --test-adapter-path:. --logger:nunit --collect "Code coverage"
+- script: dotnet test --test-adapter-path:. --no-build --logger:nunit --collect "Code coverage"
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: '**/*.coverage'
 
 - script: dir /s
 
