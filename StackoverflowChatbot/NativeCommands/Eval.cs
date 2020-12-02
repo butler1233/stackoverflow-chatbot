@@ -22,7 +22,7 @@ namespace StackoverflowChatbot.NativeCommands
 			switch (parameters.First())
 			{
 				case "using":
-					return new SendMessage(this.AddUsings(parameters.Skip(1)));
+					return new SendMessage(AddUsings(parameters.Skip(1)));
 			}
 
 			//This is probably hilariously unsafe but who cares
@@ -31,11 +31,11 @@ namespace StackoverflowChatbot.NativeCommands
 
 			try
 			{
-				var totalblock = this.BuildCode(reconstitutedSource);
+				var totalblock = BuildCode(reconstitutedSource);
 				dynamic css = CSScript.Evaluator.LoadCode(totalblock);
 
 				var result = css.Execute();
-				return new SendMessage($"cs> " + result.ToString()); //YOLO
+				return new SendMessage("cs> " + result.ToString()); //YOLO
 			}
 			catch (CompilerException compError)
 			{
@@ -51,20 +51,20 @@ namespace StackoverflowChatbot.NativeCommands
 		private string AddUsings(IEnumerable<string> usings)
 		{
 			var collection = usings as string[] ?? usings.ToArray();
-			this.UsingList.AddRange(collection);
-			return $"Added {collection.Length} usings. We now have {this.UsingList.Count} in total.";
+			UsingList.AddRange(collection);
+			return $"Added {collection.Length} usings. We now have {UsingList.Count} in total.";
 		}
 
 		private string BuildCode(string source)
 		{
-			if (this.illegalCalls.Any(x => source.IndexOf(x, StringComparison.InvariantCultureIgnoreCase) >= 0))
+			if (_illegalCalls.Any(x => source.IndexOf(x, StringComparison.InvariantCultureIgnoreCase) >= 0))
 				throw new IllegalSnippetException();
 			if (!(source.Contains("\n") || source.Contains(";")))
 			{
 				source = $"return {source};";
 			}
 			return CssBase.Replace("<usings>",
-				string.Join(Environment.NewLine, this.UsingList.Select(x => $"using {x};"))).Replace("<body>", source);
+				string.Join(Environment.NewLine, UsingList.Select(x => $"using {x};"))).Replace("<body>", source);
 		}
 
 		public List<string> UsingList = new List<string>();
@@ -79,7 +79,7 @@ namespace StackoverflowChatbot.NativeCommands
                              }";
 
 		//This is utter garbage
-		private readonly string[] illegalCalls = { "Environment.Exit", "Process", "Assembly", "Csscript", "File.", "Filestream" };
+		private readonly string[] _illegalCalls = { "Environment.Exit", "Process", "Assembly", "Csscript", "File.", "Filestream" };
 
 		internal override string CommandName() => "cs";
 

@@ -13,7 +13,7 @@ namespace StackoverflowChatbot.Services
     /// </summary>
     public class AnonymousfilesFileService : IFileService
     {
-        private string _endpoint = "https://api.anonymousfiles.io/";
+        private readonly string _endpoint = "https://api.anonymousfiles.io/";
 
         public string UploadFile(byte[] file)
         {

@@ -14,12 +14,12 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class TTS: BaseCommand
 	{
-        private Dictionary<string, string> _languageApis = new Dictionary<string, string> { 
+        private readonly Dictionary<string, string> _languageApis = new Dictionary<string, string> { 
             { "en", "http://5.189.153.146:5002/api/tts?text=" },
             { "de", "http://5.189.153.146:5003/api/tts?text=" }
         }; 
 
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters) 
+		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters) 
         {
             if (parameters == null || parameters.Length == 0)
                 return new SendMessage("you need to provide something that can be read");

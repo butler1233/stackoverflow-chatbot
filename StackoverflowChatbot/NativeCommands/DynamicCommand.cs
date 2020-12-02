@@ -12,28 +12,28 @@ namespace StackoverflowChatbot.NativeCommands
 	public enum ContentType {  Json, Form, Multi }
 	public class DynamicCommand
 	{
-		private readonly IDictionary<Option, string?> options;
+		private readonly IDictionary<Option, string?> _options;
 
 		public DynamicCommand()
 		{
-			this.ApiAddress = new Uri("http://localhost");
-			this.options = DefaultOptions();
+			ApiAddress = new Uri("http://localhost");
+			_options = DefaultOptions();
 		}
 
 		public DynamicCommand(Uri apiAddress, int expectedArgsCount, IDictionary<Option, string?> options)
 		{
-			this.ApiAddress = apiAddress;
-			this.ExpectedArgsCount = expectedArgsCount;
-			this.options = options;
+			ApiAddress = apiAddress;
+			ExpectedArgsCount = expectedArgsCount;
+			_options = options;
 		}
 
 		public Uri ApiAddress { get; private set; }
 		public int ExpectedArgsCount { get; set; }
-		public string? Alias => this.options[Option.Alias];
-		public string? JsonPath => this.options[Option.Path];
-		public ResponseType ResponseType => ParseResponseType(this.options[Option.Type]);
-		public Method Method => ParseMethod(this.options[Option.Method]);
-		public ContentType ContentType => ParseContentType(this.options[Option.Content]);
+		public string? Alias => _options[Option.Alias];
+		public string? JsonPath => _options[Option.Path];
+		public ResponseType ResponseType => ParseResponseType(_options[Option.Type]);
+		public Method Method => ParseMethod(_options[Option.Method]);
+		public ContentType ContentType => ParseContentType(_options[Option.Content]);
 
 		public static bool TryParse(string text, out DynamicCommand? cmd)
 		{

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <CodeCoverage>
+            <!-- Match assembly file paths: -->
+            <ModulePaths>
+              <Include>
+                <ModulePath>^StackoverflowChatbot\.dll$</ModulePath>
+                <ModulePath>^StackoverflowChatbot\.exe$</ModulePath>
+              </Include>
+            </ModulePaths>
+            <!-- Match the company name property in the assembly: -->
+            <CompanyNames>
+              <Exclude>
+                <CompanyName>.*microsoft.*</CompanyName>
+                <CompanyName>.*jetbrains.*</CompanyName>
+              </Exclude>
+            </CompanyNames>
+            <!-- Match attributes on any code element: -->
+            <Attributes>
+              <Exclude>
+                <!-- Don't forget "Attribute" at the end of the name -->
+                <Attribute>^System\.Diagnostics\.DebuggerHiddenAttribute$</Attribute>
+                <Attribute>^System\.Diagnostics\.DebuggerNonUserCodeAttribute$</Attribute>
+                <Attribute>^System\.CodeDom\.Compiler\.GeneratedCodeAttribute$</Attribute>
+                <Attribute>^System\.Diagnostics\.CodeAnalysis\.ExcludeFromCodeCoverageAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
