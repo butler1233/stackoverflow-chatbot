@@ -14,7 +14,7 @@ namespace StackoverflowChatbot.Services
     /// </summary>
     public class GofileFileService : IFileService
     {
-        private string _serviceEndpoint = "https://{server}.gofile.io/";
+        private readonly string _serviceEndpoint = "https://{server}.gofile.io/";
 
         public string UploadFile(byte[] file)
         {
@@ -36,13 +36,13 @@ namespace StackoverflowChatbot.Services
             var rawJson = await request.Content.ReadAsStringAsync();
             var uploadResponse = JsonSerializer.Deserialize<ApiResponse>(rawJson);
 
-            if (!uploadResponse.status.Equals("ok"))
+            if (!uploadResponse.Status.Equals("ok"))
             {
-                throw new NotSupportedException($"FileUpload status returned a {uploadResponse.status} value.");
+                throw new NotSupportedException($"FileUpload status returned a {uploadResponse.Status} value.");
             }
 
-            var code = uploadResponse.data["code"].ToString();
-            var fileInfo = JObject.Parse(uploadResponse.data["file"].ToString());
+            var code = uploadResponse.Data["code"].ToString();
+            var fileInfo = JObject.Parse(uploadResponse.Data["file"].ToString());
             var fileName = fileInfo["name"].ToString();
             
             return endpoint + $"d/{code}";
@@ -54,12 +54,12 @@ namespace StackoverflowChatbot.Services
             var rawJson = await request.Content.ReadAsStringAsync();
             var serverStatus = JsonSerializer.Deserialize<ApiResponse>(rawJson);
 
-            if (!serverStatus.status.Equals("ok"))
+            if (!serverStatus.Status.Equals("ok"))
             {
-                throw new NotSupportedException($"FileService status returned a {serverStatus.status} value.");
+                throw new NotSupportedException($"FileService status returned a {serverStatus.Status} value.");
             }
 
-            return serverStatus.data.First().Value?.ToString();
+            return serverStatus.Data.First().Value?.ToString();
         }
     }
 
@@ -70,7 +70,9 @@ namespace StackoverflowChatbot.Services
     /// </summary>
     internal class ApiResponse
     {
-        public string status { get; set; }
-        public Dictionary<string, object> data { get; set; } 
+		[System.Text.Json.Serialization.JsonPropertyName("status")]
+        public string Status { get; set; }
+		[System.Text.Json.Serialization.JsonPropertyName("data")]
+        public Dictionary<string, object> Data { get; set; } 
     }
 }

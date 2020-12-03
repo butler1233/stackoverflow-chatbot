@@ -77,7 +77,7 @@ namespace StackoverflowChatbot.Relay
 		}
 
 		
-        internal static string MakePingsGreatAgain(string message, DiscordSocketClient discordClient, bool inCaseMultipleFoundUseFirst = true)
+        internal static string MakePingsGreatAgain(string message, bool inCaseMultipleFoundUseFirst = true)
         {
             var pings = Regex.Matches(message, @"[@#][^\s]+");
 			foreach (Match possiblePing in pings)
@@ -86,17 +86,17 @@ namespace StackoverflowChatbot.Relay
 				{
 					var pingString = possiblePing.ToString().Replace("@", "");
 					var possibleUsers = Discord.GetUserByName(pingString);
-					if (possibleUsers.Count() == 1 || (inCaseMultipleFoundUseFirst && possibleUsers.Count() > 1))
+					if (possibleUsers.Count == 1 || (inCaseMultipleFoundUseFirst && possibleUsers.Count > 1))
 					{
-						message = message.Replace(possiblePing.ToString(), possibleUsers.First().Mention);
+						message = message.Replace(possiblePing.ToString(), possibleUsers[0].Mention);
 					}
-					else if (possibleUsers.Count() == 0)
+					else if (possibleUsers.Count == 0)
 					{
 						// Role ping UwU
 						var possibleRoles = Discord.GetRolesByName(pingString);
-						if (possibleRoles.Count() == 1 || (inCaseMultipleFoundUseFirst && possibleRoles.Count() > 1))
+						if (possibleRoles.Count == 1 || (inCaseMultipleFoundUseFirst && possibleRoles.Count > 1))
 						{
-							message = message.Replace(possiblePing.ToString(), possibleRoles.First().Mention);
+							message = message.Replace(possiblePing.ToString(), possibleRoles[0].Mention);
 						}
 					}
 				}

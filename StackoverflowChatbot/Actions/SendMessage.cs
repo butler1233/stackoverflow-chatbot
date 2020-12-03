@@ -1,13 +1,14 @@
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using SharpExchange.Chat.Actions;
+using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.Actions
 {
     internal class SendMessage : IAction
     {
-        private readonly string message;
-        private readonly string markdownMessage;
+        private readonly string _message;
+        private readonly string? _markdownMessage;
 
         /// <summary>
         /// Creates a message for chat.so and discord
@@ -16,29 +17,29 @@ namespace StackoverflowChatbot.Actions
         /// <param name="markdownMessage">(optional) a message with markdown formatting used for discord</param>
         public SendMessage(string message, string markdownMessage = null)
         {
-            this.message = message;
-            this.markdownMessage = markdownMessage;
+            _message = message;
+            _markdownMessage = markdownMessage;
         }
         public async Task Execute(ActionScheduler scheduler)
         {
             // Send message to chat.so
-            await scheduler.CreateMessageAsync(this.message);
+            await scheduler.CreateMessageAsync(_message);
 
             // Send message to Discord
-            var config = Config.Manager.Config();
+            var config = Manager.Config();
             var channelName = config.StackToDiscordMap[scheduler.RoomId];
             var discordClient = await Discord.GetDiscord();
             var discord = discordClient.GetChannel(config.DiscordChannelNamesToIds[channelName]);
 
             if (discord is SocketTextChannel textChannel)
             {
-                if (markdownMessage != null)
+                if (_markdownMessage != null)
                 {
-                    await textChannel.SendMessageAsync($"{markdownMessage}");
+                    await textChannel.SendMessageAsync($"{_markdownMessage}");
                 }
                 else
                 {
-				    await textChannel.SendMessageAsync($"```{message}```");
+				    await textChannel.SendMessageAsync($"```{_message}```");
                 }
             }
         }

@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using StackoverflowChatbot.Relay;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace StackoverflowChatbot.Tests
 {
+	[ExcludeFromCodeCoverage]
 	[TestFixture]
 	public class StackTests
 	{
@@ -62,6 +64,8 @@ namespace StackoverflowChatbot.Tests
 				  "</div>\r\n" +
 				  "[Captain Obvious] botler, shutdown",
 			"https://www.youtube.com/watch?v=m3_I2rfApYk", TestName = "Onebox youtube")]
+		[TestCase("It's a <code>Code</code> block",
+			"It's a `Code` block", TestName = "Code tag")]
 		public void TestRawInputs(string html, string expected) => html.ProcessStackMessage(RoomId, RoomName).Should().Be(expected);
 	}
 }

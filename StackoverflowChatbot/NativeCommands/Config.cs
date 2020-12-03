@@ -18,16 +18,16 @@ namespace StackoverflowChatbot.NativeCommands
 			{
 				case "save":
 					Manager.SaveConfig();
-					return new SendMessage($"I have (hopefully) saved my config.");
+					return new SendMessage("I have (hopefully) saved my config.");
 				case "admin":
 					if (parameters.Length != 3)
 						return new SendMessage(
-							$":{eventContext.MessageId} You must supply exactly 3 parameters to config. `{this.CommandName()} admin [add|remove] [adminId]`");
+							$":{eventContext.MessageId} You must supply exactly 3 parameters to config. `{CommandName()} admin [add|remove] [adminId]`");
 
 					var add = parameters[1].Equals("add");
 					return !int.TryParse(parameters[2], out var adminId)
 						? new SendMessage($":{eventContext.MessageId} I can only deal with numeric user IDs, not names.")
-						: this.AddRemoveController(add, adminId);
+						: AddRemoveController(add, adminId);
 
 				default:
 					return new SendMessage($":{eventContext.MessageId} You're an idiot.");
@@ -40,19 +40,19 @@ namespace StackoverflowChatbot.NativeCommands
 			{
 				if (Manager.Config().Controllers.Contains(controllerId))
 				{
-					return new SendMessage($"User is already an admin.");
+					return new SendMessage("User is already an admin.");
 				}
 				Manager.Config().Controllers.Add(controllerId);
-				return new SendMessage($"Added user to admins. Save config to persist beyond this run");
+				return new SendMessage("Added user to admins. Save config to persist beyond this run");
 			}
 
 			if (Manager.Config().Controllers.Contains(controllerId))
 			{
 				Manager.Config().Controllers.Remove(controllerId);
-				return new SendMessage($"User has had admin abilities revoked.");
+				return new SendMessage("User has had admin abilities revoked.");
 			}
 
-			return new SendMessage($"Can't un-admin a user who already isn't an admin. *this wording is weird but it's saturday afternoon*");
+			return new SendMessage("Can't un-admin a user who already isn't an admin. *this wording is weird but it's saturday afternoon*");
 		}
 
 		internal override string CommandName() => "conf";

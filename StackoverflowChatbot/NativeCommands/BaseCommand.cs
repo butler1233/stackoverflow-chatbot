@@ -9,12 +9,12 @@ namespace StackoverflowChatbot.NativeCommands
 		internal IAction? ProcessMessage(EventData data, string[]? parameters)
 		{
 			//If it's a admin command and the user isn't an admin, tell them to sod off.
-			if (this.NeedsAdmin() && !StackoverflowChatbot.Config.Manager.Config().Controllers.Contains(data.UserId))
+			if (NeedsAdmin() && !StackoverflowChatbot.Config.Manager.Config().Controllers.Contains(data.UserId))
 			{
-				Console.WriteLine($"[{data.RoomId}] {data.Username} attempted (unsuccessfully) to invoke {this.GetType().AssemblyQualifiedName}: {data.Command}");
+				Console.WriteLine($"[{data.RoomId}] {data.Username} attempted (unsuccessfully) to invoke {GetType().AssemblyQualifiedName}: {data.Command}");
 				return new SendMessage($":{data.MessageId} YOU'RE NOT MY MOM/DAD *(you don't have permission to execute that this)*");
 			}
-			return this.ProcessMessageInternal(data, parameters);
+			return ProcessMessageInternal(data, parameters);
 		}
 
 		/// <summary>

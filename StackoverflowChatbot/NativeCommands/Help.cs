@@ -14,23 +14,23 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Help: BaseCommand
 	{
-		private readonly ICommandProcessor commandProcessor;
-		private readonly ICommandStore commandStore;
+		private readonly ICommandProcessor _commandProcessor;
+		private readonly ICommandStore _commandStore;
 
 		public Help(ICommandStore commandStore, ICommandProcessor commandProcessor)
 		{
-			this.commandStore = commandStore;
-			this.commandProcessor = commandProcessor;
+			_commandStore = commandStore;
+			_commandProcessor = commandProcessor;
 		}
 
 		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
 			if (parameters?.Length > 0)
 			{
-				if (this.commandProcessor.TryGetNativeCommands(parameters[0], out var commandType))
+				if (_commandProcessor.TryGetNativeCommands(parameters[0], out var commandType))
 				{
 					//We have a command which lines up with what they wanted.
-					var command = this.CreateCommandInstance(commandType!);
+					var command = CreateCommandInstance(commandType!);
 					return new SendMessage($"`{command.CommandName()}`: *{command.CommandDescription()}*");
 				}
 
@@ -39,7 +39,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 			//Return a big list of commands.
 			var returnable = "All 'native' commands (you can get more by asking me `help <command>`): ";
-			returnable += string.Join(", ", this.commandProcessor.NativeKeys);
+			returnable += string.Join(", ", _commandProcessor.NativeKeys);
 			return new SendMessage(returnable.TrimEnd(char.Parse(",")));
 
 		}
@@ -60,9 +60,9 @@ namespace StackoverflowChatbot.NativeCommands
 			foreach (var param in parameterTypes)
 			{
 				if (param == typeof(ICommandStore))
-					parameterValues.Add(this.commandStore);
+					parameterValues.Add(_commandStore);
 				else if (param == typeof(ICommandProcessor))
-					parameterValues.Add(this.commandProcessor);
+					parameterValues.Add(_commandProcessor);
 			}
 
 			if (parameterValues.Any())

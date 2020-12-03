@@ -86,7 +86,7 @@ namespace StackoverflowChatbot
 			}
 		}
 	
-		internal static IEnumerable<SocketGuildUser> GetUserByName(string name, bool onlyExactMatch = false)
+		internal static List<SocketGuildUser> GetUserByName(string name, bool onlyExactMatch = false)
 		{
 			var discordClient = Discord.GetDiscord().GetAwaiter().GetResult();
 			var guilds = discordClient.Guilds;
@@ -114,7 +114,7 @@ namespace StackoverflowChatbot
 			return result;
 		}
 
-		internal static IEnumerable<SocketRole> GetRolesByName(string name, bool onlyExactMatch = false)
+		internal static List<SocketRole> GetRolesByName(string name, bool onlyExactMatch = false)
 		{
 			var discordClient = Discord.GetDiscord().GetAwaiter().GetResult();
 			var rolesPerGuild = discordClient.Guilds.Select(guild => guild.Roles.Where(role => !onlyExactMatch ?
