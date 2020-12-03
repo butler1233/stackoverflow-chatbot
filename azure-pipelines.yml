@@ -26,11 +26,6 @@ steps:
 
 - script: dotnet test --test-adapter-path:. --no-build --logger:nunit --collect "Code coverage"
 
-- task: PublishCodeCoverageResults@1
-  inputs:
-    codeCoverageTool: 'cobertura'
-    summaryFileLocation: '**/*.coverage'
-
 - script: dir /s
 
 - task: ArchiveFiles@2
@@ -56,3 +51,9 @@ steps:
     testResultsFormat: NUnit
     testResultsFiles: '**/TestResults.xml'
     failTaskOnFailedTests: true
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: '**/*.coverage'
+
