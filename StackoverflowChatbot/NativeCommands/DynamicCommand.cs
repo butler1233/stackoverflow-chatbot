@@ -50,7 +50,7 @@ namespace StackoverflowChatbot.NativeCommands
 					cmd = null;
 					return false;
 				}
-				var argsCount = Regex.Matches(api, "(={\\d+})").Count;
+				var argsCount = Regex.Matches(api, "({\\d+})").Count;
 				var options = ParseOptions(components.Last());
 				cmd = result ? new DynamicCommand(uri!, argsCount, options) : null;
 				return result;
