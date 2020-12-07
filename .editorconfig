@@ -7,6 +7,8 @@ trim_trailing_whitespace                                                        
 
 dotnet_naming_style.camel_case_style.capitalization                                   = camel_case
 dotnet_naming_style.pascal_case_style.capitalization                                  = pascal_case
+dotnet_naming_style.prefix_underscore.capitalization                                  = camel_case
+dotnet_naming_style.prefix_underscore.required_prefix                                 = _
 # Interfaces
 dotnet_naming_style.interface_style.capitalization                                    = pascal_case
 dotnet_naming_style.interface_style.required_prefix                                   = I
@@ -40,7 +42,7 @@ dotnet_naming_rule.constants.severity                                           
 dotnet_naming_symbols.private_protected_variables_symbols.applicable_kinds            = field
 dotnet_naming_symbols.private_protected_variables_symbols.applicable_accessibilities  = private, private_protected, protected
 dotnet_naming_rule.private_protected_variables.symbols                                = private_protected_variables_symbols
-dotnet_naming_rule.private_protected_variables.style                                  = camel_case_style
+dotnet_naming_rule.private_protected_variables.style                                  = prefix_underscore
 dotnet_naming_rule.private_protected_variables.severity                               = warning
 # Instanzvariablen protected readonly
 dotnet_naming_symbols.protected_readonly_variables_symbols.applicable_kinds           = field
@@ -57,10 +59,10 @@ dotnet_style_object_initializer                                                 
 dotnet_style_predefined_type_for_locals_parameters_members                            = true:error
 dotnet_style_predefined_type_for_member_access                                        = true:error
 dotnet_style_prefer_auto_properties                                                   = true:warning
-dotnet_style_qualification_for_event                                                  = true:error
-dotnet_style_qualification_for_field                                                  = true:error
-dotnet_style_qualification_for_method                                                 = true:error
-dotnet_style_qualification_for_property                                               = true:error
+dotnet_style_qualification_for_event                                                  = false:error
+dotnet_style_qualification_for_field                                                  = false:error
+dotnet_style_qualification_for_method                                                 = false:error
+dotnet_style_qualification_for_property                                               = false:error
 dotnet_style_readonly_field                                                           = true:error
 dotnet_style_require_accessibility_modifiers                                          = always:error
 

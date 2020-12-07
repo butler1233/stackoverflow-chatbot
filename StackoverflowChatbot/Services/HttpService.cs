@@ -12,34 +12,34 @@ namespace StackoverflowChatbot.Services
 	{
 		private const string JsonContentType = "application/json";
 
-		private readonly HttpClient httpClient = new HttpClient();
+		private readonly HttpClient _httpClient = new HttpClient();
 
 		public HttpService() { }
-		public HttpService(Uri baseAddress) => this.httpClient.BaseAddress = baseAddress;
+		public HttpService(Uri baseAddress) => _httpClient.BaseAddress = baseAddress;
 
 		public Task<T> Get<T>(string relativePath, CancellationToken cancellationToken) =>
-			this.Get<T>(new Uri(relativePath, UriKind.Relative), cancellationToken);
+			Get<T>(new Uri(relativePath, UriKind.Relative), cancellationToken);
 
 		public Task<T> PostJson<T>(string relativePath, object? data, CancellationToken cancellationToken) =>
-			this.PostJson<T>(new Uri(relativePath, UriKind.Relative), data, cancellationToken);
+			PostJson<T>(new Uri(relativePath, UriKind.Relative), data, cancellationToken);
 
 		public Task<T> PostUrlEncoded<T>(string relativePath, IDictionary<string, string> data, CancellationToken cancellationToken) =>
-			this.PostUrlEncoded<T>(new Uri(relativePath, UriKind.Relative), data, cancellationToken);
+			PostUrlEncoded<T>(new Uri(relativePath, UriKind.Relative), data, cancellationToken);
 
 		public Task<T> PostMultipart<T>(string relativePath, IDictionary<string, object> data, CancellationToken cancellationToken) =>
-			this.PostMultipart<T>(new Uri(relativePath, UriKind.Relative), data, cancellationToken);
+			PostMultipart<T>(new Uri(relativePath, UriKind.Relative), data, cancellationToken);
 
 		public async Task<T> Get<T>(Uri absolutePath, CancellationToken cancellationToken)
 		{
-			var response = await this.httpClient.GetAsync(absolutePath, cancellationToken);
+			var response = await _httpClient.GetAsync(absolutePath, cancellationToken);
 			var stream = await response.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeAsync<T>(stream);
+			return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken);
 		}
 
 		public async Task<T> PostJson<T>(Uri absolutePath, object? data, CancellationToken cancellationToken)
 		{
 			var content = ObjectToStringContent(data);
-			var response = await this.httpClient.PostAsync(absolutePath, content, cancellationToken);
+			var response = await _httpClient.PostAsync(absolutePath, content, cancellationToken);
 			var stream = await response.Content.ReadAsStreamAsync();
 			return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken);
 		}
@@ -47,17 +47,17 @@ namespace StackoverflowChatbot.Services
 		public async Task<T> PostUrlEncoded<T>(Uri absolutePath, IDictionary<string, string> data, CancellationToken cancellationToken)
 		{
 			var content = DictionaryToUrlEncodedContent(data);
-			var response = await this.httpClient.PostAsync(absolutePath, content, cancellationToken);
+			var response = await _httpClient.PostAsync(absolutePath, content, cancellationToken);
 			var stream = await response.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeAsync<T>(stream);
+			return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken);
 		}
 
 		public async Task<T> PostMultipart<T>(Uri absolutePath, IDictionary<string, object> data, CancellationToken cancellationToken)
 		{
 			var content = DictionaryToMultipartContent(data);
-			var response = await this.httpClient.PostAsync(absolutePath, content, cancellationToken);
+			var response = await _httpClient.PostAsync(absolutePath, content, cancellationToken);
 			var stream = await response.Content.ReadAsStreamAsync();
-			return await JsonSerializer.DeserializeAsync<T>(stream);
+			return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken);
 		}
 
 		private static StringContent ObjectToStringContent(object? data)

@@ -12,7 +12,7 @@ namespace StackoverflowChatbot.Services.Repositories
 
 		public async Task<string?> Add<T>(string name, T value, CancellationToken cancellationToken)
 		{
-			var list = await this.GetList<T>(name, cancellationToken);
+			var list = await GetList<T>(name, cancellationToken);
 			list.Add(value);
 			Barrel.Current.Add(name, list, Timeout.InfiniteTimeSpan);
 			// TODO return the inserted id?
