@@ -17,7 +17,7 @@ namespace StackoverflowChatbot.Services
     /// </summary>
     public class htputFileService : IFileService
     {
-        private string _endpoint = "http://htput.com/";
+        private readonly string _endpoint = "http://htput.com/";
 
         public string UploadFile(byte[] file)
         {

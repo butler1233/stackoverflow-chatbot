@@ -28,13 +28,13 @@ namespace StackoverflowChatbot
 					if (discord is SocketTextChannel textChannel)
 					{
 						var message = chatEvent.Content.ProcessStackMessage(chatEvent.RoomId, chatEvent.RoomName);
-						message = FromStackExtensions.MakePingsGreatAgain(message, discordClient);
+						message = FromStackExtensions.MakePingsGreatAgain(message);
 						var newMessage = $"[**{chatEvent.Username}**] {message}";
 						await textChannel.SendMessageAsync(newMessage);
 					}
 				}
 
-				if (chatEvent.ContainsTrigger()) this.OnEvent(EventData.FromJson(data));
+				if (chatEvent.ContainsTrigger()) OnEvent(EventData.FromJson(data));
 			}
 		}
     }

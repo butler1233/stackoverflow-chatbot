@@ -10,16 +10,14 @@ namespace StackoverflowChatbot
 {
 	public class Worker: BackgroundService
 	{
-		private readonly ILogger<Worker> logger;
-		internal readonly IRoomService chatService; //Statics weeeeeeeeeeeeeee // no more
-		internal readonly IConfiguration Configuration;
+		private readonly ILogger<Worker> _logger;
+		private readonly IRoomService _chatService; //Statics weeeeeeeeeeeeeee // no more
 
 		public Worker(ILogger<Worker> logger, IRoomService chatService, IConfiguration config)
 		{
-			this.logger = logger;
-			this.chatService = chatService;
-			this.Configuration = config;
-			AppDomain.CurrentDomain.SetData("AdminId", this.Configuration.GetValue<int>("AdminId"));
+			_logger = logger;
+			_chatService = chatService;
+			AppDomain.CurrentDomain.SetData("AdminId", config.GetValue<int>("AdminId"));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -33,14 +31,14 @@ namespace StackoverflowChatbot
 
 		public override Task StartAsync(CancellationToken cancellationToken)
 		{
-			var loggedIn = this.Login();
-			this.logger.LogInformation($"Logged in: {loggedIn}");
-			var joinedSandbox = this.JoinRoom(1);
-			this.logger.LogInformation($"Joined Sandbox: {joinedSandbox}");
+			var loggedIn = Login();
+			_logger.LogInformation($"Logged in: {loggedIn}");
+			var joinedSandbox = JoinRoom(1);
+			_logger.LogInformation($"Joined Sandbox: {joinedSandbox}");
 			return base.StartAsync(cancellationToken);
 		}
 
-		private bool JoinRoom(int roomNumber) => this.chatService.JoinRoom(roomNumber);
-		private bool Login() => this.chatService.Login();
+		private bool JoinRoom(int roomNumber) => _chatService.JoinRoom(roomNumber);
+		private bool Login() => _chatService.Login();
 	}
 }

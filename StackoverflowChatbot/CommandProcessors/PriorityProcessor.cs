@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,11 +21,13 @@ namespace StackoverflowChatbot.CommandProcessors
 	{
 		private const int NumberOfRequiredSummons = 3;
 
-		private readonly IRoomService roomService;
-		private readonly ICommandStore commandStore;
-		private readonly IHttpService httpService;
-		private readonly int roomId;
-		private readonly IReadOnlyDictionary<string, Type> nativeCommands;
+		private readonly IRoomService _roomService;
+		private readonly ICommandStore _commandStore;
+		private readonly IHttpService _httpService;
+		private readonly int _roomId;
+		private readonly IReadOnlyDictionary<string, Type> _nativeCommands;
+		// Key: Room; Value: Set of users who summoned to this room;
+		private readonly Dictionary<int, HashSet<int>> _peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
 
 		public PriorityProcessor(
 			IRoomService roomService,
@@ -34,11 +35,11 @@ namespace StackoverflowChatbot.CommandProcessors
 			IHttpService httpService,
 			int roomId)
 		{
-			this.roomService = roomService;
-			this.commandStore = commandService;
-			this.httpService = httpService;
-			this.roomId = roomId;
-			this.nativeCommands = this.LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
+			_roomService = roomService;
+			_commandStore = commandService;
+			_httpService = httpService;
+			_roomId = roomId;
+			_nativeCommands = LoadNativeCommands().ToDictionary(kvp => kvp.commandName, kvp => kvp.implementer);
 		}
 
 		private IEnumerable<(string commandName, Type implementer)> LoadNativeCommands()
@@ -48,7 +49,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 			foreach (var implementer in implementers)
 			{
-				var instance = this.CreateCommandInstance(implementer);
+				var instance = CreateCommandInstance(implementer);
 				if (instance != null)
 				{
 					Console.WriteLine(
@@ -62,9 +63,6 @@ namespace StackoverflowChatbot.CommandProcessors
 			}
 		}
 
-		// Key: Room; Value: Set of users who summoned to this room;
-		private readonly Dictionary<int, HashSet<int>> peopleWhoSummoned = new Dictionary<int, HashSet<int>>();
-
 		/// <summary>
 		/// Process the event if a suitable command is found.
 		/// </summary>
@@ -73,26 +71,26 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			var command = data.Command;
 
-			if (this.TryGetNativeCommand(data, out action))
+			if (TryGetNativeCommand(data, out action))
 			{
 				return true;
 			}
 
 			if (IsCommand(command, "leave", out var commandParameter))
 			{
-				action = this.LeaveRoomCommand(commandParameter);
+				action = LeaveRoomCommand(commandParameter);
 				return true;
 			}
 
 			if (IsCommand(command, "join", out _))
 			{
-				action = this.JoinRoomCommand(data);
+				action = JoinRoomCommand(data);
 				return true;
 			}
 
 			if (IsCommand(command, "learn", out commandParameter))
 			{
-				action = this.LearnCommand(commandParameter);
+				action = LearnCommand(commandParameter);
 				return true;
 			}	
 
@@ -101,15 +99,15 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		public bool TryGetNativeCommands(string key, out Type? value) => this.nativeCommands.TryGetValue(key, out value);
-		public IEnumerable<string> NativeKeys => this.nativeCommands.Keys;
+		public bool TryGetNativeCommands(string key, out Type? value) => _nativeCommands.TryGetValue(key, out value);
+		public IEnumerable<string> NativeKeys => _nativeCommands.Keys;
 
 		//NativeKeys, 
 		private bool TryGetNativeCommand(EventData data, out IAction? action)
 		{
-			if (this.nativeCommands.TryGetValue(data.CommandName, out var commandType))
+			if (_nativeCommands.TryGetValue(data.CommandName, out var commandType))
 			{
-				var instance = this.CreateCommandInstance(commandType);
+				var instance = CreateCommandInstance(commandType);
 				action = instance?.ProcessMessage(data,
 					data.CommandParameters?.Split(" "));
 				return action != null;
@@ -131,7 +129,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			foreach(var param in parameterTypes)
 			{
 				if (param == typeof(ICommandStore))
-					parameterValues.Add(this.commandStore);
+					parameterValues.Add(_commandStore);
 				else if (param == typeof(ICommandProcessor))
 					parameterValues.Add(this);
 			}
@@ -159,7 +157,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		private IAction LeaveRoomCommand(string commandParameter)
 		{
 			// Can be told to leave other rooms.
-			this.roomService.LeaveRoom(IsSingleNumber(commandParameter.Trim(), out var room) ? room : this.roomId);
+			_roomService.LeaveRoom(IsSingleNumber(commandParameter.Trim(), out var room) ? room : _roomId);
 			return NewMessageAction(room > 0 ? $"Leaving room {room}!" : "Bye!");
 		}
 
@@ -181,7 +179,7 @@ namespace StackoverflowChatbot.CommandProcessors
 				command.ExpectedDynamicCommandArgs = dynamicCommand!.ExpectedArgsCount;
 			}
 
-			_ = this.commandStore.AddCommand(command)
+			_ = _commandStore.AddCommand(command)
 				.ContinueWith(async t =>
 				{
 					if (t.IsFaulted)
@@ -199,27 +197,27 @@ namespace StackoverflowChatbot.CommandProcessors
 		{
 			if (!int.TryParse(data.Command.Replace("join ", ""), out var room))
 			{
-				return NewMessageAction($"Couldn't find a valid room number.");
+				return NewMessageAction("Couldn't find a valid room number.");
 			}
 
-			if (!this.peopleWhoSummoned.ContainsKey(room))
+			if (!_peopleWhoSummoned.ContainsKey(room))
 			{
-				this.peopleWhoSummoned.Add(room, new HashSet<int>());
+				_peopleWhoSummoned.Add(room, new HashSet<int>());
 			}
 
 			if (data.SentByController())
 			{
-				var joinedByAdmin = this.roomService.JoinRoom(room);
+				var joinedByAdmin = _roomService.JoinRoom(room);
 				return NewMessageAction(joinedByAdmin ? $"I joined room {room}, Boss." : $"Couldn't join room {room}, guess I'm already there!");
 			}
 
-			if (this.peopleWhoSummoned[room].Count < NumberOfRequiredSummons)
+			if (_peopleWhoSummoned[room].Count < NumberOfRequiredSummons)
 			{
-				_ = this.peopleWhoSummoned[room].Add(data.UserId);
-				return NewMessageAction($"{NumberOfRequiredSummons - this.peopleWhoSummoned[room].Count} more and I'll join room {room}");
+				_ = _peopleWhoSummoned[room].Add(data.UserId);
+				return NewMessageAction($"{NumberOfRequiredSummons - _peopleWhoSummoned[room].Count} more and I'll join room {room}");
 			}
 
-			var joined = this.roomService.JoinRoom(room);
+			var joined = _roomService.JoinRoom(room);
 			return NewMessageAction(joined ? $"I joined room {room}." : $"Couldn't join room {room}, guess I'm already there!");
 		}
 
@@ -237,17 +235,17 @@ namespace StackoverflowChatbot.CommandProcessors
 			return false;
 		}
 
-		private Task<HashSet<CustomCommand>> GetCustomCommands() => this.commandStore.GetCommands();
+		private Task<HashSet<CustomCommand>> GetCustomCommands() => _commandStore.GetCommands();
 
 		public async Task<IAction?> ProcessCommandAsync(EventData data)
 		{
-			var commandList = await this.GetCustomCommands();
+			var commandList = await GetCustomCommands();
 			var command = commandList.FirstOrDefault(e => e.Name == data.CommandName);
 			if (command != null)
 			{
 				if (command.IsDynamic)
 				{
-					return await this.ProcessDynamicCommand(data, command);
+					return await ProcessDynamicCommand(data, command);
 				}
 				return NewMessageAction(command!.Parameter!);
 			}
@@ -266,8 +264,8 @@ namespace StackoverflowChatbot.CommandProcessors
 			args = CliHelper.CombineOption(args, ' ').ToArray();
 			var expectedLength = command.ExpectedDynamicCommandArgs;
 
-			if (args == null || args.Length != expectedLength)
-				return NewMessageAction($"Expected {expectedLength} args, found {args?.Length ?? 0} for command '{command.Name}'");
+			if (args.Length != expectedLength)
+				return NewMessageAction($"Expected {expectedLength} args, found {args.Length} for command '{command.Name}'");
 
 			var timeout = TimeSpan.FromSeconds(10);
 			try
@@ -283,7 +281,7 @@ namespace StackoverflowChatbot.CommandProcessors
 					return NewMessageAction(api);
 				}
 				var cts = new CancellationTokenSource(timeout);
-				var apiResponse = await this.Fetch(api, dynaCmd.Method, dynaCmd.ContentType, cts.Token);
+				var apiResponse = await Fetch(api, dynaCmd.Method, dynaCmd.ContentType, cts.Token);
 				var stringContent = apiResponse.ToString() ?? "{}";
 				if (string.IsNullOrEmpty(dynaCmd.JsonPath))
 					return NewMessageAction(stringContent!);
@@ -309,18 +307,18 @@ namespace StackoverflowChatbot.CommandProcessors
 						case ContentType.Json:
 						default:
 							var d1 = components.Length > 1 ? QueryStringHelper.ToObject<object>(components.Last()) : null;
-							return this.httpService.PostJson<object>(new Uri(domain!), d1?.ToString(), cancellationToken!);
+							return _httpService.PostJson<object>(new Uri(domain!), d1?.ToString(), cancellationToken!);
 						case ContentType.Form:
 							var d2 = components.Length > 1 ? QueryStringHelper.ToDictionary(components.Last()) : new Dictionary<string, string>();
-							return this.httpService.PostUrlEncoded<object>(new Uri(domain!), d2!, cancellationToken!);
+							return _httpService.PostUrlEncoded<object>(new Uri(domain!), d2!, cancellationToken!);
 						case ContentType.Multi:
 							// TODO this will crash
 							var d3 = components.Length > 1 ? components.Last().AsDictionary() : new Dictionary<string, object?>();
-							return this.httpService.PostMultipart<object>(new Uri(domain!), d3!, cancellationToken!);
+							return _httpService.PostMultipart<object>(new Uri(domain!), d3!, cancellationToken!);
 					}
 				case Method.Get:
 				default:
-					return this.httpService.Get<object>(new Uri(api!), cancellationToken!);
+					return _httpService.Get<object>(new Uri(api!), cancellationToken!);
 			}
 		}
 	}

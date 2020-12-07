@@ -16,25 +16,25 @@ namespace StackoverflowChatbot
 		private static string GetTriggerFrom(string content) => Manager.Config().Triggers
 			.First(trigger => content.StartsWith(trigger, StringComparison.InvariantCultureIgnoreCase));
 
-		internal bool SentByController() => Manager.Config().Controllers.Contains(this.UserId);
+		internal bool SentByController() => Manager.Config().Controllers.Contains(UserId);
 
 		/// <summary>
 		/// The command without the trigger in the beginning.
 		/// </summary>
-		internal string Command => RemoveTriggerFrom(this.Content);
+		internal string Command => RemoveTriggerFrom(Content);
 
 		/// <summary>
 		/// Name of the command without trigger or parameters.
 		/// </summary>
-		internal string CommandName => this.Command.Contains(' ')
-			? this.Command.Substring(0, this.Command.IndexOf(' '))
-			: this.Command;
+		internal string CommandName => Command.Contains(' ')
+			? Command.Substring(0, Command.IndexOf(' '))
+			: Command;
 
 		/// <summary>
 		/// Parameters to the command without trigger or command name.
 		/// </summary>
-		internal string? CommandParameters => this.Command.Contains(' ')
-			? this.Command.Substring(this.Command.IndexOf(' ') + 1)
+		internal string? CommandParameters => Command.Contains(' ')
+			? Command.Substring(Command.IndexOf(' ') + 1)
 			: null;
 
 		[JsonProperty("event_type")]
@@ -59,15 +59,15 @@ namespace StackoverflowChatbot
 		[JsonConstructor]
 		private EventData(EventType type, long timeStamp, string content, int id, int userId, string username, int roomId, string roomName, int messageId)
 		{
-			this.Type = type;
-			this.TimeStamp = timeStamp;
-			this.Content = content;
-			this.Id = id;
-			this.UserId = userId;
-			this.Username = username;
-			this.RoomId = roomId;
-			this.RoomName = roomName;
-			this.MessageId = messageId;
+			Type = type;
+			TimeStamp = timeStamp;
+			Content = content;
+			Id = id;
+			UserId = userId;
+			Username = username;
+			RoomId = roomId;
+			RoomName = roomName;
+			MessageId = messageId;
 		}
 	}
 }

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using SharpExchange.Auth;
 using SharpExchange.Chat.Actions;
 using SharpExchange.Chat.Events;
 using SharpExchange.Net.WebSockets;
-using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot
@@ -11,31 +11,31 @@ namespace StackoverflowChatbot
 	internal class RoomService: IRoomService
 	{
 		internal const string Host = "chat.stackoverflow.com";
-		private readonly EmailAuthenticationProvider auth;
-		private readonly Dictionary<int, RoomWatcher<DefaultWebSocket>> activeRooms;
-		private readonly ICommandStore commandService;
-		private readonly IHttpService httpService;
+		private readonly EmailAuthenticationProvider _auth;
+		private readonly Dictionary<int, RoomWatcher<DefaultWebSocket>> _activeRooms;
+		private readonly ICommandStore _commandService;
+		private readonly IHttpService _httpService;
 
 		public RoomService(IIdentityProvider identityProvider, ICommandStore commandService, IHttpService httpService)
 		{
-			this.auth = new EmailAuthenticationProvider(identityProvider.Username, identityProvider.Password);
-			this.commandService = commandService;
-			this.httpService = httpService;
-			this.activeRooms = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
+			_auth = new EmailAuthenticationProvider(identityProvider.Username, identityProvider.Password);
+			_commandService = commandService;
+			_httpService = httpService;
+			_activeRooms = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		}
 
-		public bool Login() => this.auth.Login("stackoverflow.com");
+		public bool Login() => _auth.Login("stackoverflow.com");
 
 		public bool JoinRoom(int roomNumber)
 		{
-			if (this.activeRooms.ContainsKey(roomNumber))
+			if (_activeRooms.ContainsKey(roomNumber))
 			{
 				return false;
 			}
 
-			var newRoomWatcher = this.NewRoomWatcherFor(roomNumber);
+			var newRoomWatcher = NewRoomWatcherFor(roomNumber);
 			Discord.StackRoomWatchers.Add(roomNumber, newRoomWatcher);
-			this.activeRooms.Add(roomNumber, newRoomWatcher);
+			_activeRooms.Add(roomNumber, newRoomWatcher);
 			//var discord = Discord.GetDiscord();
 			
 			return true;
@@ -44,10 +44,10 @@ namespace StackoverflowChatbot
 		private RoomWatcher<DefaultWebSocket> NewRoomWatcherFor(int roomNumber)
 		{
 			var newRoomWatcher =
-				new RoomWatcher<DefaultWebSocket>(this.auth, $"https://chat.stackoverflow.com/rooms/{roomNumber}");
+				new RoomWatcher<DefaultWebSocket>(_auth, $"https://chat.stackoverflow.com/rooms/{roomNumber}");
 			var messageHandler = new ChatEventHandler();
-			var scheduler = new ActionScheduler(this.auth, Host, roomNumber);
-			var router = new CommandRouter(this, this.commandService, this.httpService, roomNumber,
+			var scheduler = new ActionScheduler(_auth, Host, roomNumber);
+			var router = new CommandRouter(this, _commandService, _httpService, roomNumber,
 				scheduler);
 			messageHandler.OnEvent += router.RouteCommand;
 			newRoomWatcher.EventRouter.AddProcessor(messageHandler);
@@ -59,14 +59,14 @@ namespace StackoverflowChatbot
 
 		public void LeaveRoom(int roomNumber)
 		{
-			if (!this.activeRooms.ContainsKey(roomNumber)) return;
+			if (!_activeRooms.ContainsKey(roomNumber)) return;
 
-			var watcher = this.activeRooms[roomNumber];
-			_ = this.activeRooms.Remove(roomNumber);
+			var watcher = _activeRooms[roomNumber];
+			_ = _activeRooms.Remove(roomNumber);
 			watcher.Dispose();
-			if (this.activeRooms.Count == 0)
+			if (_activeRooms.Count == 0)
 			{
-				System.Diagnostics.Process.GetCurrentProcess().Kill();
+				Process.GetCurrentProcess().Kill();
 			}
 		}
 	}

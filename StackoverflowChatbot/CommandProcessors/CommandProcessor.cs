@@ -8,7 +8,7 @@ namespace StackoverflowChatbot.CommandProcessors
 	{
 		internal abstract string Trigger { get; }
 
-		internal bool KnowsCommand(string trigger) => string.Equals(trigger, this.Trigger, StringComparison.OrdinalIgnoreCase);
+		internal bool KnowsCommand(string trigger) => string.Equals(trigger, Trigger, StringComparison.OrdinalIgnoreCase);
 
 		internal abstract string ProcessCommand(string command);
 
