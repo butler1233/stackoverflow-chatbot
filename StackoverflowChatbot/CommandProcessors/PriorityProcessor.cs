@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -96,7 +95,7 @@ namespace StackoverflowChatbot.CommandProcessors
 				return true;
 			}	
 
-			// Why is action getting assigned but not unused?
+			// Why is action getting assigned but is unused?
 			action = null;
 			return false;
 		}
@@ -104,7 +103,6 @@ namespace StackoverflowChatbot.CommandProcessors
 		public bool TryGetNativeCommands(string key, out Type? value) => this.nativeCommands.TryGetValue(key, out value);
 		public IEnumerable<string> NativeKeys => this.nativeCommands.Keys;
 
-		//NativeKeys, 
 		private bool TryGetNativeCommand(EventData data, out IAction? action)
 		{
 			if (this.nativeCommands.TryGetValue(data.CommandName, out var commandType))
@@ -121,6 +119,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private BaseCommand CreateCommandInstance(Type commandType)
 		{
+			// TODO use the service locator gdi!
 			var parameterTypes = commandType
 				.GetConstructors()
 				.First()
@@ -182,7 +181,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			}
 
 			_ = this.commandStore.AddCommand(command)
-				.ContinueWith(async t =>
+				.ContinueWith(t =>
 				{
 					if (t.IsFaulted)
 					{
