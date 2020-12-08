@@ -8,13 +8,13 @@ namespace StackoverflowChatbot.Config
 {
 	internal static class Manager
 	{
-		private static Base? instance;
+		private static Base? _instance;
 
 		internal static string CONFIG_FILENAME = "config.json";
 
 		public static Base Config()
 		{
-			if (instance == null)
+			if (_instance == null)
 			{
 				try
 				{
@@ -30,21 +30,21 @@ namespace StackoverflowChatbot.Config
 					{
 						configData.StackToDiscordMap.Add(pair.Value, pair.Key);
 					}
-					instance = configData;
-					Console.WriteLine($"Loaded config. my triggers are: {string.Join(", ", instance.Triggers)}");
+					_instance = configData;
+					Console.WriteLine($"Loaded config. my triggers are: {string.Join(", ", _instance.Triggers)}");
 				}
 				catch (Exception e)
 				{
 					Console.WriteLine(e.ToString());
-					instance = new Base();
+					_instance = new Base();
 				}
 			}
-			return instance;
+			return _instance;
 		}
 
 		public static void SaveConfig()
 		{
-			var json = JsonSerializer.Serialize(instance);
+			var json = JsonSerializer.Serialize(_instance);
 			using var confStream = File.OpenWrite(CONFIG_FILENAME);
 			confStream.Position = 0; //Just to make sure
 			var bytes = Encoding.UTF8.GetBytes(json);

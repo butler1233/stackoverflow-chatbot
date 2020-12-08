@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
-using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -15,12 +11,12 @@ namespace StackoverflowChatbot.NativeCommands
 	internal class Help: BaseCommand
 	{
 		private readonly ICommandProcessor _commandProcessor;
-		private readonly ICommandStore _commandStore;
+		private readonly ICommandFactory _commandFactory;
 
-		public Help(ICommandStore commandStore, ICommandProcessor commandProcessor)
+		public Help(ICommandProcessor commandProcessor, ICommandFactory commandFactory)
 		{
-			_commandStore = commandStore;
 			_commandProcessor = commandProcessor;
+			_commandFactory = commandFactory;
 		}
 
 		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
@@ -30,7 +26,7 @@ namespace StackoverflowChatbot.NativeCommands
 				if (_commandProcessor.TryGetNativeCommands(parameters[0], out var commandType))
 				{
 					//We have a command which lines up with what they wanted.
-					var command = CreateCommandInstance(commandType!);
+					var command = _commandFactory.Create(commandType!, _commandProcessor);
 					return new SendMessage($"`{command.CommandName()}`: *{command.CommandDescription()}*");
 				}
 
@@ -47,28 +43,5 @@ namespace StackoverflowChatbot.NativeCommands
 		internal override string CommandName() => "help";
 
 		internal override string? CommandDescription() => "Details what commands are available";
-
-		private BaseCommand CreateCommandInstance(Type commandType)
-		{
-			var parameterTypes = commandType
-				.GetConstructors()
-				.First()
-				.GetParameters()
-				.Select(e => e.ParameterType);
-
-			var parameterValues = new List<object>();
-			foreach (var param in parameterTypes)
-			{
-				if (param == typeof(ICommandStore))
-					parameterValues.Add(_commandStore);
-				else if (param == typeof(ICommandProcessor))
-					parameterValues.Add(_commandProcessor);
-			}
-
-			if (parameterValues.Any())
-				return (BaseCommand)Activator.CreateInstance(commandType, parameterValues)!;
-
-			return (BaseCommand)Activator.CreateInstance(commandType)!;
-		}
 	}
 }

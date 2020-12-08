@@ -40,7 +40,6 @@ namespace StackoverflowChatbot.NativeCommands
 		/// <summary>
 		/// If this command is only usable (and visible to) controllers. Although obviously if a help is run by a controller then everyone will see it. But if they're not a controller then they can't do it.
 		/// </summary>
-		[UsedImplicitly]
 		internal virtual bool NeedsAdmin() => false;
 
 	}
