@@ -75,7 +75,7 @@ namespace StackoverflowChatbot.CommandProcessors
 				return action != null;
 			}
 
-			// Why is action getting assigned but not unused?
+			// Why is action getting assigned but is unused?
 			action = null;
 			return false;
 		}
