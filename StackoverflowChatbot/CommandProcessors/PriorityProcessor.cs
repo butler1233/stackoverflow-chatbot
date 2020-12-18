@@ -271,6 +271,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			try
 			{
 				var api = Uri.UnescapeDataString(dynaCmd!.ApiAddress.AbsoluteUri);
+				args = args.Select(HttpUtility.UrlEncode).ToArray();
 				api = HttpUtility.HtmlDecode(string.Format(api, args));
 				if (dynaCmd.Method == Method.Get && dynaCmd.ResponseType == ResponseType.Image)
 				{
