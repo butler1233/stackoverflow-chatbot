@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
 
@@ -18,6 +19,7 @@ namespace StackoverflowChatbot.Relay
 			{
 				messageContent = messageContent.Replace(mentionedUser.Mention, $"@{mentionedUser.Username}");
 			}
+
 			foreach (var mentionedRoles in arg.MentionedRoles)
 			{
 				messageContent = messageContent.Replace(mentionedRoles.Mention, $"[@{mentionedRoles.Name}]({config.DiscordInviteLink})");

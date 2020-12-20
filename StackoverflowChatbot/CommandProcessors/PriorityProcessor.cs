@@ -94,7 +94,7 @@ namespace StackoverflowChatbot.CommandProcessors
 				return true;
 			}	
 
-			// Why is action getting assigned but not unused?
+			// Why is action getting assigned but is unused?
 			action = null;
 			return false;
 		}
@@ -102,7 +102,6 @@ namespace StackoverflowChatbot.CommandProcessors
 		public bool TryGetNativeCommands(string key, out Type? value) => _nativeCommands.TryGetValue(key, out value);
 		public IEnumerable<string> NativeKeys => _nativeCommands.Keys;
 
-		//NativeKeys, 
 		private bool TryGetNativeCommand(EventData data, out IAction? action)
 		{
 			if (_nativeCommands.TryGetValue(data.CommandName, out var commandType))
@@ -119,6 +118,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private BaseCommand CreateCommandInstance(Type commandType)
 		{
+			// TODO use the service locator gdi!
 			var parameterTypes = commandType
 				.GetConstructors()
 				.First()
@@ -180,7 +180,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			}
 
 			_ = _commandStore.AddCommand(command)
-				.ContinueWith(async t =>
+				.ContinueWith(t =>
 				{
 					if (t.IsFaulted)
 					{
@@ -271,6 +271,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			try
 			{
 				var api = Uri.UnescapeDataString(dynaCmd!.ApiAddress.AbsoluteUri);
+				args = args.Select(HttpUtility.UrlEncode).ToArray();
 				api = HttpUtility.HtmlDecode(string.Format(api, args));
 				if (dynaCmd.Method == Method.Get && dynaCmd.ResponseType == ResponseType.Image)
 				{
