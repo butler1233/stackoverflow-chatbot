@@ -275,7 +275,7 @@ namespace StackoverflowChatbot.CommandProcessors
 				api = HttpUtility.HtmlDecode(string.Format(api, args));
 				if (dynaCmd.Method == Method.Get && dynaCmd.ResponseType == ResponseType.Image)
 				{
-					var alias = dynaCmd.Alias;
+					var alias = dynaCmd.Alias?.Trim();
 					// TODO Discord doesn't have a hyperlink markdown yet unfortunately.
 					// but we can use this: https://leovoel.github.io/embed-visualizer/
 					api = string.IsNullOrEmpty(alias) ? api : $"[{alias}]({api})";

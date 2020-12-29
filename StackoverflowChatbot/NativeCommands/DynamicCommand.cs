@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
 using StackoverflowChatbot.Helpers;
 
 namespace StackoverflowChatbot.NativeCommands
@@ -51,7 +52,8 @@ namespace StackoverflowChatbot.NativeCommands
 					return false;
 				}
 				var argsCount = Regex.Matches(api, "({\\d+})").Count;
-				var options = ParseOptions(components.Last());
+				var optionString = HttpUtility.HtmlDecode(components.Last());
+				var options = ParseOptions(optionString);
 				cmd = result ? new DynamicCommand(uri!, argsCount, options) : null;
 				return result;
 
@@ -91,7 +93,7 @@ namespace StackoverflowChatbot.NativeCommands
 			{
 				"text" => ResponseType.Text,
 				"image" => ResponseType.Image,
-				_ => ResponseType.Text
+				_ => ResponseType.Image
 			};
 		}
 
