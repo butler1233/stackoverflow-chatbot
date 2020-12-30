@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot.NativeCommands
 {
+	[UsedImplicitly]
 	internal class Learn: BaseCommand
 	{
 		private readonly ICommandStore _commandStore;
@@ -31,13 +33,12 @@ namespace StackoverflowChatbot.NativeCommands
 			_ = _commandStore.AddCommand(command)
 				.ContinueWith(t =>
 				{
-					if (t.IsFaulted)
-					{
-						Exception? exception = t.Exception;
-						while (exception is AggregateException aggregateException)
-							exception = aggregateException.InnerException;
-						Console.Write(exception);
-					}
+					if (!t.IsFaulted)
+						return;
+					Exception? exception = t.Exception;
+					while (exception is AggregateException aggregateException)
+						exception = aggregateException.InnerException;
+					Console.Write(exception);
 				});
 			return new SendMessage($"Learned the command {name}");
 		}
