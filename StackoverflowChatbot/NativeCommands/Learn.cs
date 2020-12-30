@@ -14,7 +14,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters)
 		{
-			if (parameters.Length < 2)
+			if (parameters == null || parameters.Length < 2)
 			{
 				return new SendMessage("Missing args");
 			}
@@ -29,7 +29,7 @@ namespace StackoverflowChatbot.NativeCommands
 			}
 
 			_ = _commandStore.AddCommand(command)
-				.ContinueWith(async t =>
+				.ContinueWith(t =>
 				{
 					if (t.IsFaulted)
 					{

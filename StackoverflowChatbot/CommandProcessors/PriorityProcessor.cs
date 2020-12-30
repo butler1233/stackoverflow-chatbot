@@ -75,7 +75,7 @@ namespace StackoverflowChatbot.CommandProcessors
 				return action != null;
 			}
 
-			// Why is action getting assigned but not unused?
+			// Why is action getting assigned but is unused?
 			action = null;
 			return false;
 		}
@@ -122,10 +122,11 @@ namespace StackoverflowChatbot.CommandProcessors
 			try
 			{
 				var api = Uri.UnescapeDataString(dynaCmd!.ApiAddress.AbsoluteUri);
+				args = args.Select(HttpUtility.UrlEncode).ToArray();
 				api = HttpUtility.HtmlDecode(string.Format(api, args));
 				if (dynaCmd.Method == Method.Get && dynaCmd.ResponseType == ResponseType.Image)
 				{
-					var alias = dynaCmd.Alias;
+					var alias = dynaCmd.Alias?.Trim();
 					// TODO Discord doesn't have a hyperlink markdown yet unfortunately.
 					// but we can use this: https://leovoel.github.io/embed-visualizer/
 					api = string.IsNullOrEmpty(alias) ? api : $"[{alias}]({api})";
