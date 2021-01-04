@@ -24,7 +24,7 @@ namespace StackoverflowChatbot.Tests
 			};
 
 		// Message is "S, say hello"
-		private static readonly JToken serializedData = JToken.Parse(System.IO.File.ReadAllText("EventData.json"));
+		private static readonly JToken _serializedData = JToken.Parse(System.IO.File.ReadAllText("EventData.json"));
 
 		public static IEnumerable<TestCase> CommandsToTestAgainst()
 		{
@@ -46,7 +46,7 @@ namespace StackoverflowChatbot.Tests
 
 		private static EventData GetDataWithCommand(string command)
 		{
-			var newData = serializedData.DeepClone();
+			var newData = _serializedData.DeepClone();
 			newData["content"] = command;
 			return EventData.FromJson(newData);
 		}

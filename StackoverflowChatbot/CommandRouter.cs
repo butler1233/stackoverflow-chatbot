@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.CommandProcessors;
@@ -14,9 +15,9 @@ namespace StackoverflowChatbot
 		private readonly ActionScheduler _actionScheduler;
 		private readonly IReadOnlyCollection<ICommandProcessor> _processors;
 
-		public CommandRouter(IRoomService roomService, ICommandStore commandService, IHttpService httpService, int roomId, ActionScheduler actionScheduler)
+		public CommandRouter(ICommandStore commandService, IHttpService httpService, ICommandFactory commandFactory, ActionScheduler actionScheduler)
 		{
-			_priorityProcessor = new PriorityProcessor(roomService, commandService, httpService, roomId);
+			_priorityProcessor = new PriorityProcessor(commandService, httpService, commandFactory);
 			_actionScheduler = actionScheduler;
 
 			// Populate these with dynamic commands (from a db or something) once that is a thing
@@ -28,36 +29,13 @@ namespace StackoverflowChatbot
 			//Do other thuings
 			try
 			{
-				if (_priorityProcessor.ProcessCommand(message, out var action) ||
-					_processors.Any(p => p.ProcessCommand(message, out action)))
+				var invokableAction = await FindInvokableAction(message);
+				if (invokableAction != null)
 				{
-					await action!.Execute(_actionScheduler);
+					await invokableAction.Execute(_actionScheduler);
 					Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
 				}
 				else
-				{
-					// TODO refactor this!
-					action = await _priorityProcessor.ProcessCommandAsync(message);
-					if (action == null)
-					{
-						foreach(var processor in _processors)
-						{
-							action = await processor.ProcessCommandAsync(message);
-							if (action != null)
-							{
-								await action!.Execute(_actionScheduler);
-								Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
-								break;
-							}
-						}
-					}
-					else
-					{
-						await action!.Execute(_actionScheduler);
-						Console.WriteLine($"[{message.RoomId}] {message.Username} invoked {message.CommandName}");
-					}
-				}
-				if (action == null)
 				{
 					await IAction.ExecuteDefaultAction(message, _actionScheduler);
 				}
@@ -69,6 +47,32 @@ namespace StackoverflowChatbot
 				await _actionScheduler.CreateMessageAsync(codified);
 			}
 
+		}
+
+		private async Task<IAction?> FindInvokableAction(EventData message)
+		{
+			if (_priorityProcessor.ProcessNativeCommand(message, out var action) ||
+			    _processors.Any(p => p.ProcessNativeCommand(message, out action)))
+			{
+				return action;
+			}
+
+			action = await _priorityProcessor.ProcessDynamicCommandAsync(message);
+			if (action != null)
+			{
+				return action;
+			}
+
+			foreach (var processor in _processors)
+			{
+				action = await processor.ProcessDynamicCommandAsync(message);
+				if (action != null)
+				{
+					return action;
+				}
+			}
+
+			return null;
 		}
 	}
 }
