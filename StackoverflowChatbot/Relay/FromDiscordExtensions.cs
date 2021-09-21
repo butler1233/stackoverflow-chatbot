@@ -32,23 +32,25 @@ namespace StackoverflowChatbot.Relay
 
 			var embeddedCode = Regex.Matches(messageContent, "```.+?```", RegexOptions.Singleline);
 			if (embeddedCode.Count == 0) result.Add(messageStart + messageContent);
-
-			// Complex message with codeblocks...
-			var cursor = 0;
-			result.Add(messageStart);
-			foreach (Match? codeBlock in embeddedCode)
+			else
 			{
-				if (codeBlock == null)
-					continue;
+				// Complex message with codeblocks...
+				var cursor = 0;
+				result.Add(messageStart);
+				foreach (Match? codeBlock in embeddedCode)
+				{
+					if (codeBlock == null)
+						continue;
 
-				var indicatorCount = Regex.Matches(messageContent.Substring(0, codeBlock.Index + 3), "```", RegexOptions.Singleline).Count;
-				if(indicatorCount % 2 == 0)
-					continue;
+					var indicatorCount = Regex.Matches(messageContent.Substring(0, codeBlock.Index + 3), "```", RegexOptions.Singleline).Count;
+					if (indicatorCount % 2 == 0)
+						continue;
 
-				var soCodeBlock = "    " + codeBlock.ToString().Replace("`", "").Replace("\n", "\n    ").TrimEnd();
-				result.Add(messageContent.Substring(cursor, codeBlock.Index - cursor));
-				cursor = codeBlock.Index + codeBlock.Length;
-				result.Add(soCodeBlock);
+					var soCodeBlock = "    " + codeBlock.ToString().Replace("`", "").Replace("\n", "\n    ").TrimEnd();
+					result.Add(messageContent.Substring(cursor, codeBlock.Index - cursor));
+					cursor = codeBlock.Index + codeBlock.Length;
+					result.Add(soCodeBlock);
+				}
 			}
 
 			//Add attachment links if it's a picture as a seperate message for stack. Specifically do it last
