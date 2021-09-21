@@ -56,6 +56,8 @@ namespace StackoverflowChatbot
 					// Create a list of messages in case there are embedded codeblocks or stuff alongside text
 					var messages = FromDiscordExtensions.BuildSoMessage(user, config, arg);
 
+
+
 					foreach (var message in messages)
 					{
 						//Find the room scheduler

@@ -29,10 +29,9 @@ namespace StackoverflowChatbot.Relay
 				// Library doesn't provide channel mention string
 				messageContent = messageContent.Replace($"<#{mentionedChannel.Id}>", $"[#{mentionedChannel.Name}]({config.DiscordInviteLink})");
 			}
-			
+
 			var embeddedCode = Regex.Matches(messageContent, "```.+?```", RegexOptions.Singleline);
-			if (embeddedCode.Count == 0)
-				return new List<string>() { messageStart + messageContent };
+			if (embeddedCode.Count == 0) result.Add(messageStart + messageContent);
 
 			// Complex message with codeblocks...
 			var cursor = 0;
@@ -50,6 +49,12 @@ namespace StackoverflowChatbot.Relay
 				result.Add(messageContent.Substring(cursor, codeBlock.Index - cursor));
 				cursor = codeBlock.Index + codeBlock.Length;
 				result.Add(soCodeBlock);
+			}
+
+			//Add attachment links if it's a picture as a seperate message for stack. Specifically do it last
+			foreach (var attachment in arg.Attachments)
+			{
+				result.Add(attachment.Url);
 			}
 
 			return result;
