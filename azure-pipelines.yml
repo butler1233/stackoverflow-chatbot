@@ -41,7 +41,7 @@ steps:
   condition: startsWith(variables['Build.SourceBranch'], 'refs/heads/')
   inputs:
     SourcePath: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
-    azureSubscription: 'Base Subscription(fa77dc99-d303-482a-a595-14414e3cb5e5)'
+    azureSubscription: 'Visual Studio Enterprise Subscription – MPN(3b6d5445-a69c-4b1e-8776-61de5c3c5a1b)'
     Destination: 'AzureBlob'
     storage: 'leerbcsharpbot'
     ContainerName: 'deploy'
