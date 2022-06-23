@@ -1,12 +1,13 @@
 using System;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 
 namespace StackoverflowChatbot.NativeCommands
 {
 	public abstract class BaseCommand
 	{
-		internal IAction? ProcessMessage(EventData data, string[]? parameters)
+		internal IAction? ProcessMessage(ChatMessageEventData data, string[]? parameters)
 		{
 			//If it's a admin command and the user isn't an admin, tell them to sod off.
 			if (NeedsAdmin() && !StackoverflowChatbot.Config.Manager.Config().Controllers.Contains(data.UserId))
@@ -23,7 +24,7 @@ namespace StackoverflowChatbot.NativeCommands
 		/// <param name="eventContext"></param>
 		/// <param name="parameters"></param>
 		/// <returns></returns>
-		internal abstract IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters);
+		internal abstract IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters);
 
 		/// <summary>
 		/// The name of the command. This will be the word that users use to invoke your command. Anything that comes after this will be passed in the Parameters field. 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot.NativeCommands
@@ -14,7 +15,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 		public Learn(ICommandStore commandStore) => _commandStore = commandStore;
 
-		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters)
+		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters == null || parameters.Length < 2)
 			{

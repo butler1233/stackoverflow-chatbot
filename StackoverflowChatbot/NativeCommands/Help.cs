@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 using StackoverflowChatbot.CommandProcessors;
 
 namespace StackoverflowChatbot.NativeCommands
@@ -19,7 +20,7 @@ namespace StackoverflowChatbot.NativeCommands
 			_commandFactory = commandFactory;
 		}
 
-		internal override IAction? ProcessMessageInternal(EventData eventContext, string[]? parameters)
+		internal override IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters?.Length > 0)
 			{

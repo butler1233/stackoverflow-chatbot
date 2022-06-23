@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -9,7 +10,7 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Say: BaseCommand
 	{
-		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters) => new SendMessage(parameters != null ? string.Join(" ", parameters) : "");
+		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) => new SendMessage(parameters != null ? string.Join(" ", parameters) : "");
 
 		internal override string CommandName() => "say";
 

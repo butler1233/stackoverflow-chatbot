@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using SharpExchange.Chat.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 
 namespace StackoverflowChatbot.Actions
 {
@@ -9,7 +10,7 @@ namespace StackoverflowChatbot.Actions
 		/// <summary>
 		/// Call this in case of an unknown command.
 		/// </summary>
-		public static Func<EventData, ActionScheduler, Task> ExecuteDefaultAction =
+		public static Func<ChatMessageEventData, ActionScheduler, Task> ExecuteDefaultAction =
 			async (data, scheduler) => await scheduler.CreateReplyAsync("Sorry, I don't know that one.", data.MessageId);
 
 		/// <summary>

@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using StackoverflowChatbot.Services;
 using System.Net.Http;
 using System.Web;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -19,7 +20,7 @@ namespace StackoverflowChatbot.NativeCommands
             { "de", "http://5.189.153.146:5003/api/tts?text=" }
         }; 
 
-		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters) 
+		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) 
         {
             if (parameters == null || parameters.Length == 0)
                 return new SendMessage("you need to provide something that can be read");

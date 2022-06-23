@@ -5,11 +5,11 @@ using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
 using StackoverflowChatbot.Config;
 
-namespace StackoverflowChatbot
+namespace StackoverflowChatbot.ChatEvents.StackOverflow
 {
-	public class EventData
+	public class ChatMessageEventData
 	{
-		internal static EventData FromJson(JToken json) => json.ToObject<EventData>()!;
+		internal static ChatMessageEventData FromJson(JToken json) => json.ToObject<ChatMessageEventData>()!;
 
 		private static string RemoveTriggerFrom(string content) => content.Substring(GetTriggerFrom(content).Length).Trim();
 
@@ -57,7 +57,7 @@ namespace StackoverflowChatbot
 		public readonly int MessageId;
 
 		[JsonConstructor]
-		private EventData(EventType type, long timeStamp, string content, int id, int userId, string username, int roomId, string roomName, int messageId)
+		private ChatMessageEventData(EventType type, long timeStamp, string content, int id, int userId, string username, int roomId, string roomName, int messageId)
 		{
 			Type = type;
 			TimeStamp = timeStamp;

@@ -5,6 +5,7 @@ using System.Web;
 using CSScriptLib;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -14,7 +15,7 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	public class Eval: BaseCommand
 	{
-		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters)
+		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters == null)
 				return new SendMessage("Yeah well I'm not even gonna try to compile that.");

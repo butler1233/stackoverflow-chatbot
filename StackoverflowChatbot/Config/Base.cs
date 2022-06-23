@@ -44,7 +44,7 @@ namespace StackoverflowChatbot.Config
 
 		public List<int> IgnoredUsers { get; set; } = null!;
 
-		public string SqliteFilename { get; set; } = "sqlite.db";
+		public string SqliteFilename { get; set; } = "C:/bot-sqlite.db";
 
 	}
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 
 namespace StackoverflowChatbot.CommandProcessors
 {
@@ -13,9 +14,9 @@ namespace StackoverflowChatbot.CommandProcessors
 		/// <param name="data">The command.</param>
 		/// <param name="action">Executable action on success, otherwise null.</param>
 		/// <returns>Whether or not this processor could process the command.</returns>
-		bool ProcessNativeCommand(EventData data, out IAction? action);
+		bool ProcessNativeCommand(ChatMessageEventData data, out IAction? action);
 
-		Task<IAction?> ProcessDynamicCommandAsync(EventData data);
+		Task<IAction?> ProcessDynamicCommandAsync(ChatMessageEventData data);
 
 		bool TryGetNativeCommands(string key, out Type? value);
 

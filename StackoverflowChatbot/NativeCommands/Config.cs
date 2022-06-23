@@ -1,6 +1,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.NativeCommands
@@ -8,7 +9,7 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Config: BaseCommand
 	{
-		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters)
+		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters?.Any() != true)
 				return new SendMessage(

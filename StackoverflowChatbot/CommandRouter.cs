@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SharpExchange.Chat.Actions;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 using StackoverflowChatbot.CommandProcessors;
 using StackoverflowChatbot.Services;
 
@@ -24,7 +25,7 @@ namespace StackoverflowChatbot
 			_processors = Array.Empty<ICommandProcessor>();
 		}
 
-		internal async void RouteCommand(EventData message)
+		internal async void RouteCommand(ChatMessageEventData message)
 		{
 			//Do other thuings
 			try
@@ -49,7 +50,7 @@ namespace StackoverflowChatbot
 
 		}
 
-		private async Task<IAction?> FindInvokableAction(EventData message)
+		private async Task<IAction?> FindInvokableAction(ChatMessageEventData message)
 		{
 			if (_priorityProcessor.ProcessNativeCommand(message, out var action) ||
 			    _processors.Any(p => p.ProcessNativeCommand(message, out action)))

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json.Linq;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 using StackoverflowChatbot.Extensions;
 using StackoverflowChatbot.Helpers;
 using StackoverflowChatbot.NativeCommands;
@@ -65,7 +66,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		/// Process the event if a suitable command is found.
 		/// </summary>
 		/// <returns>Whether or not the event was processed.</returns>
-		public bool ProcessNativeCommand(EventData data, out IAction? action)
+		public bool ProcessNativeCommand(ChatMessageEventData data, out IAction? action)
 		{
 			if (_nativeCommands.TryGetValue(data.CommandName, out var commandType))
 			{
@@ -89,7 +90,7 @@ namespace StackoverflowChatbot.CommandProcessors
 
 		private Task<HashSet<CustomCommand>> GetCustomCommands() => _commandStore.GetCommands();
 
-		public async Task<IAction?> ProcessDynamicCommandAsync(EventData data)
+		public async Task<IAction?> ProcessDynamicCommandAsync(ChatMessageEventData data)
 		{
 			var commandList = await GetCustomCommands();
 			var command = commandList.FirstOrDefault(e => e.Name == data.CommandName);
@@ -104,7 +105,7 @@ namespace StackoverflowChatbot.CommandProcessors
 			return null;
 		}
 
-		private async Task<IAction?> ProcessDynamicCommand(EventData data, CustomCommand command)
+		private async Task<IAction?> ProcessDynamicCommand(ChatMessageEventData data, CustomCommand command)
 		{
 			if (!DynamicCommand.TryParse(command.Parameter!, out var dynaCmd))
 			{

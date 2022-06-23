@@ -17,12 +17,23 @@ namespace StackoverflowChatbot.Database
 		{
 			if (DbPath == null)
 			{
-				string appDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
-				Base config = Manager.Config();
-				DbPath = Path.Combine(appDirectory, config.SqliteFilename);
+				DbPath = Manager.Config().SqliteFilename;
 			}
 		}
 
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlite($"Data Source={DbPath}");
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			Console.WriteLine($"Configuring EF context - loading '{DbPath}'");
+			var dbinfo = new FileInfo(DbPath);
+			if (dbinfo.Exists)
+			{
+				Console.WriteLine($"Sqlite db exists! Size {dbinfo.Length} bytes");
+			}
+			else
+			{
+				throw new FileNotFoundException("DB file was not found", DbPath);
+			}
+			optionsBuilder.UseSqlite($"Data Source={DbPath}");
+		}
 	}
 }

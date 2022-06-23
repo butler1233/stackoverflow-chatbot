@@ -6,6 +6,7 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using StackoverflowChatbot.Services;
 using StackoverflowChatbot.Services.Repositories;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 
 namespace StackoverflowChatbot.Tests
 {
@@ -44,11 +45,11 @@ namespace StackoverflowChatbot.Tests
 			};
 		}
 
-		private static EventData GetDataWithCommand(string command)
+		private static ChatMessageEventData GetDataWithCommand(string command)
 		{
 			var newData = _serializedData.DeepClone();
 			newData["content"] = command;
-			return EventData.FromJson(newData);
+			return ChatMessageEventData.FromJson(newData);
 		}
 
 		#endregion
@@ -92,7 +93,7 @@ namespace StackoverflowChatbot.Tests
 	[ExcludeFromCodeCoverage]
 	public class TestCase
 	{
-		internal EventData TestData = null!;
+		internal ChatMessageEventData TestData = null!;
 		internal string Trigger = null!;
 		internal string CommandName = null!;
 		internal string? Parameters;

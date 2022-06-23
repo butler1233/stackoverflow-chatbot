@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.NativeCommands
@@ -14,7 +15,7 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Shutdown: BaseCommand
 	{
-		internal override IAction ProcessMessageInternal(EventData eventContext, string[]? parameters)
+		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			//In theory this is redundant as the BaseCommand interface and the CommandRouter process adminosity.
 			if (!Manager.Config().Controllers.Contains(eventContext.UserId))

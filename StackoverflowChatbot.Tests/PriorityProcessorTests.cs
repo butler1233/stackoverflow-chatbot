@@ -9,6 +9,7 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using StackoverflowChatbot.Actions;
+using StackoverflowChatbot.ChatEvents.StackOverflow;
 using StackoverflowChatbot.CommandProcessors;
 using StackoverflowChatbot.NativeCommands;
 using StackoverflowChatbot.Services;
@@ -21,8 +22,8 @@ namespace StackoverflowChatbot.Tests
 	{
 		private PriorityProcessor _priorityProcessor = null!;
 		private CommandFactory _commandFactory = null!;
-		private EventData EventDataFromContent(string content) =>
-			EventData.FromJson(JToken.Parse(
+		private ChatMessageEventData EventDataFromContent(string content) =>
+			ChatMessageEventData.FromJson(JToken.Parse(
 @"{
 	""event_type"": 1,
 	""time_stamp"": 1603377031,
