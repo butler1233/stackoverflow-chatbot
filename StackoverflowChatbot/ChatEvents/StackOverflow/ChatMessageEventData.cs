@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
@@ -15,6 +16,16 @@ namespace StackoverflowChatbot.ChatEvents.StackOverflow
 
 		private static string GetTriggerFrom(string content) => Manager.Config().Triggers
 			.First(trigger => content.StartsWith(trigger, StringComparison.InvariantCultureIgnoreCase));
+
+		/// <summary>
+		/// If the message is a reply
+		/// </summary>
+		public bool IsReply => ParentId.HasValue;
+
+		/// <summary>
+		/// If the message is a reply, returns the message ID that the message is replying to.
+		/// </summary>
+		public int ReplyingToId => ParentId.Value;
 
 		internal bool SentByController() => Manager.Config().Controllers.Contains(UserId);
 
@@ -55,6 +66,18 @@ namespace StackoverflowChatbot.ChatEvents.StackOverflow
 		public readonly string RoomName;
 		[JsonProperty("message_id")]
 		public readonly int MessageId;
+
+		/// <summary>
+		/// If the message is a reply, this is the message it is replying to.
+		/// </summary>
+		[JsonProperty("parent_id")]
+		public readonly int? ParentId;
+
+		/// <summary>
+		/// If the message has been edited, this is how many times.
+		/// </summary>
+		[JsonProperty("message_edits")]
+		public readonly int? MessageEdits;
 
 		[JsonConstructor]
 		private ChatMessageEventData(EventType type, long timeStamp, string content, int id, int userId, string username, int roomId, string roomName, int messageId)
