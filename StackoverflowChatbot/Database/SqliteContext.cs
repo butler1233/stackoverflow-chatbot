@@ -5,35 +5,34 @@ using Microsoft.EntityFrameworkCore;
 using StackoverflowChatbot.Config;
 using StackoverflowChatbot.Database.Dbos;
 
-namespace StackoverflowChatbot.Database
+namespace StackoverflowChatbot.Database;
+
+public class SqliteContext : DbContext
 {
-	public class SqliteContext : DbContext
+	public DbSet<MessageDbo> Messages { get; set; }
+
+	public static string? DbPath { get; private set; } = null;
+
+	public SqliteContext()
 	{
-		public DbSet<MessageDbo> Messages { get; set; }
-
-		public static string? DbPath { get; private set; } = null;
-
-		public SqliteContext()
+		if (DbPath == null)
 		{
-			if (DbPath == null)
-			{
-				DbPath = Manager.Config().SqliteFilename;
-			}
+			DbPath = Manager.Config().SqliteFilename;
 		}
+	}
 
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	{
+		Console.WriteLine($"Configuring EF context - loading '{DbPath}'");
+		var dbinfo = new FileInfo(DbPath);
+		if (dbinfo.Exists)
 		{
-			Console.WriteLine($"Configuring EF context - loading '{DbPath}'");
-			var dbinfo = new FileInfo(DbPath);
-			if (dbinfo.Exists)
-			{
-				Console.WriteLine($"Sqlite db exists! Size {dbinfo.Length} bytes");
-			}
-			else
-			{
-				throw new FileNotFoundException("DB file was not found", DbPath);
-			}
-			optionsBuilder.UseSqlite($"Data Source={DbPath}");
+			Console.WriteLine($"Sqlite db exists! Size {dbinfo.Length} bytes");
 		}
+		else
+		{
+			throw new FileNotFoundException("DB file was not found", DbPath);
+		}
+		optionsBuilder.UseSqlite($"Data Source={DbPath}");
 	}
 }

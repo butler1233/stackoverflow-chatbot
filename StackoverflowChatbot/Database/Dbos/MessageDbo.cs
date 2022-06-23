@@ -17,17 +17,30 @@ public class MessageDbo
 	[Required]
 	public string OriginMessageId { get; set; }
 
+	/// <summary>
+	/// The room ID on Stack, or the discord channel ID
+	/// </summary>
+	[Required] 
+	public string OriginChannelId { get; set; }
+
 	[Required]
 	public string OriginAuthor { get; set; }
 
 	public string MessageBody { get; set; }
 
-	//May contain discord attachment info, for example
+	/// <summary>
+	/// May contain discord attachment info, for example
+	/// </summary>
 	public string? MessageAdditionalDataJson { get; set; }
 
-	public MessageOriginDestination DestinationPlatform { get; set; } = MessageOriginDestination.Unspecified;
+	[Required]
+	public MessageOriginDestination DestinationPlatform { get; set; }
 
-	public string? DestinationMessageId { get; set; }
+	[Required]
+	public string DestinationMessageId { get; set; }
+
+	[Required]
+	public string DestinationChannelId { get; set; }
 
 	public DateTime TimestampUtc { get; set; } = DateTime.UtcNow;
 

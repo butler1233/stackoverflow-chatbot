@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -43,10 +44,16 @@ namespace StackoverflowChatbot
 					await ProcessNewMessage(data);
 					break;
 				case EventType.MessageEdited:
+					await ProcessEditMessage(data);
 					break;
 				case EventType.MessageStarToggled:
 					await ProcessMessageStarred(data);
 					break;
+				// Ones that we don't care enough even to log
+				case EventType.UserEntered:
+				case EventType.UserLeft:
+					break;
+				// The rest
 				default:
 					DumpToLog(eventType, data);
 					break;
@@ -75,12 +82,46 @@ namespace StackoverflowChatbot
 						message = FromStackExtensions.MakePingsGreatAgain(message);
 						var newMessage = $"[**{chatEvent.Username}**] {message}";
 						RestUserMessage? discordMesasge = await textChannel.SendMessageAsync(newMessage);
-						await UpdateWithDiscordDetails(dbo, discordMesasge.Id.ToString());
+						await UpdateWithDiscordDetails(dbo, discordMesasge.Id.ToString(), discordMesasge.Channel.Id.ToString());
 
 					}
 				}
 
 				if (chatEvent.ContainsTrigger()) OnEvent(ChatMessageEventData.FromJson(data));
+			}
+		}
+
+		private async Task ProcessEditMessage(JToken data)
+		{
+			var chatEvent = ChatMessageEventData.FromJson(data);
+			var dbo = await GetDboFromStackMessageId(chatEvent.MessageId);
+			if (dbo != null)
+			{
+				if (dbo.DestinationPlatform == MessageOriginDestination.Discord)
+				{
+					DiscordSocketClient discord = await Discord.GetDiscord();
+					SocketChannel channel = discord.GetChannel(ulong.Parse(dbo.DestinationChannelId));
+					if (channel != null && channel is SocketTextChannel textChannel)
+					{
+						var message = await textChannel.GetMessageAsync(ulong.Parse(dbo.DestinationMessageId));
+
+						await textChannel.ModifyMessageAsync(ulong.Parse(dbo.DestinationMessageId), properties =>
+						{
+							var message = chatEvent.Content.ProcessStackMessage(chatEvent.RoomId, chatEvent.RoomName);
+							message = FromStackExtensions.MakePingsGreatAgain(message);
+							var newMessage = $"[**{chatEvent.Username}**] {message}";
+							properties.Content = newMessage;
+						});
+						if (!dbo.IsEdited)
+						{
+							await message.AddReactionAsync(new Emoji("✏"), RequestOptions.Default);
+						}
+						
+						dbo.IsEdited = true;
+						dbo.MessageBody = chatEvent.Content;
+						await _sqliteContext.SaveChangesAsync();
+					}
+				}
 			}
 		}
 
@@ -90,11 +131,10 @@ namespace StackoverflowChatbot
 			var dbo = await GetDboFromStackMessageId(eventData.MessageId);
 			if (dbo != null)
 			{
-				if (dbo.DestinationPlatform == MessageOriginDestination.Discord && dbo.DestinationMessageId != null)
+				if (dbo.DestinationPlatform == MessageOriginDestination.Discord)
 				{
 					DiscordSocketClient discord = await Discord.GetDiscord();
-					string channelName = _config.StackToDiscordMap[eventData.RoomId];
-					SocketChannel channel = discord.GetChannel(_config.DiscordChannelNamesToIds[channelName]);
+					SocketChannel channel = discord.GetChannel(ulong.Parse(dbo.DestinationChannelId));
 					if (channel != null && channel is SocketTextChannel textChannel)
 					{
 						var message = await textChannel.GetMessageAsync(ulong.Parse(dbo.DestinationMessageId));
@@ -122,15 +162,17 @@ namespace StackoverflowChatbot
 				OriginPlatform = MessageOriginDestination.StackOverflowChat,
 				OriginAuthor = eventData.Username,
 				OriginMessageId = eventData.MessageId.ToString(),
+				OriginChannelId = eventData.RoomId.ToString(),
 				MessageBody = eventData.Content
 			};
 			return dbo;
 		}
 
-		private async Task UpdateWithDiscordDetails(MessageDbo dbo, string discordMessageId)
+		private async Task UpdateWithDiscordDetails(MessageDbo dbo, string discordMessageId, string discordChannelId)
 		{
 			dbo.DestinationMessageId = discordMessageId;
 			dbo.DestinationPlatform = MessageOriginDestination.Discord;
+			dbo.DestinationChannelId = discordChannelId;
 			
 			await _sqliteContext.Messages.AddAsync(dbo);
 			await _sqliteContext.SaveChangesAsync();

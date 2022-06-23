@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Threading;
+using Discord;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,6 +41,16 @@ namespace StackoverflowChatbot
 				context.Database.Migrate();
 				Console.WriteLine("Database should now be up to date.");
 			}
+
+			Console.WriteLine("Checking discord connection");
+			var discord = Discord.GetDiscord().Result;
+			while (discord.ConnectionState != ConnectionState.Connected)
+			{
+				Console.WriteLine($"Discord: {discord.ConnectionState}");
+				Thread.Sleep(333);
+			}
+			Console.WriteLine($"Discord: {discord.ConnectionState}, latency {discord.Latency}");
+
 
 			//Update config file as 3rd arg if it's available.
 			if (args.Length >= 3)
