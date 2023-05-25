@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +45,14 @@ namespace StackoverflowChatbot
 
 			Console.WriteLine("Checking discord connection");
 			var discord = Discord.GetDiscord().Result;
+
+			discord.Disconnected += exception =>
+			{
+				Console.WriteLine($"Discord rip error: {exception.ToString()}");
+				return Task.CompletedTask;
+			};
+
+			
 			while (discord.ConnectionState != ConnectionState.Connected)
 			{
 				Console.WriteLine($"Discord: {discord.ConnectionState}");
