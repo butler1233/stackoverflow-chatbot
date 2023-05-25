@@ -23,11 +23,16 @@ namespace StackoverflowChatbot
 		internal static Dictionary<int, RoomWatcher<DefaultWebSocket>> StackRoomWatchers = new Dictionary<int, RoomWatcher<DefaultWebSocket>>();
 		internal static Dictionary<int, ActionScheduler> StackSchedulers = new Dictionary<int, ActionScheduler>();
 
+		internal static SqliteContext _sqliteContext;
+
 		private static async Task<DiscordSocketClient> CreateDiscordClient()
 		{
+			_sqliteContext = new SqliteContext();
+
 			var config = new DiscordSocketConfig();
 			config.AlwaysDownloadUsers = true;
-			
+			config.GatewayIntents = GatewayIntents.All;
+
 			var client = new DiscordSocketClient(config);
 			
 			//Setuo handlers
@@ -57,7 +62,7 @@ namespace StackoverflowChatbot
 					//var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
 
 					// Create a list of messages in case there are embedded codeblocks or stuff alongside text
-					var messages = FromDiscordExtensions.BuildSoMessage(user, config, arg2);
+					var messages = FromDiscordExtensions.BuildSoMessage(user, config, arg2, _sqliteContext);
 
 					await SendEditToStack(messages.First(), roomId, arg2);
 				}
@@ -81,7 +86,7 @@ namespace StackoverflowChatbot
 					//var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
 
 					// Create a list of messages in case there are embedded codeblocks or stuff alongside text
-					var messages = FromDiscordExtensions.BuildSoMessage(user, config, arg);
+					var messages = FromDiscordExtensions.BuildSoMessage(user, config, arg, _sqliteContext);
 
 					await SendMessageToStack(messages, roomId, arg);
 				}
@@ -91,7 +96,7 @@ namespace StackoverflowChatbot
 		private static async Task SendMessageToStack(List<string> messages, int roomId, SocketMessage arg)
 		{
 			//this is terrible lol
-			var dbc = new SqliteContext();
+			var dbc = _sqliteContext;
 
 			var stackMessageIds = new List<int>();
 			MessageDbo dbo = CreateFromChatEvent(arg);
@@ -129,7 +134,7 @@ namespace StackoverflowChatbot
 		private static async Task SendEditToStack(string message, int roomId, SocketMessage arg)
 		{
 			//this is terrible lol
-			var dbc = new SqliteContext();
+			var dbc = _sqliteContext;
 
 			var dbo = await GetDboForReplyContextId(arg.Id, dbc);
 			if (dbo == null)

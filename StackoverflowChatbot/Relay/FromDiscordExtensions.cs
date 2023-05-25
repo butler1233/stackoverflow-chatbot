@@ -2,18 +2,42 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
+using StackoverflowChatbot.Database.Dbos;
+using StackoverflowChatbot.Database;
 
 namespace StackoverflowChatbot.Relay
 {
 	internal static class FromDiscordExtensions
 	{
-		internal static List<string> BuildSoMessage(SocketGuildUser user, Config.Base config, SocketMessage arg)
+		internal static List<string> BuildSoMessage(SocketGuildUser user, Config.Base config, SocketMessage arg, SqliteContext context)
         {
 			var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
             var messageStart = $@"\[**[{displayname}]({config.DiscordInviteLink})**] ";
 			var messageContent = arg.Content;
 			var result = new List<string>();
+
+			if (arg.Reference != null) // reference = reply
+			{
+				var replyContextDbo = GetDboForReplyContextId(arg.Reference.MessageId.Value, context);
+
+				if (replyContextDbo != null )
+				{
+					string stackMessageId = "0";
+					if (replyContextDbo.OriginPlatform == MessageOriginDestination.StackOverflowChat)
+					{
+						stackMessageId = replyContextDbo.OriginMessageId;
+					}else if (replyContextDbo.DestinationPlatform == MessageOriginDestination.StackOverflowChat)
+					{
+						stackMessageId = replyContextDbo.DestinationMessageId;
+					}
+
+					messageStart = $":{stackMessageId} " + messageStart;
+				}
+			}
+
 
 			foreach (var mentionedUser in arg.MentionedUsers)
 			{
@@ -60,6 +84,16 @@ namespace StackoverflowChatbot.Relay
 			}
 
 			return result;
-        }
+		}
+
+		private static MessageDbo? GetDboForReplyContextId(ulong discordMessageId, SqliteContext context)
+		{
+			return context.Messages
+				.Where(dbo =>
+					(dbo.OriginPlatform == MessageOriginDestination.Discord && dbo.OriginMessageId == discordMessageId.ToString())
+					|| (dbo.DestinationPlatform == MessageOriginDestination.Discord && dbo.DestinationMessageId == discordMessageId.ToString())
+				)
+				.SingleOrDefault();
+		}
 	}
 }
