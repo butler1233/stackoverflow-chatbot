@@ -32,6 +32,11 @@ namespace StackoverflowChatbot
 			var password = args[1];
 			Console.WriteLine("Args[0]: " + username);
 
+			//Update config file as 3rd arg if it's available.
+			if (args.Length >= 3)
+			{
+				Manager.CONFIG_FILENAME = args[2];
+			}
 
 			Console.WriteLine("Checking if database needs updating");
 			var context = new SqliteContext();
@@ -51,7 +56,6 @@ namespace StackoverflowChatbot
 				Console.WriteLine($"Discord rip error: {exception.ToString()}");
 				return Task.CompletedTask;
 			};
-
 			
 			while (discord.ConnectionState != ConnectionState.Connected)
 			{
@@ -59,13 +63,6 @@ namespace StackoverflowChatbot
 				Thread.Sleep(333);
 			}
 			Console.WriteLine($"Discord: {discord.ConnectionState}, latency {discord.Latency}");
-
-
-			//Update config file as 3rd arg if it's available.
-			if (args.Length >= 3)
-			{
-				Manager.CONFIG_FILENAME = args[2];
-			}
 
 			// TODO make the Config a service also
 			var config = Manager.Config();

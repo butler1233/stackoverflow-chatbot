@@ -46,5 +46,10 @@ namespace StackoverflowChatbot.Config
 
 		public string SqliteFilename { get; set; } = "C:/bot-sqlite.db";
 
+		/// <summary>
+		/// Contains a list of rooms that will automatically get joined on startup
+		/// </summary>
+		public List<int> AutoJoinRoomIds { get; set; } = new();
+
 	}
 }
