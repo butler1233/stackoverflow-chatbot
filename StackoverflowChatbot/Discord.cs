@@ -117,13 +117,13 @@ namespace StackoverflowChatbot
 					StackSchedulers.Add(roomId, newScheduler);
 					stackMessageIds.Add(await newScheduler.CreateMessageAsync(message));
 
-					await arg.Channel.SendMessageAsync("Opened a new scheduler for sending messages to Stack. FYI.");
+					await arg.Channel.SendMessageAsync("`Opened a new scheduler for sending messages to Stack. FYI.`");
 				}
 				else
 				{
 					//or complain about not watching stack.
 					await arg.Channel.SendMessageAsync(
-						"Unable to sync messages to Stack - I'm not watching the corresponding channel. Invite me to the channel on stack and tryagain.");
+						"`Unable to sync messages to Stack - I'm not watching the corresponding channel. Invite me to the channel on stack and try again.`");
 				}
 			}
 

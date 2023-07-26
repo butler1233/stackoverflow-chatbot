@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StackoverflowChatbot.Config;
 using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot
@@ -12,6 +13,7 @@ namespace StackoverflowChatbot
 	{
 		private readonly ILogger<Worker> _logger;
 		private readonly IRoomService _chatService; //Statics weeeeeeeeeeeeeee // no more
+
 
 		public Worker(ILogger<Worker> logger, IRoomService chatService, IConfiguration config)
 		{
@@ -35,6 +37,15 @@ namespace StackoverflowChatbot
 			_logger.LogInformation($"Logged in: {loggedIn}");
 			var joinedSandbox = JoinRoom(1);
 			_logger.LogInformation($"Joined Sandbox: {joinedSandbox}");
+
+			var autoJoinRooms = Manager.Config().AutoJoinRoomIds;
+
+			foreach (var room in autoJoinRooms)
+			{
+				_logger.LogInformation($"Auto joining room {room}");
+				JoinRoom(room);
+			}
+
 			return base.StartAsync(cancellationToken);
 		}
 
