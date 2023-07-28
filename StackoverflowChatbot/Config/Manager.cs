@@ -10,7 +10,7 @@ namespace StackoverflowChatbot.Config
 	{
 		private static Base? _instance;
 
-		internal static string CONFIG_FILENAME = "config.json";
+		internal static string CONFIG_FILENAME = "config.secret.json";
 
 		public static Base Config()
 		{

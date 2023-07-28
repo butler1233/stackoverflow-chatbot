@@ -8,8 +8,7 @@ namespace StackoverflowChatbot.Database.Dbos;
 [Index(nameof(DestinationMessageId), nameof(DestinationPlatform))]
 public class MessageDbo
 {
-	[Key]
-	public int InternalId { get; set; }
+	[Key] public Guid InternalId { get; set; } = Guid.NewGuid();
 
 	[Required]
 	public MessageOriginDestination OriginPlatform { get; set; }

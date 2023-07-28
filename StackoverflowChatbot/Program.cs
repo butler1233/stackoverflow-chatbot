@@ -38,6 +38,9 @@ namespace StackoverflowChatbot
 				Manager.CONFIG_FILENAME = args[2];
 			}
 
+			// TODO make the Config a service also
+			var config = Manager.Config();
+
 			Console.WriteLine("Checking if database needs updating");
 			var context = new SqliteContext();
 			var pending = context.Database.GetPendingMigrations();
@@ -64,8 +67,7 @@ namespace StackoverflowChatbot
 			}
 			Console.WriteLine($"Discord: {discord.ConnectionState}, latency {discord.Latency}");
 
-			// TODO make the Config a service also
-			var config = Manager.Config();
+			
 			return Host.CreateDefaultBuilder(args)
 			.ConfigureServices(
 				(hostContext, services) =>
