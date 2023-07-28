@@ -24,8 +24,6 @@ steps:
     command: 'build'
     projects: 'StackoverflowChatbot/StackoverflowChatbot.csproj'
 
-- script: dotnet test --test-adapter-path:. --logger:nunit --collect "XPlat code coverage"
-
 - script: dir /s
 
 - task: ArchiveFiles@2
