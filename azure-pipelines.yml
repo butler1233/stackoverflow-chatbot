@@ -24,6 +24,8 @@ steps:
     command: 'build'
     projects: 'StackoverflowChatbot/StackoverflowChatbot.csproj'
 
+- script: dotnet test --test-adapter-path:. --logger:nunit --collect "XPlat code coverage"
+
 - script: dir /s
 
 - task: ArchiveFiles@2
@@ -34,7 +36,7 @@ steps:
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
     replaceExistingArchive: true
-    
+
 - task: AzureFileCopy@4
   inputs:
     SourcePath: '$(Build.ArtifactStagingDirectory)/$(Build.SourceBranchName).zip'
@@ -42,7 +44,7 @@ steps:
     Destination: 'AzureBlob'
     storage: 'leerbcsharpbot'
     ContainerName: 'deploy'
-    
+
 
 - task: PublishTestResults@2
   inputs:
