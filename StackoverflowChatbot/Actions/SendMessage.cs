@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
+using Botler.Core.Config;
 using Discord.WebSocket;
 using SharpExchange.Chat.Actions;
-using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.Actions
 {

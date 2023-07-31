@@ -2,14 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Botler.Core.Config;
+using Botler.Database;
+using Botler.Database.Dbos;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using SharpExchange.Chat.Actions;
 using SharpExchange.Chat.Events;
 using SharpExchange.Net.WebSockets;
-using StackoverflowChatbot.Database;
-using StackoverflowChatbot.Database.Dbos;
+using StackoverflowChatbot.NativeCommands;
 using StackoverflowChatbot.Relay;
 
 namespace StackoverflowChatbot
@@ -39,7 +41,7 @@ namespace StackoverflowChatbot
 			client.MessageReceived += ClientRecieved;
 			client.MessageUpdated += ClientMessageUpdated;
 			//Logs in
-			await client.LoginAsync(TokenType.Bot, Config.Manager.Config().DiscordToken);
+			await client.LoginAsync(TokenType.Bot, Manager.Config().DiscordToken);
 			await client.StartAsync();
 			//Now wr're done
 			return client;
@@ -51,7 +53,7 @@ namespace StackoverflowChatbot
 			{
 				if (arg2.Author.IsBot) return;
 
-				var config = Config.Manager.Config();
+				var config = Manager.Config();
 				Console.WriteLine($"[DIS EDIT {arg2.Channel.Name}] {arg2.Content}");
 				//Check if we have a mapping.
 				if (config.DiscordToStackMap.ContainsKey(arg2.Channel.Name))
@@ -75,7 +77,7 @@ namespace StackoverflowChatbot
 			{
 				if (arg.Author.IsBot) return;
 
-				var config = Config.Manager.Config();
+				var config = Manager.Config();
 				Console.WriteLine($"[DIS {arg.Channel.Name}] {arg.Content}");
 				//Check if we have a mapping.
 				if (config.DiscordToStackMap.ContainsKey(arg.Channel.Name))

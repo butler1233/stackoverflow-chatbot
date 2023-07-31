@@ -21,6 +21,11 @@
 	13750349,
 	11518920
   ],
-  "SqliteFilename": "B:/User Folders/Documents/GitHub/stackoverflow-chatbot/StackoverflowChatbot/sqlite.db"
+  "SqliteFilename": "B:/User Folders/Documents/GitHub/stackoverflow-chatbot/StackoverflowChatbot/sqlite.db",
+  "AutoJoinRoomIds": [],
+  "SeqUrl": "",
+  "SeqApiKey": "",
+  "MssqlConnectionString": "",
+  "UseMssql": false
 
 }

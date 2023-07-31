@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Botler.Core.Config;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
-using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.Extensions
 {

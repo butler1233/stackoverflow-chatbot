@@ -1,20 +1,19 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AngleSharp.Html;
+using Botler.Core.Config;
+using Botler.Database;
+using Botler.Database.Dbos;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using Grpc.Core;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
-using StackoverflowChatbot.Config;
-using StackoverflowChatbot.Database;
-using StackoverflowChatbot.Database.Dbos;
 using StackoverflowChatbot.Extensions;
+using StackoverflowChatbot.NativeCommands;
 using StackoverflowChatbot.Relay;
 
 namespace StackoverflowChatbot
@@ -70,7 +69,7 @@ namespace StackoverflowChatbot
 			var chatEvent = ChatMessageEventData.FromJson(data);
 			MessageDbo dbo = CreateFromChatEvent(chatEvent);
 
-			if (!Config.Manager.Config().IgnoredUsers.Contains(chatEvent.UserId))
+			if (!Manager.Config().IgnoredUsers.Contains(chatEvent.UserId))
 			{
 				if (_config.StackToDiscordMap.ContainsKey(chatEvent.RoomId))
 				{

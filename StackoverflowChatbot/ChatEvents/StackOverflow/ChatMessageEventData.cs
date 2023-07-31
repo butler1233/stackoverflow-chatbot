@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Botler.Core.Config;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpExchange.Chat.Events;
-using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.ChatEvents.StackOverflow
 {

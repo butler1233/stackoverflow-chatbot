@@ -1,8 +1,8 @@
 using System.Linq;
+using Botler.Core.Config;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
-using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.NativeCommands
 {
