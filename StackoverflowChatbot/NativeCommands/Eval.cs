@@ -68,7 +68,7 @@ namespace StackoverflowChatbot.NativeCommands
 				string.Join(Environment.NewLine, UsingList.Select(x => $"using {x};"))).Replace("<body>", source);
 		}
 
-		public List<string> UsingList = new List<string>();
+		public static List<string> UsingList = new List<string>();
 
 		private const string CssBase = @"<usings>
                              public class Script
