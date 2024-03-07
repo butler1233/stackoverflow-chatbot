@@ -76,7 +76,7 @@ namespace StackoverflowChatbot.NativeCommands
 				return null;
 			}
 
-			return response.Substring(startIndex, endIndex - startIndex);
+			return response.Substring(start, end - start);
 		}
 
 		internal override string CommandName() => "shiba";
