@@ -19,7 +19,7 @@ namespace StackoverflowChatbot.NativeCommands
 		private readonly ICommandProcessor _commandProcessor;
 		private readonly ICommandFactory _commandFactory;
 
-		public Help(ICommandProcessor commandProcessor, ICommandFactory commandFactory)
+		public Shiba(ICommandProcessor commandProcessor, ICommandFactory commandFactory)
 		{
 			_commandProcessor = commandProcessor;
 			_commandFactory = commandFactory;
