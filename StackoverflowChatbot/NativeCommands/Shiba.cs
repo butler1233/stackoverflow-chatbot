@@ -39,13 +39,13 @@ namespace StackoverflowChatbot.NativeCommands
 					{
 						var responseBody = response.Content.ReadAsStringAsync().Result;
 						var shibaUrl = parseResponse(responseBody);
-						if (shibaUrl == null)
+						if (shibaUrl.HasValue)
 						{
-							botResponse = "Unable to parse shibe response: " + responseBody;
+							botResponse = shibaUrl.Value;
 						}
 						else
 						{
-							botResponse = shibaUrl;
+							botResponse = "Unable to parse shibe response: " + responseBody;
 						}
 					}
 					else
@@ -64,7 +64,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 		//example response:
 		//["https://cdn.shibe.online/shibes/0ce15f51b543ceb8a0387f3428e9ecce24499967.jpg"]
-		internal string parseResponse(string response)
+		internal string? parseResponse(string response)
 		{
 			var start = response.IndexOf("https://");
 			if (start < 0)
