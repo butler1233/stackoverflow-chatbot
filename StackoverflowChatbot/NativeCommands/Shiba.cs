@@ -33,15 +33,15 @@ namespace StackoverflowChatbot.NativeCommands
 			{
 				try
 				{
-					HttpResponseMessage response = await client.GetAsync(url);
+					HttpResponseMessage response = client.GetAsync(url).Result;
 
 					if (response.IsSuccessStatusCode)
 					{
-						var response = await response.Content.ReadAsStringAsync();
-						var shibaUrl = parseResponse(response);
+						var responseBody = response.Content.ReadAsStringAsync().Result;
+						var shibaUrl = parseResponse(responseBody);
 						if (shibaUrl == null)
 						{
-							botResponse = "Unable to parse shibe response: " + response;
+							botResponse = "Unable to parse shibe response: " + responseBody;
 						}
 						else
 						{
