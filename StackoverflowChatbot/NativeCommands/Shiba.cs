@@ -5,7 +5,6 @@ using StackoverflowChatbot.CommandProcessors;
 
 using System;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace StackoverflowChatbot.NativeCommands
@@ -19,7 +18,7 @@ namespace StackoverflowChatbot.NativeCommands
 		private readonly ICommandProcessor _commandProcessor;
 		private readonly ICommandFactory _commandFactory;
 
-		public Shiba(ICommandProcessor commandProcessor, ICommandFactory commandFactory)
+		public Help(ICommandProcessor commandProcessor, ICommandFactory commandFactory)
 		{
 			_commandProcessor = commandProcessor;
 			_commandFactory = commandFactory;
@@ -27,7 +26,8 @@ namespace StackoverflowChatbot.NativeCommands
 
 		internal override IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
-			string url = "https://shibe.online/api/shibes";
+			var url = "https://shibe.online/api/shibes";
+			string botResponse;
 
 			using (HttpClient client = new HttpClient())
 			{
@@ -37,22 +37,46 @@ namespace StackoverflowChatbot.NativeCommands
 
 					if (response.IsSuccessStatusCode)
 					{
-						using (var responseStream = await response.Content.ReadAsStreamAsync())
+						var response = await response.Content.ReadAsStringAsync();
+						var shibaUrl = parseResponse(response);
+						if (shibaUrl == null)
 						{
-							var jsonArray = await JsonSerializer.DeserializeAsync<string>(responseStream);
-							return new SendMessage(jsonArray[0]);
+							botResponse = "Unable to parse shibe response: " + response;
+						}
+						else
+						{
+							botResponse = shibaUrl;
 						}
 					}
 					else
 					{
-						return new SendMessage("Error getting shibe: HTTP " + response.StatusCode);
+						botResponse = "Error getting shibe: HTTP " + response.StatusCode;
 					}
 				}
 				catch (Exception ex)
 				{
-					return new SendMessage("Error getting shibe: " + ex.Message);
+					botResponse = "Error getting shibe: " + ex.Message;
 				}
 			}
+
+			return new SendMessage(botResponse);
+		}
+
+		private string parseResponse(string response)
+		{
+			var start = response.IndexOf("https://");
+			if (start < 0)
+			{
+				return null;
+			}
+
+			var end = response.IndexOf("\"]", start);
+			if (end < 0)
+			{
+				return null;
+			}
+
+			return response.Substring(startIndex, endIndex - startIndex);
 		}
 
 		internal override string CommandName() => "shiba";
