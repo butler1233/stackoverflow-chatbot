@@ -62,7 +62,7 @@ namespace StackoverflowChatbot.NativeCommands
 			return new SendMessage(botResponse);
 		}
 
-		private string parseResponse(string response)
+		internal string parseResponse(string response)
 		{
 			var start = response.IndexOf("https://");
 			if (start < 0)
