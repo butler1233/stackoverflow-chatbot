@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace StackoverflowChatbot.NativeCommands
 {
 	/// <summary>
-	/// Returns a random photo of a shiba inu dog.
+	/// Returns a random photo of a shiba inu dog. Photos from https://shibe.online.
 	/// </summary>
 	[UsedImplicitly]
 	internal class Shiba: BaseCommand
@@ -62,6 +62,8 @@ namespace StackoverflowChatbot.NativeCommands
 			return new SendMessage(botResponse);
 		}
 
+		//example response:
+		//["https://cdn.shibe.online/shibes/0ce15f51b543ceb8a0387f3428e9ecce24499967.jpg"]
 		internal string parseResponse(string response)
 		{
 			var start = response.IndexOf("https://");
@@ -81,6 +83,6 @@ namespace StackoverflowChatbot.NativeCommands
 
 		internal override string CommandName() => "shiba";
 
-		internal override string? CommandDescription() => "Displays a random photo of a shiba inu dog.";
+		internal override string? CommandDescription() => "Displays a random photo of a shiba inu dog. Photos from https://shibe.online";
 	}
 }
