@@ -1,4 +1,4 @@
-namespace StackoverflowChatbot.Database.Dbos;
+namespace Botler.Database.Dbos;
 
 public enum MessageOriginDestination
 {

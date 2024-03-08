@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace StackoverflowChatbot.Config
+namespace Botler.Core.Config
 {
-	internal class Base
+	public class Base
 	{
 
 		/// <summary>
@@ -45,6 +45,14 @@ namespace StackoverflowChatbot.Config
 		public List<int> IgnoredUsers { get; set; } = null!;
 
 		public string SqliteFilename { get; set; } = "C:/bot-sqlite.db";
+
+		public bool UseMssql { get; set; } = false;
+
+		public string MssqlConnectionString { get; set; } = "";
+
+		public string SeqUrl { get; set; } = "";
+
+		public string SeqApiKey { get; set; } = "";
 
 		/// <summary>
 		/// Contains a list of rooms that will automatically get joined on startup

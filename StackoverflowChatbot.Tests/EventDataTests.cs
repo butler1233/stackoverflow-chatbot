@@ -4,9 +4,11 @@ using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.Threading.Tasks;
+using Botler.Core.Config;
 using StackoverflowChatbot.Services;
 using StackoverflowChatbot.Services.Repositories;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
+using StackoverflowChatbot.NativeCommands;
 
 namespace StackoverflowChatbot.Tests
 {
@@ -18,7 +20,7 @@ namespace StackoverflowChatbot.Tests
 
 		[OneTimeSetUp]
 		public static void SetupTestClass() =>
-			Config.Manager.Config().Triggers = new List<string>()
+			Manager.Config().Triggers = new List<string>()
 			{
 				"S, ",
 				"Sandy, "
@@ -84,7 +86,7 @@ namespace StackoverflowChatbot.Tests
 		[Ignore("Firebase OAuth disabled for the meantime...")]
 		public async Task Firebase_TestData()
 		{
-			var config = Config.Manager.Config();
+			var config = Manager.Config();
 			var repository = new FirebaseRepositoryService(config.FirebaseProjectId);
 			await repository.Stupid();
 		}

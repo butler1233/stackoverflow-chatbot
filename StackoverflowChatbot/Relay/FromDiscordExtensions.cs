@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Botler.Core.Config;
+using Botler.Database;
+using Botler.Database.Dbos;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using StackoverflowChatbot.Database.Dbos;
-using StackoverflowChatbot.Database;
 
 namespace StackoverflowChatbot.Relay
 {
 	internal static class FromDiscordExtensions
 	{
-		internal static List<string> BuildSoMessage(SocketGuildUser user, Config.Base config, SocketMessage arg, SqliteContext context)
+		internal static List<string> BuildSoMessage(SocketGuildUser user, Base config, SocketMessage arg, SqliteContext context)
         {
 			var displayname = string.IsNullOrEmpty(user.Nickname) ? user.Username : user.Nickname;
             var messageStart = $@"\[**[{displayname}]({config.DiscordInviteLink})**] ";

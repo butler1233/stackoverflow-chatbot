@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace StackoverflowChatbot.Migrations
+namespace Botler.Migrations.Sqlite.Migrations
 {
     public partial class UseGuidKeys : Migration
     {
