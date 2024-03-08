@@ -39,13 +39,13 @@ namespace StackoverflowChatbot.NativeCommands
 					{
 						var responseBody = response.Content.ReadAsStringAsync().Result;
 						var shibaUrl = parseResponse(responseBody);
-						if (shibaUrl.HasValue)
+						if (shibaUrl == null)
 						{
-							botResponse = shibaUrl.Value;
+	  						botResponse = "Unable to parse shibe response: " + responseBody;
 						}
 						else
 						{
-							botResponse = "Unable to parse shibe response: " + responseBody;
+							botResponse = shibaUrl.Value;
 						}
 					}
 					else
