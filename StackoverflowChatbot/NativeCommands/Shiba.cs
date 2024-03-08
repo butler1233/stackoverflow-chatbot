@@ -45,7 +45,7 @@ namespace StackoverflowChatbot.NativeCommands
 						}
 						else
 						{
-							botResponse = shibaUrl.Value;
+							botResponse = shibaUrl;
 						}
 					}
 					else
