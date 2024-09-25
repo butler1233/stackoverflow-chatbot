@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using Botler.Core.Config;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -38,7 +39,7 @@ namespace StackoverflowChatbot.Tests
 
 		[OneTimeSetUp]
 		public static void SetupTestClass() =>
-			Config.Manager.Config().Triggers = new List<string>()
+			Manager.Config().Triggers = new List<string>()
 			{
 				"Botler! ",
 				"Botler, ",
@@ -122,9 +123,9 @@ namespace StackoverflowChatbot.Tests
 		[Test]
 		public void AuthoredCommand_ShouldAcceptValidAdmin()
 		{
-			if (!Config.Manager.Config().Controllers.Contains(4364057))
+			if (!Manager.Config().Controllers.Contains(4364057))
 			{
-				Config.Manager.Config().Controllers.Add(4364057);
+				Manager.Config().Controllers.Add(4364057);
 			}
 			// check out in the json the user id is 4364057.
 			var eventData = EventDataFromContent("Botler, shutdown");
@@ -136,9 +137,9 @@ namespace StackoverflowChatbot.Tests
 		[Test]
 		public void AuthoredCommand_ShouldNotAcceptHacker()
 		{
-			if (Config.Manager.Config().Controllers.Contains(4364057))
+			if (Manager.Config().Controllers.Contains(4364057))
 			{
-				Config.Manager.Config().Controllers.Remove(4364057);
+				Manager.Config().Controllers.Remove(4364057);
 			}
 			var eventData = EventDataFromContent("Botler, shutdown");
 			_priorityProcessor.ProcessNativeCommand(eventData, out var action);

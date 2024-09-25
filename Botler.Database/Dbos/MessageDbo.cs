@@ -1,8 +1,7 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace StackoverflowChatbot.Database.Dbos;
+namespace Botler.Database.Dbos;
 
 [Index(nameof(OriginMessageId), nameof(OriginPlatform))]
 [Index(nameof(DestinationMessageId), nameof(DestinationPlatform))]

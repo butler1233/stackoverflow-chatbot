@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Botler.Core.Config;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
-using StackoverflowChatbot.Config;
 
 namespace StackoverflowChatbot.NativeCommands
 {

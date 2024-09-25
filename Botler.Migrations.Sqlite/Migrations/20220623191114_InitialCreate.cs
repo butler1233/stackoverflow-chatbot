@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace StackoverflowChatbot.Migrations
+namespace Botler.Migrations.Sqlite.Migrations
 {
     public partial class InitialCreate : Migration
     {

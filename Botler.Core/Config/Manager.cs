@@ -1,16 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Text.Json;
+using Serilog;
+using Serilog.Core;
 
-namespace StackoverflowChatbot.Config
+namespace Botler.Core.Config
 {
-	internal static class Manager
+	public static class Manager
 	{
 		private static Base? _instance;
 
-		internal static string CONFIG_FILENAME = "config.secret.json";
+		public static string CONFIG_FILENAME = "config.secret.json";
+
+		public static Logger Logger { get; set; } = ConfigureLogger().CreateLogger();
 
 		public static Base Config()
 		{
@@ -19,7 +20,7 @@ namespace StackoverflowChatbot.Config
 				try
 				{
 					var cf = new FileInfo(CONFIG_FILENAME);
-					Console.WriteLine($"About to open {cf.FullName} ({cf.Length / 1024}kB)");
+					Logger.Information("About to open {0} ({1} bytes)", cf.FullName, cf.Length);
 					using var confStream = File.OpenRead(CONFIG_FILENAME);
 					var configSpan = new Span<byte>(new byte[confStream.Length]);
 					confStream.Position = 0;
@@ -31,11 +32,12 @@ namespace StackoverflowChatbot.Config
 						configData.StackToDiscordMap.Add(pair.Value, pair.Key);
 					}
 					_instance = configData;
-					Console.WriteLine($"Loaded config. my triggers are: {string.Join(", ", _instance.Triggers)}");
+
+					Log.Information("Loaded config. my triggers are: {0}", string.Join(", ", _instance.Triggers));
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine(e.ToString());
+					Log.Error(e, "Failed to load config");
 					_instance = new Base();
 				}
 			}
@@ -51,6 +53,16 @@ namespace StackoverflowChatbot.Config
 			confStream.Write(bytes, 0, bytes.Length);
 			confStream.SetLength(bytes.Length);
 			//Tada, it should be saved
+		}
+
+		public static LoggerConfiguration ConfigureLogger()
+		{
+			Serilog.Debugging.SelfLog.Enable(Console.Error);
+			return new LoggerConfiguration()
+					.WriteTo.Console()
+					.Enrich.WithThreadId()
+					.Enrich.WithAssemblyName()
+			;
 		}
 
 	}

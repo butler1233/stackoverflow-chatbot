@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Botler.Core.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using StackoverflowChatbot.Config;
 using StackoverflowChatbot.Services;
 
 namespace StackoverflowChatbot

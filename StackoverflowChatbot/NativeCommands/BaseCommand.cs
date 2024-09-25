@@ -1,4 +1,5 @@
 using System;
+using Botler.Core.Config;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -10,7 +11,7 @@ namespace StackoverflowChatbot.NativeCommands
 		internal IAction? ProcessMessage(ChatMessageEventData data, string[]? parameters)
 		{
 			//If it's a admin command and the user isn't an admin, tell them to sod off.
-			if (NeedsAdmin() && !StackoverflowChatbot.Config.Manager.Config().Controllers.Contains(data.UserId))
+			if (NeedsAdmin() && !Manager.Config().Controllers.Contains(data.UserId))
 			{
 				Console.WriteLine($"[{data.RoomId}] {data.Username} attempted (unsuccessfully) to invoke {GetType().AssemblyQualifiedName}: {data.Command}");
 				return new SendMessage($":{data.MessageId} YOU'RE NOT MY MOM/DAD *(you don't have permission to execute that this)*");

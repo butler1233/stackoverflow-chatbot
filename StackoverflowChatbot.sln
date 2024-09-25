@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29409.12
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StackoverflowChatbot", "StackoverflowChatbot\StackoverflowChatbot.csproj", "{6577B0B6-103B-4F46-9B84-0DD52BBB1E9C}"
 EndProject
@@ -16,7 +16,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Code", "2. Code", "{29AE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Tests", "3. Tests", "{E67A8034-2957-4E04-AA38-3C315E7A9C6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StackoverflowChatbot.Tests", "StackoverflowChatbot.Tests\StackoverflowChatbot.Tests.csproj", "{0E5F701E-E9DB-4BAB-BD04-D0888526558F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StackoverflowChatbot.Tests", "StackoverflowChatbot.Tests\StackoverflowChatbot.Tests.csproj", "{0E5F701E-E9DB-4BAB-BD04-D0888526558F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", "{ECD12D91-6BFE-4587-8621-ED66B657E9CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Botler.Migrations.Sqlite", "Botler.Migrations.Sqlite\Botler.Migrations.Sqlite.csproj", "{5930B25A-6534-47C3-9DAC-14AF0CCDD222}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Botler.Database", "Botler.Database\Botler.Database.csproj", "{0B21C74E-0997-43E0-8456-C98C704C1864}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Botler.Core", "Botler.Core\Botler.Core.csproj", "{D4F0B6D8-9804-4B34-9297-C912C7ACB506}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Botler.Migrations.Mssql", "Botler.Migrations.Mssql\Botler.Migrations.Mssql.csproj", "{C3829AE5-65ED-40A9-AB5C-77781580C598}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +42,22 @@ Global
 		{0E5F701E-E9DB-4BAB-BD04-D0888526558F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E5F701E-E9DB-4BAB-BD04-D0888526558F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E5F701E-E9DB-4BAB-BD04-D0888526558F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5930B25A-6534-47C3-9DAC-14AF0CCDD222}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5930B25A-6534-47C3-9DAC-14AF0CCDD222}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5930B25A-6534-47C3-9DAC-14AF0CCDD222}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5930B25A-6534-47C3-9DAC-14AF0CCDD222}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B21C74E-0997-43E0-8456-C98C704C1864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B21C74E-0997-43E0-8456-C98C704C1864}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B21C74E-0997-43E0-8456-C98C704C1864}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B21C74E-0997-43E0-8456-C98C704C1864}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4F0B6D8-9804-4B34-9297-C912C7ACB506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4F0B6D8-9804-4B34-9297-C912C7ACB506}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4F0B6D8-9804-4B34-9297-C912C7ACB506}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4F0B6D8-9804-4B34-9297-C912C7ACB506}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3829AE5-65ED-40A9-AB5C-77781580C598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3829AE5-65ED-40A9-AB5C-77781580C598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3829AE5-65ED-40A9-AB5C-77781580C598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3829AE5-65ED-40A9-AB5C-77781580C598}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +65,11 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6577B0B6-103B-4F46-9B84-0DD52BBB1E9C} = {29AEC0D3-9FAC-45C1-B602-200C511B0FA8}
 		{0E5F701E-E9DB-4BAB-BD04-D0888526558F} = {E67A8034-2957-4E04-AA38-3C315E7A9C6A}
+		{ECD12D91-6BFE-4587-8621-ED66B657E9CF} = {29AEC0D3-9FAC-45C1-B602-200C511B0FA8}
+		{5930B25A-6534-47C3-9DAC-14AF0CCDD222} = {ECD12D91-6BFE-4587-8621-ED66B657E9CF}
+		{0B21C74E-0997-43E0-8456-C98C704C1864} = {29AEC0D3-9FAC-45C1-B602-200C511B0FA8}
+		{D4F0B6D8-9804-4B34-9297-C912C7ACB506} = {29AEC0D3-9FAC-45C1-B602-200C511B0FA8}
+		{C3829AE5-65ED-40A9-AB5C-77781580C598} = {ECD12D91-6BFE-4587-8621-ED66B657E9CF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EAAE3093-A817-447C-9528-0ECE392425DA}
