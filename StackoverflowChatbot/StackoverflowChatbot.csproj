@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <UserSecretsId>dotnet-StackoverflowChatbot-4D158022-F3B4-42C6-9CFF-DA4BEB95AC64</UserSecretsId>
     <LangVersion>latest</LangVersion>
 	<Nullable>enable</Nullable>
@@ -16,28 +16,29 @@
 
   <ItemGroup>
     <PackageReference Include="CS-Script.Core" Version="2.0.0" />
-    <PackageReference Include="Discord.Net" Version="3.10.0" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="2.3.0-beta01" />
-    <PackageReference Include="Google.Cloud.Storage.V1" Version="3.3.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.28" />
-    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.2.0" />
-    <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="3.6.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.6">
+    <PackageReference Include="Discord.Net" Version="3.17.4" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.10.0" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.13.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="4.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.6">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-    <PackageReference Include="MonkeyCache" Version="1.6.3" />
-    <PackageReference Include="MonkeyCache.SQLite" Version="1.6.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+    <PackageReference Include="MonkeyCache" Version="2.1.1" />
+    <PackageReference Include="MonkeyCache.SQLite" Version="2.1.1" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="SharpExchange" Version="3.0.0" />
-    <PackageReference Include="System.CodeDom" Version="6.0.0" />
+    <PackageReference Include="System.CodeDom" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
