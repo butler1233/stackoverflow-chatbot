@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -7,7 +8,7 @@ namespace StackoverflowChatbot.NativeCommands
 {
 	public abstract class BaseCommand
 	{
-		internal IAction? ProcessMessage(ChatMessageEventData data, string[]? parameters)
+		internal async Task<IAction?> ProcessMessage(ChatMessageEventData data, string[]? parameters)
 		{
 			//If it's a admin command and the user isn't an admin, tell them to sod off.
 			if (NeedsAdmin() && !StackoverflowChatbot.Config.Manager.Config().Controllers.Contains(data.UserId))
@@ -15,7 +16,7 @@ namespace StackoverflowChatbot.NativeCommands
 				Console.WriteLine($"[{data.RoomId}] {data.Username} attempted (unsuccessfully) to invoke {GetType().AssemblyQualifiedName}: {data.Command}");
 				return new SendMessage($":{data.MessageId} YOU'RE NOT MY MOM/DAD *(you don't have permission to execute that this)*");
 			}
-			return ProcessMessageInternal(data, parameters);
+			return await ProcessMessageInternal(data, parameters);
 		}
 
 		/// <summary>
@@ -24,7 +25,7 @@ namespace StackoverflowChatbot.NativeCommands
 		/// <param name="eventContext"></param>
 		/// <param name="parameters"></param>
 		/// <returns></returns>
-		internal abstract IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters);
+		internal abstract Task<IAction?> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters);
 
 		/// <summary>
 		/// The name of the command. This will be the word that users use to invoke your command. Anything that comes after this will be passed in the Parameters field. 

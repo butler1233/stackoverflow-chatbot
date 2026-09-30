@@ -10,7 +10,7 @@ namespace StackoverflowChatbot.NativeCommands
 {
 	internal class Git : BaseCommand
 	{
-		internal override IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) => new SendMessage("You can find me on Github: [butler1233/stackoverflow-chatbot](https://github.com/butler1233/stackoverflow-chatbot) Contribute to me :)");
+		internal override Task<IAction?> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) => Task.FromResult<IAction?>(new SendMessage("You can find me on Github: [butler1233/stackoverflow-chatbot](https://github.com/butler1233/stackoverflow-chatbot) Contribute to me :)"));
 
 		internal override string CommandName() => "git";
 

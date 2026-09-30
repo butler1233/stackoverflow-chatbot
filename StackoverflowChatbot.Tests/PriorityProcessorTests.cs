@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -64,63 +65,63 @@ namespace StackoverflowChatbot.Tests
 		}
 
 		[Test]
-		public void Help_ShouldNotThrow()
+		public async Task Help_ShouldNotThrow()
 		{
 			var eventData = EventDataFromContent("Botler, help leave");
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().BeOfType<SendMessage>();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().BeOfType<SendMessage>();
 		}
 
 		[Test]
-		public void Unknown_ShouldBeNull()
+		public async Task Unknown_ShouldBeNull()
 		{
 			var eventData = EventDataFromContent("Botler, unknown leave"); 
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().BeNull();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().BeNull();
 		}
 
 		[Test]
-		public void Leave_ShouldNotBeNull()
+		public async Task Leave_ShouldNotBeNull()
 		{
 			var eventData = EventDataFromContent("Botler, leave 11"); 
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().NotBeNull();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().NotBeNull();
 		}
 
 		[Test]
-		public void ParameterlessLeave_ShouldNotBeNull()
+		public async Task ParameterlessLeave_ShouldNotBeNull()
 		{
 			var eventData = EventDataFromContent("Botler, leave"); 
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().NotBeNull();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().NotBeNull();
 		}
 
 		[Test]
-		public void TooManyParameterLeave_ShouldNotBeNull()
+		public async Task TooManyParameterLeave_ShouldNotBeNull()
 		{
 			var eventData = EventDataFromContent("Botler, leave 12 12 4234"); 
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().NotBeNull();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().NotBeNull();
 		}
 
 		[Test]
-		public void Gibberish_ShouldBeNull()
+		public async Task Gibberish_ShouldBeNull()
 		{
 			var eventData = EventDataFromContent("Botler, leave gibberish"); 
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().NotBeNull();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().NotBeNull();
 		}
 
 		[Test]
-		public void Join_ShouldAskForMoreRequest()
+		public async Task Join_ShouldAskForMoreRequest()
 		{
 			var eventData = EventDataFromContent("Botler, join 3"); 
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().NotBeNull();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().NotBeNull();
 		}
 
 		[Test]
-		public void AuthoredCommand_ShouldAcceptValidAdmin()
+		public async Task AuthoredCommand_ShouldAcceptValidAdmin()
 		{
 			if (!Config.Manager.Config().Controllers.Contains(4364057))
 			{
@@ -128,38 +129,38 @@ namespace StackoverflowChatbot.Tests
 			}
 			// check out in the json the user id is 4364057.
 			var eventData = EventDataFromContent("Botler, shutdown");
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
 			// coverage went on the I'll be back branch
-			action.Should().NotBeNull();
+			result.Should().NotBeNull();
 		}
 
 		[Test]
-		public void AuthoredCommand_ShouldNotAcceptHacker()
+		public async Task AuthoredCommand_ShouldNotAcceptHacker()
 		{
 			if (Config.Manager.Config().Controllers.Contains(4364057))
 			{
 				Config.Manager.Config().Controllers.Remove(4364057);
 			}
 			var eventData = EventDataFromContent("Botler, shutdown");
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
 			// coverage went on YOU'RE NOT MY MOM/DAD branch.
-			action.Should().NotBeNull();
+			result.Should().NotBeNull();
 		}
 
 		[Test]
-		public void OverLearnNativeCommand_ShouldNotOverwriteFunction()
+		public async Task OverLearnNativeCommand_ShouldNotOverwriteFunction()
 		{
 			var eventData = EventDataFromContent("Botler, learn join asdf");
-			_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-			action.Should().NotBeNull();
+			var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+			result.Should().NotBeNull();
 			eventData = EventDataFromContent("Botler, join 3");
-			_priorityProcessor.ProcessNativeCommand(eventData, out action);
+			var (_, result2) = await _priorityProcessor.ProcessNativeCommand(eventData);
 			// coverage went join room (native) command
-			action.Should().NotBeNull();
+			result2.Should().NotBeNull();
 		}
 
 		[Test]
-		public void GetAllHelp_ShouldNotThrow()
+		public async Task GetAllHelp_ShouldNotThrow()
 		{
 			var implementers = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly =>
 				assembly.GetTypes().Where(x => typeof(BaseCommand).IsAssignableFrom(x) && !x.IsAbstract));
@@ -177,8 +178,8 @@ namespace StackoverflowChatbot.Tests
 					break;
 				}
 				var eventData = EventDataFromContent($"Botler, help {commandName}");
-				_priorityProcessor.ProcessNativeCommand(eventData, out var action);
-				action.Should().NotBeNull();
+				var (_, result) = await _priorityProcessor.ProcessNativeCommand(eventData);
+				result.Should().NotBeNull();
 			}
 		}
 	}

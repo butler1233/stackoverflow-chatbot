@@ -14,7 +14,7 @@ namespace StackoverflowChatbot.CommandProcessors
 		/// <param name="data">The command.</param>
 		/// <param name="action">Executable action on success, otherwise null.</param>
 		/// <returns>Whether or not this processor could process the command.</returns>
-		bool ProcessNativeCommand(ChatMessageEventData data, out IAction? action);
+		Task<(bool, IAction?)> ProcessNativeCommand(ChatMessageEventData data);
 
 		Task<IAction?> ProcessDynamicCommandAsync(ChatMessageEventData data);
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -18,7 +19,10 @@ namespace StackoverflowChatbot.NativeCommands
 
 		public Join(IRoomService roomService) => _roomService = roomService;
 
-		internal override IAction ProcessMessageInternal(ChatMessageEventData data, string[]? parameters)
+		internal override Task<IAction> ProcessMessageInternal(ChatMessageEventData data, string[]? parameters)
+			=> Task.FromResult(BodyOfJoin(data, parameters));
+
+		private IAction BodyOfJoin(ChatMessageEventData data, string[]? parameters)
 		{
 			if (parameters == null || !int.TryParse(parameters[0], out var room) || parameters.Length < 1 || parameters.Length > 1)
 			{

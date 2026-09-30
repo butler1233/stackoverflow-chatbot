@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -15,7 +16,10 @@ namespace StackoverflowChatbot.NativeCommands
 
 		public Leave(IRoomService roomService) => _roomService = roomService;
 
-		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+		internal override Task<IAction> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+			=> Task.FromResult(BodyOfLeave(parameters));
+
+		private IAction BodyOfLeave(string[]? parameters)
 		{
 			if (parameters != null && parameters.Length > 1)
 			{

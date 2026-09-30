@@ -15,29 +15,20 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Shiba: BaseCommand
 	{
-		private readonly ICommandProcessor _commandProcessor;
-		private readonly ICommandFactory _commandFactory;
-
-		public Shiba(ICommandProcessor commandProcessor, ICommandFactory commandFactory)
-		{
-			_commandProcessor = commandProcessor;
-			_commandFactory = commandFactory;
-		}
-
-		internal override IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+		internal override async Task<IAction?> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			var url = "https://shibe.online/api/shibes";
 			string botResponse;
 
-			using (HttpClient client = new HttpClient())
+			using (var client = new HttpClient())
 			{
 				try
 				{
-					HttpResponseMessage response = client.GetAsync(url).Result;
+					var response = await client.GetAsync(url);
 
 					if (response.IsSuccessStatusCode)
 					{
-						var responseBody = response.Content.ReadAsStringAsync().Result;
+						var responseBody = await response.Content.ReadAsStringAsync();
 						var shibaUrl = parseResponse(responseBody);
 						if (shibaUrl == null)
 						{
@@ -78,7 +69,7 @@ namespace StackoverflowChatbot.NativeCommands
 				return null;
 			}
 
-			return response.Substring(start, end - start);
+			return response[start..end];
 		}
 
 		internal override string CommandName() => "shiba";

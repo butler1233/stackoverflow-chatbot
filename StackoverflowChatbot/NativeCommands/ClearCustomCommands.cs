@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -12,10 +13,10 @@ namespace StackoverflowChatbot.NativeCommands
 		public ClearCustomCommands(ICommandStore commandStore) => _commandStore = commandStore;
 		internal override string? CommandDescription() => "Clears all the command learned";
 		internal override string CommandName() => "clear_commands";
-		internal override IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+		internal override Task<IAction?> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			_commandStore.ClearCommands();
-			return new SendMessage("All learned commands cleared.");
+			return Task.FromResult<IAction?>(new SendMessage("All learned commands cleared."));
 		}
 	}
 }
