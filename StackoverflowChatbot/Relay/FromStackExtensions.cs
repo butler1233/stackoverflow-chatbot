@@ -3,9 +3,6 @@ using System.IO;
 using System.Linq;
 using HtmlAgilityPack;
 using System.Text.RegularExpressions;
-using System.Linq;
-using System.Collections.Generic;
-using Discord.WebSocket;
 
 namespace StackoverflowChatbot.Relay
 {
@@ -13,7 +10,7 @@ namespace StackoverflowChatbot.Relay
 	{
 		internal static string ProcessStackMessage(this string message, int roomId, string roomName)
 		{
-			var baseUri = new Uri($"https://chat.stackoverflow.com/rooms/{roomId}/{Uri.EscapeUriString(roomName)}");
+			var baseUri = new Uri($"https://chat.stackoverflow.com/rooms/{roomId}/{System.Web.HttpUtility.UrlEncode(roomName)}");
 			var document = new HtmlDocument();
 			document.LoadHtml(message);
 			var documentNode = document.DocumentNode;

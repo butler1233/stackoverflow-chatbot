@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -9,7 +11,9 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class Config: BaseCommand
 	{
-		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+		internal override Task<IAction> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) => Task.FromResult(BodyOfConfig(eventContext, parameters));
+
+		private IAction BodyOfConfig(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters?.Any() != true)
 				return new SendMessage(
@@ -33,6 +37,7 @@ namespace StackoverflowChatbot.NativeCommands
 				default:
 					return new SendMessage($":{eventContext.MessageId} You're an idiot.");
 			}
+			throw new NotImplementedException();
 		}
 
 		public IAction AddRemoveController(bool add, int controllerId)

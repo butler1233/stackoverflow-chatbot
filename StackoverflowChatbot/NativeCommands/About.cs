@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -10,9 +11,9 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	internal class About: BaseCommand
 	{
-		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) =>
-			new SendMessage(
-				"    Lee Botler: A bot for C# which probably won't work. \r\n    Written by CaptainObvious, based originally on Sandy, by SquirrelKiller. ");
+		internal override Task<IAction> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) =>
+			Task.FromResult<IAction>(new SendMessage(
+				"    Lee Botler: A bot for C# which probably won't work. \r\n    Written by CaptainObvious, based originally on Sandy, by SquirrelKiller. "));
 
 		internal override string CommandName() => "about";
 

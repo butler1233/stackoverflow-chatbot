@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -20,7 +21,10 @@ namespace StackoverflowChatbot.NativeCommands
 			_commandFactory = commandFactory;
 		}
 
-		internal override IAction? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+		internal override Task<IAction>? ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+			=> Task.FromResult(BodyOfHelp(eventContext, parameters));
+
+		private IAction? BodyOfHelp(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters?.Length > 0)
 			{

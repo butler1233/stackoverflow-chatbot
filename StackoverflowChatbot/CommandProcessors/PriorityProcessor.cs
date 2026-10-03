@@ -66,19 +66,18 @@ namespace StackoverflowChatbot.CommandProcessors
 		/// Process the event if a suitable command is found.
 		/// </summary>
 		/// <returns>Whether or not the event was processed.</returns>
-		public bool ProcessNativeCommand(ChatMessageEventData data, out IAction? action)
+		public async Task<(bool, IAction?)> ProcessNativeCommand(ChatMessageEventData data)
 		{
 			if (_nativeCommands.TryGetValue(data.CommandName, out var commandType))
 			{
 				var instance = CreateCommandInstance(commandType);
-				action = instance?.ProcessMessage(data,
+				var action = await instance?.ProcessMessage(data,
 					data.CommandParameters?.Split(" "));
-				return action != null;
+				return (action != null, action);
 			}
 
 			// Why is action getting assigned but is unused?
-			action = null;
-			return false;
+			return (false, null);
 		}
 
 		public bool TryGetNativeCommands(string key, out Type? value) => _nativeCommands.TryGetValue(key, out value);

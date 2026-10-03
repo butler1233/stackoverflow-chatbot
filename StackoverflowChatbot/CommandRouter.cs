@@ -52,13 +52,22 @@ namespace StackoverflowChatbot
 
 		private async Task<IAction?> FindInvokableAction(ChatMessageEventData message)
 		{
-			if (_priorityProcessor.ProcessNativeCommand(message, out var action) ||
-			    _processors.Any(p => p.ProcessNativeCommand(message, out action)))
+			var processNativeCommandResult = await _priorityProcessor.ProcessNativeCommand(message);
+			if (processNativeCommandResult.Item1)
 			{
-				return action;
+				return processNativeCommandResult.Item2;
 			}
 
-			action = await _priorityProcessor.ProcessDynamicCommandAsync(message);
+			foreach (var processor in _processors)
+			{
+				processNativeCommandResult = await processor.ProcessNativeCommand(message);
+				if (processNativeCommandResult.Item1)
+				{
+					return processNativeCommandResult.Item2;
+				}
+			}
+
+			var action = await _priorityProcessor.ProcessDynamicCommandAsync(message);
 			if (action != null)
 			{
 				return action;

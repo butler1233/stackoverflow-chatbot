@@ -6,6 +6,7 @@ using StackoverflowChatbot.Services;
 using System.Net.Http;
 using System.Web;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
+using System.Threading.Tasks;
 
 namespace StackoverflowChatbot.NativeCommands
 {
@@ -20,7 +21,7 @@ namespace StackoverflowChatbot.NativeCommands
             { "de", "http://5.189.153.146:5003/api/tts?text=" }
         }; 
 
-		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) 
+		internal override async Task<IAction> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters) 
         {
             if (parameters == null || parameters.Length == 0)
                 return new SendMessage("you need to provide something that can be read");
@@ -40,11 +41,11 @@ namespace StackoverflowChatbot.NativeCommands
             saneText = saneText.Trim();
 
             var client = new HttpClient();
-            var request = client.GetAsync(_languageApis[language] + HttpUtility.UrlEncode(saneText)).GetAwaiter().GetResult();
-            var file = request.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+            var request = await client.GetAsync(_languageApis[language] + HttpUtility.UrlEncode(saneText));
+            var file = await request.Content.ReadAsByteArrayAsync();
 
             var fileService = new htputFileService();
-            var linkToAudio = fileService.UploadFileAsync(file, "<audio controls=\"controls\" autobuffer=\"autobuffer\" autoplay=\"autoplay\"><source src=\"data:audio/wav;base64,", "\"/></audio>").GetAwaiter().GetResult();
+            var linkToAudio = await fileService.UploadFileAsync(file, "<audio controls=\"controls\" autobuffer=\"autobuffer\" autoplay=\"autoplay\"><source src=\"data:audio/wav;base64,", "\"/></audio>");
             return new SendMessage($"[**TTS**] [{saneText}]({linkToAudio})", $"[**TTS**] {linkToAudio}");
         }
 

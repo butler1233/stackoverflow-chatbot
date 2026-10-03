@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using CSScriptLib;
 using JetBrains.Annotations;
@@ -15,7 +16,10 @@ namespace StackoverflowChatbot.NativeCommands
 	[UsedImplicitly]
 	public class Eval: BaseCommand
 	{
-		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+		internal override Task<IAction> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+			=> Task.FromResult(BodyOfEval(eventContext, parameters));
+
+		private IAction BodyOfEval(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters == null)
 				return new SendMessage("Yeah well I'm not even gonna try to compile that.");

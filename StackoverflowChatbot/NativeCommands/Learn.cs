@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using StackoverflowChatbot.Actions;
 using StackoverflowChatbot.ChatEvents.StackOverflow;
@@ -15,7 +16,7 @@ namespace StackoverflowChatbot.NativeCommands
 
 		public Learn(ICommandStore commandStore) => _commandStore = commandStore;
 
-		internal override IAction ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
+		internal override async Task<IAction> ProcessMessageInternal(ChatMessageEventData eventContext, string[]? parameters)
 		{
 			if (parameters == null || parameters.Length < 2)
 			{
@@ -31,16 +32,15 @@ namespace StackoverflowChatbot.NativeCommands
 				command.ExpectedDynamicCommandArgs = dynamicCommand!.ExpectedArgsCount;
 			}
 
-			_ = _commandStore.AddCommand(command)
-				.ContinueWith(t =>
-				{
-					if (!t.IsFaulted)
-						return;
-					Exception? exception = t.Exception;
-					while (exception is AggregateException aggregateException)
-						exception = aggregateException.InnerException;
-					Console.Write(exception);
-				});
+			try
+			{
+				await _commandStore.AddCommand(command);
+			}
+			catch (Exception ex)
+			{
+				Console.Write(ex);
+			}
+
 			return new SendMessage($"Learned the command {name}");
 		}
 
